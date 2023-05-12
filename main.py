@@ -13,6 +13,7 @@ from qasync import QEventLoop, asyncSlot
 from EdgeGPT import Chatbot
 
 from preset_window import PresetWindow
+from setting_window import SettingWindow
 from snap_window import SnapWindow
 from user_input import UserInput
 from config import Config
@@ -25,6 +26,7 @@ class SydneyWindow(QWidget):
         super().__init__(parent)
         self.snap_window = None
         self.preset_window = None
+        self.setting_window = None
         self.updating_presets = False
         self.config = config
         self.responding = False
@@ -40,10 +42,10 @@ class SydneyWindow(QWidget):
         self.load_button.clicked.connect(self.load_file)
         self.save_button = QPushButton("Save")
         self.save_button.clicked.connect(self.save_file)
-        self.snap_button.setFixedWidth(40)
-        self.reset_button.setFixedWidth(40)
-        self.load_button.setFixedWidth(40)
-        self.save_button.setFixedWidth(40)
+        self.snap_button.setFixedWidth(50)
+        self.reset_button.setFixedWidth(50)
+        self.load_button.setFixedWidth(50)
+        self.save_button.setFixedWidth(50)
         self.send_button = QToolButton()
         self.send_button.setText("Send")
         self.send_button.setSizePolicy(QSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Minimum))
@@ -61,6 +63,10 @@ class SydneyWindow(QWidget):
         self.presets.currentTextChanged.connect(self.presets_changed)
         self.update_presets()
 
+        self.setting_button = QPushButton('Settings')
+        self.setting_button.setFixedWidth(50)
+        self.setting_button.clicked.connect(self.open_setting_window)
+
         upper_half = QWidget()
         upper_half_layout = QVBoxLayout()
         upper_half.setLayout(upper_half_layout)
@@ -68,7 +74,10 @@ class SydneyWindow(QWidget):
         upper_half_layout.addLayout(upper_half_buttons)
         upper_half_buttons.addWidget(QLabel("Chat History:"))
         upper_half_buttons.addStretch()
-        upper_half_buttons.addWidget(QLabel('Presets:'))
+        upper_half_buttons.addWidget(self.setting_button)
+        preset_label = QLabel('Presets:')
+        preset_label.setStyleSheet("padding-left: 10px")
+        upper_half_buttons.addWidget(preset_label)
         upper_half_buttons.addWidget(self.presets)
         action_label = QLabel('Actions:')
         action_label.setStyleSheet("padding-left: 10px")
@@ -137,8 +146,8 @@ class SydneyWindow(QWidget):
                     prompt=user_input,
                     raw=True,
                     webpage_context=self.chat_history.toPlainText(),
-                    conversation_style="creative",
-                    search_result=True,
+                    conversation_style=self.config.cfg['conversation_style'],
+                    search_result=not self.config.cfg['no_search']
             ):
                 if not final and response["type"] == 1 and "messages" in response["arguments"][0]:
                     self.chat_history.moveCursor(QTextCursor.MoveOperation.End)
@@ -180,6 +189,13 @@ class SydneyWindow(QWidget):
         self.set_responding(False)
         self.chat_history.moveCursor(QTextCursor.MoveOperation.End)
         await chatbot.close()
+
+    def update_settings(self):
+        pass
+
+    def open_setting_window(self):
+        self.setting_window = SettingWindow(self.config, on_close=self.update_settings)
+        self.setting_window.show()
 
     def snap_context(self):
         self.snap_window = SnapWindow(self.config, self.chat_history.toPlainText())
