@@ -5,7 +5,7 @@ import signal
 
 import PySide6
 from PySide6.QtCore import Slot
-from PySide6.QtGui import QTextCursor, Qt, QFont
+from PySide6.QtGui import QTextCursor, Qt, QFont, QIcon
 from PySide6.QtWidgets import (
     QApplication,
     QLabel,
@@ -150,6 +150,9 @@ class SydneyWindow(QWidget):
         self.setLayout(layout)
 
         self.resize(560, 450)
+        self.setWindowTitle('SydneyQt')
+        icon = QIcon('binglogo.png')
+        self.setWindowIcon(icon)
 
         self.send_button.clicked.connect(self.send_message)
         self.clear_context()
@@ -160,7 +163,6 @@ class SydneyWindow(QWidget):
             return
         self.set_responding(True)
         user_input = self.user_input.toPlainText()
-        self.user_input.clear()
         self.chat_history.moveCursor(QTextCursor.MoveOperation.End)
         text = self.chat_history.toPlainText()
         if not text.endswith("\n\n"):
@@ -168,7 +170,14 @@ class SydneyWindow(QWidget):
                 self.chat_history.insertPlainText("\n")
             else:
                 self.chat_history.insertPlainText("\n\n")
-        chatbot = await Chatbot.create(cookie_path="cookies.json", proxy=self.config.cfg.get('proxy', None))
+        proxy = self.config.cfg.get('proxy', '')
+        try:
+            chatbot = await Chatbot.create(cookie_path="cookies.json", proxy=proxy if proxy != "" else None)
+        except Exception as e:
+            QErrorMessage(self).showMessage(str(e))
+            self.set_responding(False)
+            return
+        self.user_input.clear()
 
         async def stream_output():
             self.chat_history.moveCursor(QTextCursor.MoveOperation.End)
