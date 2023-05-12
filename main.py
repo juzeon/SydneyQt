@@ -13,6 +13,7 @@ from qasync import QEventLoop, asyncSlot
 from EdgeGPT import Chatbot
 
 from preset_window import PresetWindow
+from snap_window import SnapWindow
 from user_input import UserInput
 from config import Config
 
@@ -22,6 +23,7 @@ signal.signal(signal.SIGINT, signal.SIG_DFL)
 class SydneyWindow(QWidget):
     def __init__(self, config: Config, parent=None):
         super().__init__(parent)
+        self.snap_window = None
         self.preset_window = None
         self.updating_presets = False
         self.config = config
@@ -30,12 +32,15 @@ class SydneyWindow(QWidget):
         self.chat_history = QPlainTextEdit()
         self.chat_history.setFont(QFont("Microsoft YaHei", 11))
         self.user_input = UserInput(self)
+        self.snap_button = QPushButton("Snap")
+        self.snap_button.clicked.connect(self.snap_context)
         self.reset_button = QPushButton("Reset")
         self.reset_button.clicked.connect(self.clear_context)
         self.load_button = QPushButton("Load")
         self.load_button.clicked.connect(self.load_file)
         self.save_button = QPushButton("Save")
         self.save_button.clicked.connect(self.save_file)
+        self.snap_button.setFixedWidth(40)
         self.reset_button.setFixedWidth(40)
         self.load_button.setFixedWidth(40)
         self.save_button.setFixedWidth(40)
@@ -68,6 +73,7 @@ class SydneyWindow(QWidget):
         action_label = QLabel('Actions:')
         action_label.setStyleSheet("padding-left: 10px")
         upper_half_buttons.addWidget(action_label)
+        upper_half_buttons.addWidget(self.snap_button)
         upper_half_buttons.addWidget(self.reset_button)
         upper_half_buttons.addWidget(self.load_button)
         upper_half_buttons.addWidget(self.save_button)
@@ -93,7 +99,7 @@ class SydneyWindow(QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(layout)
 
-        self.resize(560, 450)
+        self.resize(900, 600)
         self.setWindowTitle('SydneyQt')
         icon = QIcon('binglogo.png')
         self.setWindowIcon(icon)
@@ -174,6 +180,10 @@ class SydneyWindow(QWidget):
         self.set_responding(False)
         self.chat_history.moveCursor(QTextCursor.MoveOperation.End)
         await chatbot.close()
+
+    def snap_context(self):
+        self.snap_window = SnapWindow(self.config, self.chat_history.toPlainText())
+        self.snap_window.show()
 
     def clear_context(self):
         self.chat_history.setPlainText(self.config.get_last_preset())

@@ -13,7 +13,7 @@ class PresetWindow(QWidget):
         self.on_close = on_close
         self.config = config
         self.setWindowTitle('Manage Presets')
-        self.resize(550, 400)
+        self.resize(850, 400)
         self.list = QListWidget()
         for name in dict(self.config.cfg['presets']).keys():
             QListWidgetItem(name, self.list)
