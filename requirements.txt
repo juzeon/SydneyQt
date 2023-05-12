@@ -1,0 +1,5 @@
+EdgeGPT
+PySide6
+PySide6_Addons
+PySide6_Essentials
+qasync
