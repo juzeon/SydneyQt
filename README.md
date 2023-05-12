@@ -4,6 +4,8 @@ A Desktop client for New Bing Chatbot (Sydney ver.) based on Python and Qt.
 
 ![](docs/1.png)
 
+![](docs/2.png)
+
 ## Features
 
 - Jailbroken version of New Bing using prompt injection
