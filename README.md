@@ -1,18 +1,10 @@
 # SydneyQt
 
+![SydneyQt](https://socialify.git.ci/juzeon/SydneyQt/image?font=Inter&forks=1&logo=https%3A%2F%2Fupload.wikimedia.org%2Fwikipedia%2Fcommons%2F9%2F9c%2FBing_Fluent_Logo.svg&name=1&owner=1&pattern=Signal&stargazers=1&theme=Light)
+
 A desktop client for New Bing AI (Sydney ver.) based on Python and Qt.
 
 [简体中文](README_zh.md)
-
-## Screenshots
-
-![](docs/1.png)
-
-![](docs/2.png)
-
-![](docs/3.png)
-
-![](docs/4.png)
 
 ## Features
 
@@ -20,6 +12,7 @@ A desktop client for New Bing AI (Sydney ver.) based on Python and Qt.
 - Ability to edit chat context freely.
 - Anti message revoke.
 - Rich and plain text support in snapped context.
+- Browse webpages and ask AI about their content.
 - Multiple custom prompt presets.
 - Highly customizable settings.
 
@@ -42,6 +35,18 @@ pip install -r requirements.txt
 ```bash
 python main.py
 ```
+
+## Screenshots
+
+![](docs/1.png)
+
+![](docs/2.png)
+
+![](docs/3.png)
+
+![](docs/4.png)
+
+![](docs/5.png)
 
 ## Credits
 

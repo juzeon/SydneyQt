@@ -14,6 +14,7 @@ from PySide6.QtWidgets import (
 from qasync import QEventLoop, asyncSlot
 from EdgeGPT import Chatbot
 
+from browse_window import BrowseWindow
 from hyperlink_widget import HyperlinkWidget
 from preset_window import PresetWindow
 from setting_window import SettingWindow
@@ -30,6 +31,7 @@ class SydneyWindow(QWidget):
         self.snap_window = None
         self.preset_window = None
         self.setting_window = None
+        self.browse_window = None
         self.updating_presets = False
         self.config = config
         self.responding = False
@@ -55,7 +57,6 @@ class SydneyWindow(QWidget):
         self.save_button.setFixedWidth(50)
         self.send_button = QToolButton()
         self.send_button.setText("Send")
-        self.send_button.setSizePolicy(QSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Minimum))
         self.send_button.setPopupMode(QToolButton.ToolButtonPopupMode.MenuButtonPopup)
         menu = QMenu(self)
         self.enter_action = menu.addAction("Press Enter to send", lambda: self.set_enter_mode("Enter"))
@@ -105,10 +106,14 @@ class SydneyWindow(QWidget):
         self.suggestion_widget.setLayout(self.suggestion_layout)
         self.suggestion_widget.setVisible(not self.config.cfg.get('no_suggestion'))
 
+        self.browse_button = QPushButton('Browse')
+        self.browse_button.clicked.connect(self.open_browse_window)
+
         bottom_half_layout.addWidget(self.suggestion_widget)
         bottom_half_layout.addLayout(bottom_half_buttons)
         bottom_half_buttons.addWidget(QLabel("Follow-up User Input:"))
         bottom_half_buttons.addStretch()
+        bottom_half_buttons.addWidget(self.browse_button)
         bottom_half_buttons.addWidget(self.send_button)
         bottom_half_layout.addWidget(self.user_input)
 
@@ -143,13 +148,6 @@ class SydneyWindow(QWidget):
         self.set_responding(True)
         self.update_status_text('Creating conversation...')
         user_input = self.user_input.toPlainText()
-        self.chat_history.moveCursor(QTextCursor.MoveOperation.End)
-        text = self.chat_history.toPlainText()
-        if not text.endswith("\n\n"):
-            if text.endswith("\n"):
-                self.chat_history.insertPlainText("\n")
-            else:
-                self.chat_history.insertPlainText("\n\n")
         proxy = self.config.cfg.get('proxy', '')
         try:
             chatbot = await Chatbot.create(cookie_path="cookies.json", proxy=proxy if proxy != "" else None)
@@ -162,9 +160,7 @@ class SydneyWindow(QWidget):
         self.update_status_text('Fetching response...')
 
         async def stream_output():
-            self.chat_history.moveCursor(QTextCursor.MoveOperation.End)
-            self.chat_history.insertPlainText(f"[user](#message)\n{user_input}\n\n")
-            self.chat_history.moveCursor(QTextCursor.MoveOperation.End)
+            self.append_chat_context(f"[user](#message)\n{user_input}\n\n", new_block=True)
             wrote = 0
             async for final, response in chatbot.ask_stream(
                     prompt=user_input,
@@ -211,6 +207,24 @@ class SydneyWindow(QWidget):
         self.set_responding(False)
         self.chat_history.moveCursor(QTextCursor.MoveOperation.End)
         await chatbot.close()
+
+    def append_chat_context(self, text, new_block=False):
+        self.chat_history.moveCursor(QTextCursor.MoveOperation.End)
+        if new_block:
+            history = self.chat_history.toPlainText()
+            if not history.endswith("\n\n"):
+                if history.endswith("\n"):
+                    self.chat_history.insertPlainText("\n")
+                else:
+                    self.chat_history.insertPlainText("\n\n")
+        self.chat_history.insertPlainText(text)
+        self.chat_history.moveCursor(QTextCursor.MoveOperation.End)
+
+    def open_browse_window(self):
+        self.browse_window = BrowseWindow(
+            self.config,
+            on_insert=lambda context: self.append_chat_context(f"[user](#webpage_context)\n{context}\n\n"))
+        self.browse_window.show()
 
     def update_token_count(self):
         count_chat_ctx = len(tiktoken.encoding_for_model('gpt-4').encode(self.chat_history.toPlainText()))
@@ -308,14 +322,11 @@ class SydneyWindow(QWidget):
 
     def set_responding(self, responding):
         self.responding = responding
-        if responding:
-            self.send_button.setEnabled(False)
-            self.load_button.setEnabled(False)
-            self.chat_history.setReadOnly(True)
-        else:
-            self.send_button.setEnabled(True)
-            self.load_button.setEnabled(True)
-            self.chat_history.setReadOnly(False)
+        self.send_button.setEnabled(not responding)
+        self.load_button.setEnabled(not responding)
+        self.chat_history.setReadOnly(responding)
+        self.browse_button.setDisabled(responding)
+        self.reset_button.setDisabled(responding)
 
     def presets_changed(self, new_value: str):
         if self.updating_presets:

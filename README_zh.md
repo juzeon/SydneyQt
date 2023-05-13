@@ -1,16 +1,8 @@
 # SydneyQt
 
+![SydneyQt](https://socialify.git.ci/juzeon/SydneyQt/image?font=Inter&forks=1&logo=https%3A%2F%2Fupload.wikimedia.org%2Fwikipedia%2Fcommons%2F9%2F9c%2FBing_Fluent_Logo.svg&name=1&owner=1&pattern=Signal&stargazers=1&theme=Light)
+
 一个基于Python和Qt的新必应AI（Sydney版）的桌面客户端。
-
-## 截图
-
-![](docs/1.png)
-
-![](docs/2.png)
-
-![](docs/3.png)
-
-![](docs/4.png)
 
 ## 特点
 
@@ -18,6 +10,7 @@
 - 可以自由编辑聊天上下文。
 - 防止消息撤回。
 - 在截取的上下文中支持富文本和纯文本。
+- 浏览网页，并向AI提问网页内容。
 - 多个自定义提示预设。
 - 高度可定制的设置。
 
@@ -40,6 +33,18 @@ pip install -r requirements.txt
 ```bash
 python main.py
 ```
+
+## 截图
+
+![](docs/1.png)
+
+![](docs/2.png)
+
+![](docs/3.png)
+
+![](docs/4.png)
+
+![](docs/5.png)
 
 ## 致谢
 

@@ -4,3 +4,5 @@ PySide6_Addons
 PySide6_Essentials
 qasync
 tiktoken
+requests
+bs4
