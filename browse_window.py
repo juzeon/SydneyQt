@@ -9,19 +9,6 @@ from qasync import asyncSlot
 from config import Config
 
 
-async def fetch_webpage(url: str) -> str:
-    loop = asyncio.get_event_loop()
-    html = await loop.run_in_executor(None, requests.get, url)
-    soup = BeautifulSoup(html.text, features="html.parser")
-    for script in soup(["script", "style"]):
-        script.extract()
-    text = soup.get_text()
-    lines = (line.strip() for line in text.splitlines())
-    chunks = (phrase.strip() for line in lines for phrase in line.split("  "))
-    text = '\n'.join(chunk for chunk in chunks if chunk)
-    return text.replace('\n', '  ')
-
-
 class BrowseWindow(QWidget):
     def __init__(self, config: Config, on_insert: callable([str]) = None):
         super().__init__()
@@ -60,11 +47,31 @@ class BrowseWindow(QWidget):
     async def fetch_button_clicked(self):
         self.set_responding(True)
         try:
-            context = await fetch_webpage(self.url_edit.text())
+            context = await self.fetch_webpage(self.url_edit.text())
             self.webpage_context_edit.setPlainText(context)
         except Exception as e:
             QErrorMessage(self).showMessage(str(e))
         self.set_responding(False)
+
+    async def fetch_webpage(self, url: str) -> str:
+        loop = asyncio.get_event_loop()
+
+        def runner():
+            return requests.get(url, headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) '
+                                                            'Gecko/20100101 Firefox/113.0'},
+                                proxies=dict(
+                                    http=self.config.get('proxy'),
+                                    https=self.config.get('proxy')) if self.config.get('proxy') != '' else None)
+
+        html = await loop.run_in_executor(None, runner)
+        soup = BeautifulSoup(html.text, features="html.parser")
+        for script in soup(["script", "style"]):
+            script.extract()
+        text = soup.get_text()
+        lines = (line.strip() for line in text.splitlines())
+        chunks = (phrase.strip() for line in lines for phrase in line.split("  "))
+        text = '\n'.join(chunk for chunk in chunks if chunk)
+        return text.replace('\n', '  ')
 
     def set_responding(self, responding: bool):
         self.fetch_button.setDisabled(responding)

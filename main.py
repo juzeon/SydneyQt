@@ -148,7 +148,7 @@ class SydneyWindow(QWidget):
         self.set_responding(True)
         self.update_status_text('Creating conversation...')
         user_input = self.user_input.toPlainText()
-        proxy = self.config.cfg.get('proxy', '')
+        proxy = self.config.get('proxy')
         try:
             chatbot = await Chatbot.create(cookie_path="cookies.json", proxy=proxy if proxy != "" else None)
         except Exception as e:
