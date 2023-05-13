@@ -3,6 +3,7 @@
     <meta charset="UTF-8">
     <title>Snap Context</title>
     <script src="marked.js"></script>
+    <script src="js-base64.js"></script>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -13,7 +14,7 @@
     const b64content = `##CONTENT_HERE##`
     const fontSize = parseInt(`##FONT_SIZE_HERE##`) + 3
     const fontFamily = `##FONT_FAMILY_HERE##`
-    let content = atob(b64content)
+    let content = Base64.decode(b64content)
     content = content.replace(/\n+/g, '\n\n')
     content = content.replace(/^\[(.*?)]\(#(.*?)\)/gm, '### \\[$1\\]\\(#$2\\)')
     let contentElem = document.getElementById('content');
