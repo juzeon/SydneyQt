@@ -7,7 +7,7 @@ from PySide6.QtWidgets import (
     QLabel,
     QPushButton,
     QWidget, QPlainTextEdit, QErrorMessage, QHBoxLayout, QFileDialog, QToolButton, QMenu, QSizePolicy, QVBoxLayout,
-    QSplitter, QComboBox
+    QSplitter, QComboBox, QProgressBar
 )
 from qasync import QEventLoop, asyncSlot
 from EdgeGPT import Chatbot
@@ -31,6 +31,7 @@ class SydneyWindow(QWidget):
         self.config = config
         self.responding = False
         self.enter_mode = "Enter"
+        self.status_label = QLabel('Ready.')
         self.chat_history = QPlainTextEdit()
         self.chat_history.setFont(QFont(QFont(self.config.get('font_family'), self.config.get('font_size'))))
         self.user_input = UserInput(self, config=self.config)
@@ -72,7 +73,7 @@ class SydneyWindow(QWidget):
         upper_half.setLayout(upper_half_layout)
         upper_half_buttons = QHBoxLayout()
         upper_half_layout.addLayout(upper_half_buttons)
-        upper_half_buttons.addWidget(QLabel("Chat History:"))
+        upper_half_buttons.addWidget(QLabel("Chat Context:"))
         upper_half_buttons.addStretch()
         upper_half_buttons.addWidget(self.setting_button)
         preset_label = QLabel('Preset:')
@@ -82,8 +83,8 @@ class SydneyWindow(QWidget):
         action_label = QLabel('Actions:')
         action_label.setStyleSheet("padding-left: 10px")
         upper_half_buttons.addWidget(action_label)
-        upper_half_buttons.addWidget(self.snap_button)
         upper_half_buttons.addWidget(self.reset_button)
+        upper_half_buttons.addWidget(self.snap_button)
         upper_half_buttons.addWidget(self.load_button)
         upper_half_buttons.addWidget(self.save_button)
         upper_half_layout.addWidget(self.chat_history)
@@ -93,10 +94,11 @@ class SydneyWindow(QWidget):
         bottom_half.setLayout(bottom_half_layout)
         bottom_half_buttons = QHBoxLayout()
         bottom_half_layout.addLayout(bottom_half_buttons)
-        bottom_half_buttons.addWidget(QLabel("User Input:"))
+        bottom_half_buttons.addWidget(QLabel("Follow-up User Input:"))
         bottom_half_buttons.addStretch()
         bottom_half_buttons.addWidget(self.send_button)
         bottom_half_layout.addWidget(self.user_input)
+        bottom_half_layout.addWidget(self.status_label)
 
         self.splitter = QSplitter(Qt.Orientation.Vertical)
         self.splitter.addWidget(upper_half)
@@ -121,6 +123,7 @@ class SydneyWindow(QWidget):
         if self.responding:
             return
         self.set_responding(True)
+        self.update_status_text('Creating conversation...')
         user_input = self.user_input.toPlainText()
         self.chat_history.moveCursor(QTextCursor.MoveOperation.End)
         text = self.chat_history.toPlainText()
@@ -134,9 +137,11 @@ class SydneyWindow(QWidget):
             chatbot = await Chatbot.create(cookie_path="cookies.json", proxy=proxy if proxy != "" else None)
         except Exception as e:
             QErrorMessage(self).showMessage(str(e))
+            self.update_status_text('Error: '+str(e))
             self.set_responding(False)
             return
         self.user_input.clear()
+        self.update_status_text('Fetching response...')
 
         async def stream_output():
             self.chat_history.moveCursor(QTextCursor.MoveOperation.End)
@@ -186,9 +191,15 @@ class SydneyWindow(QWidget):
             await stream_output()
         except Exception as e:
             QErrorMessage(self).showMessage(str(e))
+            self.update_status_text('Error: '+str(e))
+        else:
+            self.update_status_text('Ready.')
         self.set_responding(False)
         self.chat_history.moveCursor(QTextCursor.MoveOperation.End)
         await chatbot.close()
+
+    def update_status_text(self, text: str):
+        self.status_label.setText(text)
 
     def update_settings(self):
         pass
@@ -230,6 +241,7 @@ class SydneyWindow(QWidget):
         self.presets.addItems(['----', '<Edit>'])
         self.updating_presets = False
         self.presets.setCurrentText(self.config.cfg.get('last_preset', 'sydney'))
+        self.update_status_text('Preset list updated successfully.')
 
     def set_enter_mode(self, key):
         if key == "Enter":
@@ -267,6 +279,7 @@ class SydneyWindow(QWidget):
             self.preset_window.show()
             return
         self.config.cfg['last_preset'] = last_preset
+        self.update_status_text('Preset changed. Click `Reset` to reset chat context.')
         self.config.save()
 
 
