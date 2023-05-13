@@ -2,6 +2,10 @@
 
 A desktop client for New Bing AI (Sydney ver.) based on Python and Qt.
 
+[简体中文](README_zh.md)
+
+## Screenshots
+
 ![](docs/1.png)
 
 ![](docs/2.png)
