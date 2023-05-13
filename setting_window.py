@@ -14,15 +14,22 @@ class SettingWindow(QWidget):
         self.font = QFont(config.get('font_family'), config.get('font_size'))
 
         self.proxy_edit = QLineEdit()
+        self.proxy_edit.setToolTip('Example: socks5h://127.0.0.1:7890')
         self.conversation_style = QComboBox()
         self.conversation_style.addItems(["creative", "balanced", "precise"])
+        self.conversation_style.setToolTip('Balanced mode uses GPT-3.5, '
+                                           'while creative mode and precise mode use GPT-4.')
         self.no_suggestion_checkbox = QCheckBox()
+        self.no_suggestion_checkbox.setToolTip('Do no fill suggestions into the context if enabled. '
+                                               'Note that suggestions will still be generated in the background.')
         self.no_search_checkbox = QCheckBox()
-        self.no_search_checkbox.setToolTip('''Do no fill search result into the context if enabled. 
-Note that web search will still be performed in the background.''')
+        self.no_search_checkbox.setToolTip('Do no fill search result into the context if enabled. '
+                                           'Note that web search will still be performed in the background.')
         self.font_button = QPushButton('Select')
+        self.font_button.setToolTip('Open a dialog to adjust font settings.')
         self.font_button.clicked.connect(self.open_font_dialog)
         self.stretch_factor = QSpinBox()
+        self.stretch_factor.setToolTip('Adjust the height of the chat context box.')
         self.stretch_factor.setMinimum(1)
         self.stretch_factor.setMaximum(10)
 
@@ -38,6 +45,7 @@ Note that web search will still be performed in the background.''')
         self.save_button.clicked.connect(self.save_config)
 
         layout = QVBoxLayout()
+        layout.addWidget(QLabel('Note: Hover to show tooltips of options.'))
         layout.addLayout(form_layout)
         bottom_layout = QHBoxLayout()
         bottom_layout.addStretch()
