@@ -98,7 +98,6 @@ class SydneyWindow(QWidget):
 
         self.suggestion_layout = QHBoxLayout()
         self.suggestion_layout.setContentsMargins(0, 0, 0, 0)
-        self.set_suggestion_line()
         self.suggestion_widget = QWidget()
         self.suggestion_widget.setLayout(self.suggestion_layout)
         self.suggestion_widget.setVisible(not self.config.cfg.get('no_suggestion'))
@@ -252,6 +251,7 @@ class SydneyWindow(QWidget):
 
     def clear_context(self):
         self.chat_history.setPlainText(self.config.get_last_preset())
+        self.set_suggestion_line()
 
     def load_file(self):
         file_dialog = QFileDialog(self)
