@@ -67,7 +67,6 @@ class SydneyWindow(QWidget):
         self.update_presets()
 
         self.setting_button = QPushButton('Settings')
-        self.setting_button.setFixedWidth(50)
         self.setting_button.clicked.connect(self.open_setting_window)
 
         upper_half = QWidget()

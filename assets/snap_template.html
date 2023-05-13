@@ -1,0 +1,66 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Snap Context</title>
+    <script src="marked.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="content">
+    Loading...
+</div>
+<script>
+    const b64content = `##CONTENT_HERE##`
+    const fontSize = parseInt(`##FONT_SIZE_HERE##`) + 3
+    const fontFamily = `##FONT_FAMILY_HERE##`
+    let content = atob(b64content)
+    content = content.replace(/\n+/g, '\n\n')
+    content = content.replace(/^\[(.*?)]\(#(.*?)\)/gm, '### \\[$1\\]\\(#$2\\)')
+    let contentElem = document.getElementById('content');
+    contentElem.innerHTML = marked.parse(content)
+    contentElem.setAttribute('style', 'font-family: "' + fontFamily + '";font-size: ' + fontSize + 'px;')
+    window.scrollTo(0, document.body.scrollHeight)
+
+    const copyButtonLabel = "Copy Code"
+    let blocks = document.querySelectorAll("pre")
+    blocks.forEach((block) => {
+        if (navigator.clipboard) {
+            let button = document.createElement("button");
+            button.innerText = copyButtonLabel
+            block.appendChild(button)
+            button.addEventListener("click", async () => {
+                await copyCode(block, button);
+            })
+        }
+    })
+
+    async function copyCode(block, button) {
+        let text = block.querySelector("code").innerText
+        fallbackCopyTextToClipboard(text)
+        button.innerText = "Code Copied"
+        setTimeout(() => {
+            button.innerText = copyButtonLabel;
+        }, 700)
+    }
+
+    function fallbackCopyTextToClipboard(text) {
+        let textArea = document.createElement("textarea");
+        textArea.value = text;
+        textArea.style.top = "0";
+        textArea.style.left = "0";
+        textArea.style.position = "fixed";
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        try {
+            let successful = document.execCommand('copy');
+            let msg = successful ? 'successful' : 'unsuccessful';
+            console.log('Fallback: Copying text command was ' + msg);
+        } catch (err) {
+            console.error('Fallback: Oops, unable to copy', err);
+        }
+        document.body.removeChild(textArea);
+    }
+</script>
+</body>
+</html>

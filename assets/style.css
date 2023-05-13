@@ -1,0 +1,33 @@
+*,
+*:before,
+*:after {
+  box-sizing: border-box;
+}
+
+pre {
+  position: relative;
+  overflow: auto;
+  margin: 5px 0;
+  padding: 1.75rem 0 1.75rem 1rem;
+  border-radius: 10px;
+  background: black;
+  color: white;
+}
+
+pre button {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+
+  font-size: 0.9rem;
+  padding: 0.15rem;
+  background-color: #b1b1b1;
+  border: ridge 1px #7b7b7c;
+  border-radius: 5px;
+  text-shadow: #e8e8e8 0 0 2px;
+}
+
+pre button:hover {
+  cursor: pointer;
+  background-color: #bcbabb;
+}
