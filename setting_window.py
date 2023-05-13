@@ -45,7 +45,8 @@ class SettingWindow(QWidget):
         self.save_button.clicked.connect(self.save_config)
 
         layout = QVBoxLayout()
-        layout.addWidget(QLabel('Note: Hover to show tooltips of options.'))
+        layout.addWidget(QLabel('Note: Hover to show tooltips of options. \n'
+                                'Settings marked with (*) need a restart to be applied.'))
         layout.addLayout(form_layout)
         bottom_layout = QHBoxLayout()
         bottom_layout.addStretch()
