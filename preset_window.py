@@ -19,7 +19,7 @@ class PresetWindow(QWidget):
             QListWidgetItem(name, self.list)
 
         self.editor = QPlainTextEdit()
-        self.editor.setFont(QFont("Microsoft YaHei", 11))
+        self.editor.setFont(QFont(self.config.get('font_family'), self.config.get('font_size')))
         self.editor.textChanged.connect(self.editor_text_changed)
 
         self.add_button = QPushButton('Add')

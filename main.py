@@ -32,8 +32,8 @@ class SydneyWindow(QWidget):
         self.responding = False
         self.enter_mode = "Enter"
         self.chat_history = QPlainTextEdit()
-        self.chat_history.setFont(QFont("Microsoft YaHei", 11))
-        self.user_input = UserInput(self)
+        self.chat_history.setFont(QFont(QFont(self.config.get('font_family'), self.config.get('font_size'))))
+        self.user_input = UserInput(self, config=self.config)
         self.snap_button = QPushButton("Snap")
         self.snap_button.clicked.connect(self.snap_context)
         self.reset_button = QPushButton("Reset")
@@ -75,7 +75,7 @@ class SydneyWindow(QWidget):
         upper_half_buttons.addWidget(QLabel("Chat History:"))
         upper_half_buttons.addStretch()
         upper_half_buttons.addWidget(self.setting_button)
-        preset_label = QLabel('Presets:')
+        preset_label = QLabel('Preset:')
         preset_label.setStyleSheet("padding-left: 10px")
         upper_half_buttons.addWidget(preset_label)
         upper_half_buttons.addWidget(self.presets)
