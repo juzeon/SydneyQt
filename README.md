@@ -8,13 +8,16 @@ A desktop client for New Bing AI (Sydney ver.) based on Python and Qt.
 
 ![](docs/3.png)
 
+![](docs/4.png)
+
 ## Features
 
-- Jailbroken version of New Bing using prompt injection
-- Ability to edit chat context freely
-- Anti message revoke
-- Multiple custom prompt presets
-- Highly customizable settings
+- Jailbroken version of New Bing using prompt injection.
+- Ability to edit chat context freely.
+- Anti message revoke.
+- Rich and plain text support in snapped context.
+- Multiple custom prompt presets.
+- Highly customizable settings.
 
 ## Usage
 
