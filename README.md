@@ -1,6 +1,6 @@
 # SydneyQt
 
-A Desktop client for New Bing Chatbot (Sydney ver.) based on Python and Qt.
+A desktop client for New Bing AI (Sydney ver.) based on Python and Qt.
 
 ![](docs/1.png)
 
@@ -9,6 +9,8 @@ A Desktop client for New Bing Chatbot (Sydney ver.) based on Python and Qt.
 ## Features
 
 - Jailbroken version of New Bing using prompt injection
+- Ability to edit chat history freely
+- Anti message revoke
 - Multiple custom prompt presets
 - Highly customizable settings
 
