@@ -20,7 +20,7 @@ class SettingWindow(QWidget):
         self.conversation_style.setToolTip('Balanced mode uses GPT-3.5, '
                                            'while creative mode and precise mode use GPT-4.')
         self.no_suggestion_checkbox = QCheckBox()
-        self.no_suggestion_checkbox.setToolTip('Do no fill suggestions into the context if enabled. '
+        self.no_suggestion_checkbox.setToolTip('Do no show suggestion links if enabled. '
                                                'Note that suggestions will still be generated in the background.')
         self.no_search_checkbox = QCheckBox()
         self.no_search_checkbox.setToolTip('Do no fill search result into the context if enabled. '

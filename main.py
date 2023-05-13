@@ -1,5 +1,6 @@
 import asyncio
 import signal
+from typing import List
 
 from PySide6.QtGui import QTextCursor, Qt, QFont, QIcon
 from PySide6.QtWidgets import (
@@ -7,11 +8,12 @@ from PySide6.QtWidgets import (
     QLabel,
     QPushButton,
     QWidget, QPlainTextEdit, QErrorMessage, QHBoxLayout, QFileDialog, QToolButton, QMenu, QSizePolicy, QVBoxLayout,
-    QSplitter, QComboBox, QProgressBar
+    QSplitter, QComboBox, QProgressBar, QSpacerItem, QLayout
 )
 from qasync import QEventLoop, asyncSlot
 from EdgeGPT import Chatbot
 
+from hyperlink_widget import HyperlinkWidget
 from preset_window import PresetWindow
 from setting_window import SettingWindow
 from snap_window import SnapWindow
@@ -93,6 +95,15 @@ class SydneyWindow(QWidget):
         bottom_half_layout = QVBoxLayout()
         bottom_half.setLayout(bottom_half_layout)
         bottom_half_buttons = QHBoxLayout()
+
+        self.suggestion_layout = QHBoxLayout()
+        self.suggestion_layout.setContentsMargins(0, 0, 0, 0)
+        self.set_suggestion_line()
+        self.suggestion_widget = QWidget()
+        self.suggestion_widget.setLayout(self.suggestion_layout)
+        self.suggestion_widget.setVisible(not self.config.cfg.get('no_suggestion'))
+
+        bottom_half_layout.addWidget(self.suggestion_widget)
         bottom_half_layout.addLayout(bottom_half_buttons)
         bottom_half_buttons.addWidget(QLabel("Follow-up User Input:"))
         bottom_half_buttons.addStretch()
@@ -137,7 +148,7 @@ class SydneyWindow(QWidget):
             chatbot = await Chatbot.create(cookie_path="cookies.json", proxy=proxy if proxy != "" else None)
         except Exception as e:
             QErrorMessage(self).showMessage(str(e))
-            self.update_status_text('Error: '+str(e))
+            self.update_status_text('Error: ' + str(e))
             self.set_responding(False)
             return
         self.user_input.clear()
@@ -146,6 +157,7 @@ class SydneyWindow(QWidget):
         async def stream_output():
             self.chat_history.moveCursor(QTextCursor.MoveOperation.End)
             self.chat_history.insertPlainText(f"[user](#message)\n{user_input}\n\n")
+            self.chat_history.moveCursor(QTextCursor.MoveOperation.End)
             wrote = 0
             async for final, response in chatbot.ask_stream(
                     prompt=user_input,
@@ -177,12 +189,7 @@ class SydneyWindow(QWidget):
                                 if "suggestedResponses" in message:
                                     suggested_responses = list(
                                         map(lambda x: x["text"], message["suggestedResponses"]))
-                                    suggestion_text = f"""\n[assistant](#suggestions)
-```json
-{{"suggestedUserResponses": {suggested_responses}}}
-```\n\n"""
-                                    if not self.config.cfg['no_suggestion']:
-                                        self.chat_history.insertPlainText(suggestion_text)
+                                    self.set_suggestion_line(suggested_responses)
                                     break
                 if final and not response["item"]["messages"][-1].get("text"):
                     raise Exception("Looks like the user message has triggered the Bing filter")
@@ -191,12 +198,40 @@ class SydneyWindow(QWidget):
             await stream_output()
         except Exception as e:
             QErrorMessage(self).showMessage(str(e))
-            self.update_status_text('Error: '+str(e))
+            self.update_status_text('Error: ' + str(e))
         else:
             self.update_status_text('Ready.')
         self.set_responding(False)
         self.chat_history.moveCursor(QTextCursor.MoveOperation.End)
         await chatbot.close()
+
+    def clear_layout(self, layout: QLayout):
+        while layout.count() > 0:
+            item = layout.takeAt(0)
+            if item.widget():
+                item.widget().deleteLater()
+            elif item.layout():
+                self.clear_layout(item.layout())
+            del item
+
+    def set_suggestion_line(self, suggestions=None):
+        self.clear_layout(self.suggestion_layout)
+        self.suggestion_layout.addWidget(QLabel('Suggestions: '))
+        if suggestions:
+            for suggestion in suggestions:
+                def make_hyperlink_clicked(s):
+                    def hyperlink_clicked():
+                        self.user_input.setPlainText(s)
+                        self.set_suggestion_line()
+                        self.send_message()
+
+                    return hyperlink_clicked
+
+                self.suggestion_layout.addWidget(
+                    HyperlinkWidget(suggestion, on_clicked=make_hyperlink_clicked(suggestion)))
+        else:
+            self.suggestion_layout.addWidget(QLabel('<Not available>'))
+        self.suggestion_layout.addItem(QSpacerItem(0, 0, QSizePolicy.Expanding, QSizePolicy.Minimum))
 
     def update_status_text(self, text: str):
         self.status_label.setText(text)
@@ -204,6 +239,7 @@ class SydneyWindow(QWidget):
     def update_settings(self):
         self.chat_history.setFont(QFont(self.config.get('font_family'), self.config.get('font_size')))
         self.user_input.setFont(QFont(self.config.get('font_family'), self.config.get('font_size')))
+        self.suggestion_widget.setVisible(not self.config.cfg.get('no_suggestion'))
         self.update_status_text('Settings updated successfully.')
 
     def open_setting_window(self):
