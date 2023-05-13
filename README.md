@@ -6,6 +6,8 @@ A desktop client for New Bing AI (Sydney ver.) based on Python and Qt.
 
 ![](docs/2.png)
 
+![](docs/3.png)
+
 ## Features
 
 - Jailbroken version of New Bing using prompt injection
