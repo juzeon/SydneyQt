@@ -1,7 +1,7 @@
 from PySide6.QtCore import Slot
 from PySide6.QtGui import QCloseEvent, QFont
 from PySide6.QtWidgets import QWidget, QFormLayout, QLabel, QLineEdit, QCheckBox, QVBoxLayout, QHBoxLayout, QPushButton, \
-    QMessageBox, QComboBox, QFontDialog
+    QMessageBox, QComboBox, QFontDialog, QSpinBox
 
 from config import Config
 
@@ -22,13 +22,17 @@ class SettingWindow(QWidget):
 Note that web search will still be performed in the background.''')
         self.font_button = QPushButton('Select')
         self.font_button.clicked.connect(self.open_font_dialog)
+        self.stretch_factor = QSpinBox()
+        self.stretch_factor.setMinimum(1)
+        self.stretch_factor.setMaximum(10)
 
         form_layout = QFormLayout()
         form_layout.addRow(QLabel('Proxy:'), self.proxy_edit)
         form_layout.addRow(QLabel('Conversation Style:'), self.conversation_style)
         form_layout.addRow(QLabel('No Suggestion:'), self.no_suggestion_checkbox)
         form_layout.addRow(QLabel('No Search Result:'), self.no_search_checkbox)
-        form_layout.addRow(QLabel('(*) Font Family and Size:'), self.font_button)
+        form_layout.addRow(QLabel('Font Family and Size:'), self.font_button)
+        form_layout.addRow(QLabel('(*) Stretch Factor of Chat Context Box: '), self.stretch_factor)
 
         self.save_button = QPushButton('Save')
         self.save_button.clicked.connect(self.save_config)
@@ -51,6 +55,7 @@ Note that web search will still be performed in the background.''')
         self.conversation_style.setCurrentText(self.config.cfg['conversation_style'])
         self.no_suggestion_checkbox.setChecked(self.config.cfg['no_suggestion'])
         self.no_search_checkbox.setChecked(self.config.cfg['no_search'])
+        self.stretch_factor.setValue(self.config.get('stretch_factor'))
 
     @Slot()
     def open_font_dialog(self):
@@ -68,6 +73,7 @@ Note that web search will still be performed in the background.''')
         self.config.cfg['no_search'] = self.no_search_checkbox.isChecked()
         self.config.cfg['font_family'] = self.font.family()
         self.config.cfg['font_size'] = self.font.pointSize()
+        self.config.cfg['stretch_factor'] = self.stretch_factor.value()
         self.config.save()
         msg = QMessageBox()
         msg.setIcon(QMessageBox.Icon.Information)

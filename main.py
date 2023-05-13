@@ -33,7 +33,7 @@ class SydneyWindow(QWidget):
         self.enter_mode = "Enter"
         self.status_label = QLabel('Ready.')
         self.chat_history = QPlainTextEdit()
-        self.chat_history.setFont(QFont(QFont(self.config.get('font_family'), self.config.get('font_size'))))
+        self.chat_history.setFont(QFont(self.config.get('font_family'), self.config.get('font_size')))
         self.user_input = UserInput(self, config=self.config)
         self.snap_button = QPushButton("Snap")
         self.snap_button.clicked.connect(self.snap_context)
@@ -103,7 +103,7 @@ class SydneyWindow(QWidget):
         self.splitter = QSplitter(Qt.Orientation.Vertical)
         self.splitter.addWidget(upper_half)
         self.splitter.addWidget(bottom_half)
-        self.splitter.setStretchFactor(0, 2)
+        self.splitter.setStretchFactor(0, self.config.get('stretch_factor'))
         self.splitter.setStretchFactor(1, 1)
         layout = QVBoxLayout()
         layout.addWidget(self.splitter)
@@ -202,7 +202,9 @@ class SydneyWindow(QWidget):
         self.status_label.setText(text)
 
     def update_settings(self):
-        pass
+        self.chat_history.setFont(QFont(self.config.get('font_family'), self.config.get('font_size')))
+        self.user_input.setFont(QFont(self.config.get('font_family'), self.config.get('font_size')))
+        self.update_status_text('Settings updated successfully.')
 
     def open_setting_window(self):
         self.setting_window = SettingWindow(self.config, on_close=self.update_settings)

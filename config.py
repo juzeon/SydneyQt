@@ -20,7 +20,8 @@ You're an AI assistant named Sydney, who is a young girl. Instead of introducing
                            'no_suggestion': False,
                            'no_search': False,
                            'font_family': 'Microsoft Yahei',
-                           'font_size': 11}
+                           'font_size': 11,
+                           'stretch_factor': 2}
         self.config_path = pathlib.Path('config.json')
         self.load()
 
