@@ -2,13 +2,14 @@ import asyncio
 import signal
 from typing import List
 
+import tiktoken
 from PySide6.QtGui import QTextCursor, Qt, QFont, QIcon
 from PySide6.QtWidgets import (
     QApplication,
     QLabel,
     QPushButton,
     QWidget, QPlainTextEdit, QErrorMessage, QHBoxLayout, QFileDialog, QToolButton, QMenu, QSizePolicy, QVBoxLayout,
-    QSplitter, QComboBox, QProgressBar, QSpacerItem, QLayout
+    QSplitter, QComboBox, QProgressBar, QSpacerItem, QLayout, QStatusBar
 )
 from qasync import QEventLoop, asyncSlot
 from EdgeGPT import Chatbot
@@ -34,9 +35,12 @@ class SydneyWindow(QWidget):
         self.responding = False
         self.enter_mode = "Enter"
         self.status_label = QLabel('Ready.')
+        self.token_count_label = QLabel('Token Count')
         self.chat_history = QPlainTextEdit()
+        self.chat_history.textChanged.connect(self.update_token_count)
         self.chat_history.setFont(QFont(self.config.get('font_family'), self.config.get('font_size')))
         self.user_input = UserInput(self, config=self.config)
+        self.user_input.textChanged.connect(self.update_token_count)
         self.snap_button = QPushButton("Snap")
         self.snap_button.clicked.connect(self.snap_context)
         self.reset_button = QPushButton("Reset")
@@ -107,7 +111,12 @@ class SydneyWindow(QWidget):
         bottom_half_buttons.addStretch()
         bottom_half_buttons.addWidget(self.send_button)
         bottom_half_layout.addWidget(self.user_input)
-        bottom_half_layout.addWidget(self.status_label)
+
+        self.status_bar = QStatusBar()
+        self.status_bar.addWidget(self.status_label)
+        self.status_bar.addPermanentWidget(self.token_count_label)
+
+        bottom_half_layout.addWidget(self.status_bar)
 
         self.splitter = QSplitter(Qt.Orientation.Vertical)
         self.splitter.addWidget(upper_half)
@@ -202,6 +211,11 @@ class SydneyWindow(QWidget):
         self.set_responding(False)
         self.chat_history.moveCursor(QTextCursor.MoveOperation.End)
         await chatbot.close()
+
+    def update_token_count(self):
+        count_chat_ctx = len(tiktoken.encoding_for_model('gpt-4').encode(self.chat_history.toPlainText()))
+        count_user_input = len(tiktoken.encoding_for_model('gpt-4').encode(self.user_input.toPlainText()))
+        self.token_count_label.setText(f'Chat Context: {count_chat_ctx} tokens; User Input: {count_user_input} tokens.')
 
     def clear_layout(self, layout: QLayout):
         while layout.count() > 0:
