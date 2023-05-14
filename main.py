@@ -229,7 +229,7 @@ class SydneyWindow(QWidget):
     def open_browse_window(self):
         self.browse_window = BrowseWindow(
             self.config,
-            on_insert=lambda context: self.append_chat_context(f"[user](#webpage_context)\n{context}\n\n"))
+            on_insert=lambda context: self.append_chat_context(f"[user](#webpage_context)\n```\n{context}\n```\n\n"))
         self.browse_window.show()
 
     def update_token_count(self):
