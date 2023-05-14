@@ -1,5 +1,7 @@
 import json
 import re
+
+import docx2txt
 import pdfminer.high_level
 import pptx
 from pptx.enum.shapes import MSO_SHAPE_TYPE
@@ -28,4 +30,10 @@ def read_pptx_text(filename: str) -> str:
 def read_pdf_text(filename: str) -> str:
     return json.dumps(
         re.sub('[　 \\t]+', ' ', re.sub("\\n+", '\n', pdfminer.high_level.extract_text(filename))).strip(),
+        ensure_ascii=False)
+
+
+def read_docx_text(filename: str) -> str:
+    return json.dumps(
+        re.sub('[　 \\t]+', ' ', re.sub("\\n+", '\n', docx2txt.process(filename))).strip(),
         ensure_ascii=False)
