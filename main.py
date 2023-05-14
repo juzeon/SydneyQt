@@ -16,7 +16,7 @@ from qasync import QEventLoop, asyncSlot
 from EdgeGPT import Chatbot
 
 from browse_window import BrowseWindow
-from document import read_pptx_text
+from document import read_pptx_text, read_pdf_text
 from hyperlink_widget import HyperlinkWidget
 from preset_window import PresetWindow
 from setting_window import SettingWindow
@@ -286,21 +286,30 @@ class SydneyWindow(QWidget):
         self.chat_history.setPlainText(self.config.get_last_preset())
         self.set_suggestion_line()
 
-    def open_document(self):
+    @asyncSlot()
+    async def open_document(self):
         file_dialog = QFileDialog(self)
-        file_dialog.setNameFilters(["Presentation File (*.pptx)"])
+        file_dialog.setWindowTitle('Open a document to chat with it')
+        file_dialog.setNameFilters(["Document files (*.pptx *.pdf)"])
         file_dialog.setAcceptMode(QFileDialog.AcceptMode.AcceptOpen)
         if file_dialog.exec():
+            self.set_responding(True)
+            self.update_status_text('Loading document...')
+            loop_local = asyncio.get_event_loop()
             file_name = file_dialog.selectedFiles()[0]
             ext = pathlib.Path(file_name).suffix
             try:
                 if ext == ".pptx":
-                    text = read_pptx_text(file_name)
+                    text = await loop_local.run_in_executor(None, read_pptx_text, file_name)
                     self.append_chat_context(f'[user](#ppt_slide_context)\n{text}\n\n')
+                elif ext == ".pdf":
+                    text = await loop_local.run_in_executor(None, read_pdf_text, file_name)
+                    self.append_chat_context(f'[user](#pdf_document_context)\n{text}\n\n')
                 else:
                     QErrorMessage(self).showMessage('Unsupported file type')
             except Exception as e:
                 QErrorMessage(self).showMessage(str(e))
+            self.set_responding(False)
 
     def load_file(self):
         file_dialog = QFileDialog(self)

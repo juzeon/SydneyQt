@@ -7,3 +7,4 @@ tiktoken
 requests
 bs4
 python-pptx
+pdfminer.six
