@@ -1,4 +1,5 @@
 import asyncio
+import json
 
 import requests
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLineEdit, QPushButton, QLabel, QPlainTextEdit, \
@@ -71,7 +72,7 @@ class BrowseWindow(QWidget):
         lines = (line.strip() for line in text.splitlines())
         chunks = (phrase.strip() for line in lines for phrase in line.split("  "))
         text = '\n'.join(chunk for chunk in chunks if chunk)
-        return text.replace('\n', '  ')
+        return json.dumps(text, ensure_ascii=False)
 
     def set_responding(self, responding: bool):
         self.fetch_button.setDisabled(responding)
