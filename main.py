@@ -320,6 +320,8 @@ class SydneyWindow(QWidget):
                     QErrorMessage(self).showMessage('Unsupported file type')
             except Exception as e:
                 QErrorMessage(self).showMessage(str(e))
+            else:
+                self.update_status_text(f'Loaded a {ext} document successfully.')
             self.set_responding(False)
 
     def load_file(self):
