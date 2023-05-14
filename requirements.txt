@@ -6,3 +6,4 @@ qasync
 tiktoken
 requests
 bs4
+python-pptx

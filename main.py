@@ -1,4 +1,5 @@
 import asyncio
+import pathlib
 import signal
 from typing import List
 
@@ -15,6 +16,7 @@ from qasync import QEventLoop, asyncSlot
 from EdgeGPT import Chatbot
 
 from browse_window import BrowseWindow
+from document import read_pptx_text
 from hyperlink_widget import HyperlinkWidget
 from preset_window import PresetWindow
 from setting_window import SettingWindow
@@ -106,6 +108,9 @@ class SydneyWindow(QWidget):
         self.suggestion_widget.setLayout(self.suggestion_layout)
         self.suggestion_widget.setVisible(not self.config.cfg.get('no_suggestion'))
 
+        self.document_button = QPushButton('Document')
+        self.document_button.clicked.connect(self.open_document)
+
         self.browse_button = QPushButton('Browse')
         self.browse_button.clicked.connect(self.open_browse_window)
 
@@ -113,6 +118,7 @@ class SydneyWindow(QWidget):
         bottom_half_layout.addLayout(bottom_half_buttons)
         bottom_half_buttons.addWidget(QLabel("Follow-up User Input:"))
         bottom_half_buttons.addStretch()
+        bottom_half_buttons.addWidget(self.document_button)
         bottom_half_buttons.addWidget(self.browse_button)
         bottom_half_buttons.addWidget(self.send_button)
         bottom_half_layout.addWidget(self.user_input)
@@ -280,6 +286,22 @@ class SydneyWindow(QWidget):
         self.chat_history.setPlainText(self.config.get_last_preset())
         self.set_suggestion_line()
 
+    def open_document(self):
+        file_dialog = QFileDialog(self)
+        file_dialog.setNameFilters(["Presentation File (*.pptx)"])
+        file_dialog.setAcceptMode(QFileDialog.AcceptMode.AcceptOpen)
+        if file_dialog.exec():
+            file_name = file_dialog.selectedFiles()[0]
+            ext = pathlib.Path(file_name).suffix
+            try:
+                if ext == ".pptx":
+                    text = read_pptx_text(file_name)
+                    self.append_chat_context(f'[user](#ppt_slide_context)\n{text}\n\n')
+                else:
+                    QErrorMessage(self).showMessage('Unsupported file type')
+            except Exception as e:
+                QErrorMessage(self).showMessage(str(e))
+
     def load_file(self):
         file_dialog = QFileDialog(self)
         file_dialog.setNameFilters(["Text files (*.txt)", "All files (*)"])
@@ -326,6 +348,7 @@ class SydneyWindow(QWidget):
         self.load_button.setEnabled(not responding)
         self.chat_history.setReadOnly(responding)
         self.browse_button.setDisabled(responding)
+        self.document_button.setDisabled(responding)
         self.reset_button.setDisabled(responding)
 
     def presets_changed(self, new_value: str):
