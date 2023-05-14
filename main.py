@@ -309,13 +309,13 @@ class SydneyWindow(QWidget):
             try:
                 if ext == ".pptx":
                     text = await loop_local.run_in_executor(None, read_pptx_text, file_name)
-                    self.append_chat_context(f'[user](#pptx_slide_context)\n```\n{text}\n```\n\n', new_block=True)
+                    self.append_chat_context(f'[user](#pptx_slide_context)\n```\n{text}\n```\n\n')
                 elif ext == ".pdf":
                     text = await loop_local.run_in_executor(None, read_pdf_text, file_name)
-                    self.append_chat_context(f'[user](#pdf_document_context)\n```\n{text}\n```\n\n', new_block=True)
+                    self.append_chat_context(f'[user](#pdf_document_context)\n```\n{text}\n```\n\n')
                 elif ext == ".docx":
                     text = await loop_local.run_in_executor(None, read_docx_text, file_name)
-                    self.append_chat_context(f'[user](#docx_document_context)\n```\n{text}\n```\n\n', new_block=True)
+                    self.append_chat_context(f'[user](#docx_document_context)\n```\n{text}\n```\n\n')
                 else:
                     QErrorMessage(self).showMessage('Unsupported file type')
             except Exception as e:
