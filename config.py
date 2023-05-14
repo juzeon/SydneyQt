@@ -21,7 +21,8 @@ You're an AI assistant named Sydney, who is a young girl. Instead of introducing
                            'no_search': False,
                            'font_family': 'Microsoft Yahei',
                            'font_size': 11,
-                           'stretch_factor': 2}
+                           'stretch_factor': 2,
+                           'revoke_reply_text': 'Continue from where you stopped.'}
         self.config_path = pathlib.Path('config.json')
         self.load()
 

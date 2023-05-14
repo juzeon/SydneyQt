@@ -148,12 +148,14 @@ class SydneyWindow(QWidget):
         self.clear_context()
 
     @asyncSlot()
-    async def send_message(self):
+    async def send_message(self, text_to_send: str = None):
         if self.responding:
             return
         self.set_responding(True)
         self.update_status_text('Creating conversation...')
         user_input = self.user_input.toPlainText()
+        if text_to_send is not None:
+            user_input = text_to_send
         proxy = self.config.get('proxy')
         try:
             chatbot = await Chatbot.create(cookie_path="cookies.json", proxy=proxy if proxy != "" else None)
@@ -162,10 +164,13 @@ class SydneyWindow(QWidget):
             self.update_status_text('Error: ' + str(e))
             self.set_responding(False)
             return
-        self.user_input.clear()
+        if text_to_send is None:
+            self.user_input.clear()
         self.update_status_text('Fetching response...')
+        message_revoked = False
 
         async def stream_output():
+            nonlocal message_revoked
             self.append_chat_context(f"[user](#message)\n{user_input}\n\n", new_block=True)
             wrote = 0
             async for final, response in chatbot.ask_stream(
@@ -190,6 +195,7 @@ class SydneyWindow(QWidget):
                                 self.chat_history.insertPlainText("[assistant](#message)\n")
                                 wrote = 0
                             if message.get("contentOrigin") == "Apology":
+                                message_revoked = True
                                 QErrorMessage(self).showMessage("Message revoke detected")
                                 break
                             else:
@@ -213,6 +219,9 @@ class SydneyWindow(QWidget):
         self.set_responding(False)
         self.chat_history.moveCursor(QTextCursor.MoveOperation.End)
         await chatbot.close()
+        revoke_reply_text = self.config.get('revoke_reply_text')
+        if revoke_reply_text != '' and message_revoked:
+            self.set_suggestion_line([revoke_reply_text])
 
     def append_chat_context(self, text, new_block=False):
         self.chat_history.moveCursor(QTextCursor.MoveOperation.End)
@@ -253,9 +262,8 @@ class SydneyWindow(QWidget):
             for suggestion in suggestions:
                 def make_hyperlink_clicked(s):
                     def hyperlink_clicked():
-                        self.user_input.setPlainText(s)
                         self.set_suggestion_line()
-                        self.send_message()
+                        self.send_message(s)
 
                     return hyperlink_clicked
 

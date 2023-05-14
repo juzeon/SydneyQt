@@ -32,6 +32,8 @@ class SettingWindow(QWidget):
         self.stretch_factor.setToolTip('Adjust the height of the chat context box.')
         self.stretch_factor.setMinimum(1)
         self.stretch_factor.setMaximum(10)
+        self.revoke_text = QLineEdit()
+        self.revoke_text.setToolTip('Show this text as a clickable suggestion on message revoke.')
 
         form_layout = QFormLayout()
         form_layout.addRow(QLabel('Proxy:'), self.proxy_edit)
@@ -40,6 +42,7 @@ class SettingWindow(QWidget):
         form_layout.addRow(QLabel('No Search Result:'), self.no_search_checkbox)
         form_layout.addRow(QLabel('Font Family and Size:'), self.font_button)
         form_layout.addRow(QLabel('(*) Stretch Factor of Chat Context Box: '), self.stretch_factor)
+        form_layout.addRow(QLabel('Suggestion on Message Revoke: '), self.revoke_text)
 
         self.save_button = QPushButton('Save')
         self.save_button.clicked.connect(self.save_config)
@@ -65,6 +68,7 @@ class SettingWindow(QWidget):
         self.no_suggestion_checkbox.setChecked(self.config.cfg['no_suggestion'])
         self.no_search_checkbox.setChecked(self.config.cfg['no_search'])
         self.stretch_factor.setValue(self.config.get('stretch_factor'))
+        self.revoke_text.setText(self.config.get('revoke_reply_text'))
 
     @Slot()
     def open_font_dialog(self):
@@ -83,6 +87,7 @@ class SettingWindow(QWidget):
         self.config.cfg['font_family'] = self.font.family()
         self.config.cfg['font_size'] = self.font.pointSize()
         self.config.cfg['stretch_factor'] = self.stretch_factor.value()
+        self.config.cfg['revoke_reply_text'] = self.revoke_text.text()
         self.config.save()
         msg = QMessageBox()
         msg.setIcon(QMessageBox.Icon.Information)
