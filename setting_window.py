@@ -37,6 +37,7 @@ class SettingWindow(QWidget):
         self.revoke_count = QSpinBox()
         self.revoke_count.setMinimum(0)
         self.revoke_count.setToolTip('Maximum count for auto-reply on message revoke. \n'
+                                     'If `Suggestion on Message Revoke` is available, send it automatically. \n'
                                      'The error dialog will not show if an auto-reply can be applied. \n'
                                      'Set this to 0 to disable and show a suggestion only.')
 
