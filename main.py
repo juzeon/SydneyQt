@@ -10,7 +10,7 @@ from PySide6.QtWidgets import (
     QLabel,
     QPushButton,
     QWidget, QPlainTextEdit, QErrorMessage, QHBoxLayout, QFileDialog, QToolButton, QMenu, QSizePolicy, QVBoxLayout,
-    QSplitter, QComboBox, QProgressBar, QSpacerItem, QLayout, QStatusBar
+    QSplitter, QComboBox, QProgressBar, QSpacerItem, QLayout, QStatusBar, QListView, QListWidget, QMessageBox, QMenuBar
 )
 from qasync import QEventLoop, asyncSlot
 from EdgeGPT import Chatbot
@@ -73,9 +73,6 @@ class SydneyWindow(QWidget):
         self.presets.currentTextChanged.connect(self.presets_changed)
         self.update_presets()
 
-        self.setting_button = QPushButton('Settings')
-        self.setting_button.clicked.connect(self.open_setting_window)
-
         upper_half = QWidget()
         upper_half_layout = QVBoxLayout()
         upper_half.setLayout(upper_half_layout)
@@ -83,7 +80,6 @@ class SydneyWindow(QWidget):
         upper_half_layout.addLayout(upper_half_buttons)
         upper_half_buttons.addWidget(QLabel("Chat Context:"))
         upper_half_buttons.addStretch()
-        upper_half_buttons.addWidget(self.setting_button)
         preset_label = QLabel('Preset:')
         preset_label.setStyleSheet("padding-left: 10px")
         upper_half_buttons.addWidget(preset_label)
@@ -134,10 +130,63 @@ class SydneyWindow(QWidget):
         self.splitter.addWidget(bottom_half)
         self.splitter.setStretchFactor(0, self.config.get('stretch_factor'))
         self.splitter.setStretchFactor(1, 1)
-        layout = QVBoxLayout()
-        layout.addWidget(self.splitter)
-        layout.setContentsMargins(0, 0, 0, 0)
-        self.setLayout(layout)
+
+        left_layout = QVBoxLayout()
+        left_layout.setContentsMargins(8, 8, 8, 8)
+        self.left_list = QListWidget()
+        self.workspace_dict = {
+            'Workspace 1': {
+                'context': '',
+                'input': ''
+            }
+        }
+        self.left_list.addItem('Workspace 1')
+        self.workspace_ix = 1
+        self.current_workspace_name = 'Workspace 1'
+        self.left_list.setCurrentRow(0)
+        self.left_list.currentRowChanged.connect(self.switch_workspace)
+        workspace_label = QLabel('Workspace: ')
+        left_layout.addWidget(workspace_label)
+        left_layout.addWidget(self.left_list)
+        left_buttons_layout = QHBoxLayout()
+        self.add_workspace_button = QPushButton('New')
+        self.add_workspace_button.clicked.connect(self.add_workspace)
+        self.del_workspace_button = QPushButton('Delete')
+        self.del_workspace_button.clicked.connect(self.del_workspace)
+        left_buttons_layout.addWidget(self.add_workspace_button)
+        left_buttons_layout.addWidget(self.del_workspace_button)
+        left_layout.addLayout(left_buttons_layout)
+
+        self.left_layout_widget = QWidget()
+        self.left_layout_widget.setContentsMargins(0, 0, 0, 0)
+        self.left_layout_widget.setLayout(left_layout)
+        if not self.config.get('workspace_toggle'):
+            self.left_layout_widget.hide()
+        menu_bar = QMenuBar()
+
+        def toggle_workspace():
+            if self.left_layout_widget.isHidden():
+                self.left_layout_widget.show()
+                self.config.cfg['workspace_toggle'] = True
+                self.config.save()
+            else:
+                self.left_layout_widget.hide()
+                self.config.cfg['workspace_toggle'] = False
+                self.config.save()
+
+        menu_bar.addAction('Show/Hide Workspace', toggle_workspace)
+        menu_bar.addAction('Settings', self.open_setting_window)
+        main_layout = QHBoxLayout()
+        main_layout.addWidget(self.left_layout_widget, 1)
+        main_layout.addWidget(self.splitter, 6)
+        main_layout.setContentsMargins(0, 0, 0, 0)
+
+        frame_layout = QVBoxLayout()
+        frame_layout.setContentsMargins(0, 0, 0, 0)
+        frame_layout.addWidget(menu_bar)
+        frame_layout.addLayout(main_layout)
+
+        self.setLayout(frame_layout)
 
         self.resize(900, 600)
         self.setWindowTitle('SydneyQt')
@@ -232,6 +281,34 @@ class SydneyWindow(QWidget):
             else:
                 self.set_suggestion_line([revoke_reply_text])
 
+    def add_workspace(self):
+        self.workspace_ix = self.workspace_ix + 1
+        self.workspace_dict[f'Workspace {self.workspace_ix}'] = {
+            'context': self.config.get_last_preset_text(),
+            'input': ''
+        }
+        self.left_list.addItem(f'Workspace {self.workspace_ix}')
+
+    def del_workspace(self):
+        if self.left_list.count() <= 1:
+            QMessageBox(self).information(self, 'Message', 'You cannot delete the only workspace.')
+            return
+        name = self.left_list.currentItem().text()
+        del self.workspace_dict[name]
+        self.left_list.takeItem(self.left_list.currentRow())
+
+    def switch_workspace(self):
+        new_workspace_name = self.left_list.currentItem().text()
+        self.workspace_dict[self.current_workspace_name] = {
+            'context': self.chat_history.toPlainText(),
+            'input': self.user_input.toPlainText()
+        }
+        self.chat_history.setPlainText(self.workspace_dict[new_workspace_name]['context'])
+        self.chat_history.moveCursor(QTextCursor.MoveOperation.End)
+        self.user_input.setPlainText(self.workspace_dict[new_workspace_name]['input'])
+        self.user_input.moveCursor(QTextCursor.MoveOperation.End)
+        self.current_workspace_name = new_workspace_name
+
     def append_chat_context(self, text, new_block=False):
         self.chat_history.moveCursor(QTextCursor.MoveOperation.End)
         if new_block:
@@ -300,7 +377,7 @@ class SydneyWindow(QWidget):
         self.snap_window.show()
 
     def clear_context(self):
-        self.chat_history.setPlainText(self.config.get_last_preset())
+        self.chat_history.setPlainText(self.config.get_last_preset_text())
         self.set_suggestion_line()
 
     @asyncSlot()
@@ -381,6 +458,8 @@ class SydneyWindow(QWidget):
         self.browse_button.setDisabled(responding)
         self.document_button.setDisabled(responding)
         self.reset_button.setDisabled(responding)
+        self.left_list.setDisabled(responding)
+        self.del_workspace_button.setDisabled(responding)
 
     def presets_changed(self, new_value: str):
         if self.updating_presets:

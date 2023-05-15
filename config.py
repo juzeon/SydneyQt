@@ -23,11 +23,12 @@ You're an AI assistant named Sydney, who is a young girl. Instead of introducing
                            'font_size': 11,
                            'stretch_factor': 2,
                            'revoke_reply_text': 'Continue from where you stopped.',
-                           'revoke_reply_count': 0}
+                           'revoke_reply_count': 0,
+                           'workspace_toggle': True}
         self.config_path = pathlib.Path('config.json')
         self.load()
 
-    def get_last_preset(self):
+    def get_last_preset_text(self):
         return self.cfg['presets'][self.cfg['last_preset']]
 
     def load(self):
