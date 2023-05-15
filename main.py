@@ -288,6 +288,7 @@ class SydneyWindow(QWidget):
             'input': ''
         }
         self.left_list.addItem(f'Workspace {self.workspace_ix}')
+        self.left_list.setCurrentRow(self.left_list.count() - 1)
 
     def del_workspace(self):
         if self.left_list.count() <= 1:
@@ -459,6 +460,7 @@ class SydneyWindow(QWidget):
         self.document_button.setDisabled(responding)
         self.reset_button.setDisabled(responding)
         self.left_list.setDisabled(responding)
+        self.add_workspace_button.setDisabled(responding)
         self.del_workspace_button.setDisabled(responding)
 
     def presets_changed(self, new_value: str):
