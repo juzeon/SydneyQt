@@ -183,29 +183,31 @@ class SydneyWindow(QWidget):
                 if not final and response["type"] == 1 and "messages" in response["arguments"][0]:
                     self.chat_history.moveCursor(QTextCursor.MoveOperation.End)
                     message = response["arguments"][0]["messages"][0]
-                    match message.get("messageType"):
-                        case "InternalSearchQuery":
-                            self.chat_history.insertPlainText(
-                                f"[assistant](#search_query)\n{message['hiddenText']}\n\n")
-                        case "InternalSearchResult":
-                            self.chat_history.insertPlainText(
-                                f"[assistant](#search_results)\n{message['hiddenText']}\n\n")
-                        case None:
-                            if "cursor" in response["arguments"][0]:
-                                self.chat_history.insertPlainText("[assistant](#message)\n")
-                                wrote = 0
-                            if message.get("contentOrigin") == "Apology":
-                                message_revoked = True
-                                QErrorMessage(self).showMessage("Message revoke detected")
+                    msg_type = message.get("messageType")
+                    if msg_type == "InternalSearchQuery":
+                        self.append_chat_context(
+                            f"[assistant](#search_query)\n{message['hiddenText']}\n\n")
+                    elif msg_type == "InternalSearchResult":
+                        self.append_chat_context(
+                            f"[assistant](#search_results)\n{message['hiddenText']}\n\n")
+                    elif msg_type is None:
+                        if "cursor" in response["arguments"][0]:
+                            self.append_chat_context("[assistant](#message)\n")
+                            wrote = 0
+                        if message.get("contentOrigin") == "Apology":
+                            message_revoked = True
+                            QErrorMessage(self).showMessage("Message revoke detected")
+                            break
+                        else:
+                            self.append_chat_context(message["text"][wrote:])
+                            wrote = len(message["text"])
+                            if "suggestedResponses" in message:
+                                suggested_responses = list(
+                                    map(lambda x: x["text"], message["suggestedResponses"]))
+                                self.set_suggestion_line(suggested_responses)
                                 break
-                            else:
-                                self.chat_history.insertPlainText(message["text"][wrote:])
-                                wrote = len(message["text"])
-                                if "suggestedResponses" in message:
-                                    suggested_responses = list(
-                                        map(lambda x: x["text"], message["suggestedResponses"]))
-                                    self.set_suggestion_line(suggested_responses)
-                                    break
+                    else:
+                        print(f'Unsupported message type: {msg_type}')
                 if final and not response["item"]["messages"][-1].get("text"):
                     raise Exception("Looks like the user message has triggered the Bing filter")
 
