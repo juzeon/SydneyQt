@@ -350,7 +350,7 @@ class SydneyWindow(QWidget):
                 def make_hyperlink_clicked(s):
                     def hyperlink_clicked():
                         self.set_suggestion_line()
-                        self.send_message(s)
+                        asyncio.ensure_future(self.send_message(s))
 
                     return hyperlink_clicked
 
