@@ -34,6 +34,11 @@ class SettingWindow(QWidget):
         self.stretch_factor.setMaximum(10)
         self.revoke_text = QLineEdit()
         self.revoke_text.setToolTip('Show this text as a clickable suggestion on message revoke.')
+        self.revoke_count = QSpinBox()
+        self.revoke_count.setMinimum(0)
+        self.revoke_count.setToolTip('Maximum count for auto-reply on message revoke. '
+                                     'The error dialog will not show if an auto-reply can be applied. '
+                                     'Set this to 0 to disable and show a suggestion only.')
 
         form_layout = QFormLayout()
         form_layout.addRow(QLabel('Proxy:'), self.proxy_edit)
@@ -43,6 +48,7 @@ class SettingWindow(QWidget):
         form_layout.addRow(QLabel('Font Family and Size:'), self.font_button)
         form_layout.addRow(QLabel('(*) Stretch Factor of Chat Context Box: '), self.stretch_factor)
         form_layout.addRow(QLabel('Suggestion on Message Revoke: '), self.revoke_text)
+        form_layout.addRow(QLabel('Revoke Auto Reply Count: '), self.revoke_count)
 
         self.save_button = QPushButton('Save')
         self.save_button.clicked.connect(self.save_config)
@@ -69,6 +75,7 @@ class SettingWindow(QWidget):
         self.no_search_checkbox.setChecked(self.config.cfg['no_search'])
         self.stretch_factor.setValue(self.config.get('stretch_factor'))
         self.revoke_text.setText(self.config.get('revoke_reply_text'))
+        self.revoke_count.setValue(self.config.get('revoke_reply_count'))
 
     @Slot()
     def open_font_dialog(self):
@@ -88,6 +95,7 @@ class SettingWindow(QWidget):
         self.config.cfg['font_size'] = self.font.pointSize()
         self.config.cfg['stretch_factor'] = self.stretch_factor.value()
         self.config.cfg['revoke_reply_text'] = self.revoke_text.text()
+        self.config.cfg['revoke_reply_count'] = self.revoke_count.value()
         self.config.save()
         msg = QMessageBox()
         msg.setIcon(QMessageBox.Icon.Information)

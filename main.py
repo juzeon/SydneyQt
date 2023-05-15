@@ -148,7 +148,7 @@ class SydneyWindow(QWidget):
         self.clear_context()
 
     @asyncSlot()
-    async def send_message(self, text_to_send: str = None):
+    async def send_message(self, text_to_send: str = None, reply_deep=0):
         if self.responding:
             return
         self.set_responding(True)
@@ -168,9 +168,13 @@ class SydneyWindow(QWidget):
             self.user_input.clear()
         self.update_status_text('Fetching response...')
         message_revoked = False
+        revoke_reply_text = self.config.get('revoke_reply_text')
+        revoke_reply_count = self.config.get('revoke_reply_count')
 
         async def stream_output():
             nonlocal message_revoked
+            nonlocal revoke_reply_count
+            nonlocal revoke_reply_text
             self.append_chat_context(f"[user](#message)\n{user_input}\n\n", new_block=True)
             wrote = 0
             async for final, response in chatbot.ask_stream(
@@ -196,7 +200,8 @@ class SydneyWindow(QWidget):
                             wrote = 0
                         if message.get("contentOrigin") == "Apology":
                             message_revoked = True
-                            QErrorMessage(self).showMessage("Message revoke detected")
+                            if revoke_reply_text == '' or reply_deep >= revoke_reply_count:
+                                QErrorMessage(self).showMessage("Message revoke detected")
                             break
                         else:
                             self.append_chat_context(message["text"][wrote:])
@@ -221,9 +226,11 @@ class SydneyWindow(QWidget):
         self.set_responding(False)
         self.chat_history.moveCursor(QTextCursor.MoveOperation.End)
         await chatbot.close()
-        revoke_reply_text = self.config.get('revoke_reply_text')
         if revoke_reply_text != '' and message_revoked:
-            self.set_suggestion_line([revoke_reply_text])
+            if reply_deep < revoke_reply_count:
+                await self.send_message(revoke_reply_text, reply_deep + 1)
+            else:
+                self.set_suggestion_line([revoke_reply_text])
 
     def append_chat_context(self, text, new_block=False):
         self.chat_history.moveCursor(QTextCursor.MoveOperation.End)
