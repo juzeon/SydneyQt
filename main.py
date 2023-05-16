@@ -534,6 +534,7 @@ class SydneyWindow(QWidget):
         self.add_workspace_button.setDisabled(responding)
         self.del_workspace_button.setDisabled(responding)
         self.rename_workspace_button.setDisabled(responding)
+        self.clear_workspace_button.setDisabled(responding)
         self.stop_button.setDisabled(not responding)
 
     def presets_changed(self, new_value: str):
