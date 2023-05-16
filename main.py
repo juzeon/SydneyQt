@@ -30,6 +30,7 @@ signal.signal(signal.SIGINT, signal.SIG_DFL)
 class SydneyWindow(QWidget):
     def __init__(self, config: Config, parent=None):
         super().__init__(parent)
+        self.current_responding_task = None
         self.snap_window = None
         self.preset_window = None
         self.setting_window = None
@@ -110,12 +111,17 @@ class SydneyWindow(QWidget):
         self.browse_button = QPushButton('Browse')
         self.browse_button.clicked.connect(self.open_browse_window)
 
+        self.stop_button = QPushButton('Stop')
+        self.stop_button.clicked.connect(self.stop_responding_task)
+        self.stop_button.setDisabled(True)
+
         bottom_half_layout.addWidget(self.suggestion_widget)
         bottom_half_layout.addLayout(bottom_half_buttons)
         bottom_half_buttons.addWidget(QLabel("Follow-up User Input:"))
         bottom_half_buttons.addStretch()
         bottom_half_buttons.addWidget(self.document_button)
         bottom_half_buttons.addWidget(self.browse_button)
+        bottom_half_buttons.addWidget(self.stop_button)
         bottom_half_buttons.addWidget(self.send_button)
         bottom_half_layout.addWidget(self.user_input)
 
@@ -193,10 +199,18 @@ class SydneyWindow(QWidget):
         icon = QIcon('binglogo.png')
         self.setWindowIcon(icon)
 
-        self.send_button.clicked.connect(self.send_message)
+        self.send_button.clicked.connect(self.send_clicked)
         self.clear_context()
 
-    @asyncSlot()
+    def stop_responding_task(self):
+        if self.current_responding_task is not None:
+            self.current_responding_task.cancel()
+            self.update_status_text('Stopped current responding task.')
+            self.set_responding(False)
+
+    def send_clicked(self):
+        self.current_responding_task = asyncio.ensure_future(self.send_message())
+
     async def send_message(self, text_to_send: str = None, reply_deep=0):
         if self.responding:
             return
@@ -462,6 +476,7 @@ class SydneyWindow(QWidget):
         self.left_list.setDisabled(responding)
         self.add_workspace_button.setDisabled(responding)
         self.del_workspace_button.setDisabled(responding)
+        self.stop_button.setDisabled(not responding)
 
     def presets_changed(self, new_value: str):
         if self.updating_presets:

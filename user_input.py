@@ -19,13 +19,13 @@ class UserInput(QPlainTextEdit):
             match self.parent.enter_mode:
                 case "Enter":
                     if modifiers == Qt.KeyboardModifier.NoModifier:
-                        self.parent.send_message()
+                        self.parent.send_clicked()
                     else:
                         super().keyPressEvent(event)
                         self.insertPlainText("\n")
                 case "Ctrl+Enter":
                     if modifiers == Qt.KeyboardModifier.ControlModifier:
-                        self.parent.send_message()
+                        self.parent.send_clicked()
                     else:
                         super().keyPressEvent(event)
         else:
