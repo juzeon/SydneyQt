@@ -3,14 +3,17 @@ import pathlib
 import signal
 from typing import List
 
+import PySide6
 import tiktoken
+from PySide6.QtCore import QEvent
 from PySide6.QtGui import QTextCursor, Qt, QFont, QIcon
 from PySide6.QtWidgets import (
     QApplication,
     QLabel,
     QPushButton,
     QWidget, QPlainTextEdit, QErrorMessage, QHBoxLayout, QFileDialog, QToolButton, QMenu, QSizePolicy, QVBoxLayout,
-    QSplitter, QComboBox, QProgressBar, QSpacerItem, QLayout, QStatusBar, QListView, QListWidget, QMessageBox, QMenuBar
+    QSplitter, QComboBox, QProgressBar, QSpacerItem, QLayout, QStatusBar, QListView, QListWidget, QMessageBox, QMenuBar,
+    QGridLayout
 )
 from qasync import QEventLoop, asyncSlot
 from EdgeGPT import Chatbot
@@ -18,6 +21,7 @@ from EdgeGPT import Chatbot
 from browse_window import BrowseWindow
 from document import read_pptx_text, read_pdf_text, read_docx_text
 from hyperlink_widget import HyperlinkWidget
+from name_dialog import NameDialog
 from preset_window import PresetWindow
 from setting_window import SettingWindow
 from snap_window import SnapWindow
@@ -30,6 +34,7 @@ signal.signal(signal.SIGINT, signal.SIG_DFL)
 class SydneyWindow(QWidget):
     def __init__(self, config: Config, parent=None):
         super().__init__(parent)
+        self.updating_workspace_list = False
         self.current_responding_task = None
         self.snap_window = None
         self.preset_window = None
@@ -139,28 +144,30 @@ class SydneyWindow(QWidget):
 
         left_layout = QVBoxLayout()
         left_layout.setContentsMargins(8, 8, 8, 8)
-        self.left_list = QListWidget()
-        self.workspace_dict = {
-            'Workspace 1': {
-                'context': '',
-                'input': ''
-            }
-        }
-        self.left_list.addItem('Workspace 1')
-        self.workspace_ix = 1
-        self.current_workspace_name = 'Workspace 1'
-        self.left_list.setCurrentRow(0)
-        self.left_list.currentRowChanged.connect(self.switch_workspace)
+        self.workspace_list_widget = QListWidget()
+        self.workspace_dict = dict(self.config.get('workspaces'))
+        workspace_names = list[str](self.workspace_dict.keys())
+        self.workspace_list_widget.addItems(workspace_names)
+        self.workspace_ix = self.config.get('workspace_ix')
+        self.current_workspace_name = self.config.get('last_workspace')
+        self.workspace_list_widget.setCurrentRow(workspace_names.index(self.current_workspace_name))
+        self.workspace_list_widget.currentRowChanged.connect(self.switch_workspace)
         workspace_label = QLabel('Workspace: ')
         left_layout.addWidget(workspace_label)
-        left_layout.addWidget(self.left_list)
-        left_buttons_layout = QHBoxLayout()
+        left_layout.addWidget(self.workspace_list_widget)
+        left_buttons_layout = QGridLayout()
         self.add_workspace_button = QPushButton('New')
         self.add_workspace_button.clicked.connect(self.add_workspace)
         self.del_workspace_button = QPushButton('Delete')
         self.del_workspace_button.clicked.connect(self.del_workspace)
-        left_buttons_layout.addWidget(self.add_workspace_button)
-        left_buttons_layout.addWidget(self.del_workspace_button)
+        self.rename_workspace_button = QPushButton('Rename')
+        self.rename_workspace_button.clicked.connect(self.rename_workspace)
+        self.clear_workspace_button = QPushButton('Clear')
+        self.clear_workspace_button.clicked.connect(self.clear_workspace)
+        left_buttons_layout.addWidget(self.add_workspace_button, 0, 0)
+        left_buttons_layout.addWidget(self.del_workspace_button, 0, 1)
+        left_buttons_layout.addWidget(self.rename_workspace_button, 1, 0)
+        left_buttons_layout.addWidget(self.clear_workspace_button, 1, 1)
         left_layout.addLayout(left_buttons_layout)
 
         self.left_layout_widget = QWidget()
@@ -200,7 +207,10 @@ class SydneyWindow(QWidget):
         self.setWindowIcon(icon)
 
         self.send_button.clicked.connect(self.send_clicked)
-        self.clear_context()
+        self.restore_workspace()
+        if self.workspace_dict[self.current_workspace_name]['context'] == "":
+            self.clear_context()
+        self.set_suggestion_line()
 
     def stop_responding_task(self):
         if self.current_responding_task is not None:
@@ -301,23 +311,71 @@ class SydneyWindow(QWidget):
             'context': self.config.get_last_preset_text(),
             'input': ''
         }
-        self.left_list.addItem(f'Workspace {self.workspace_ix}')
-        self.left_list.setCurrentRow(self.left_list.count() - 1)
+        self.workspace_list_widget.addItem(f'Workspace {self.workspace_ix}')
+        self.workspace_list_widget.setCurrentRow(self.workspace_list_widget.count() - 1)
 
     def del_workspace(self):
-        if self.left_list.count() <= 1:
+        if self.workspace_list_widget.count() <= 1:
             QMessageBox(self).information(self, 'Message', 'You cannot delete the only workspace.')
             return
-        name = self.left_list.currentItem().text()
+        name = self.workspace_list_widget.currentItem().text()
         del self.workspace_dict[name]
-        self.left_list.takeItem(self.left_list.currentRow())
+        self.workspace_list_widget.takeItem(self.workspace_list_widget.currentRow())
 
-    def switch_workspace(self):
-        new_workspace_name = self.left_list.currentItem().text()
+    def clear_workspace(self):
+        msg_box = QMessageBox()
+        msg_box.setIcon(QMessageBox.Icon.Warning)
+        msg_box.setText("This will clear all your workspaces and cannot be undone!")
+        msg_box.setStandardButtons(QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+        resp = msg_box.exec()
+        if resp != QMessageBox.StandardButton.Yes:
+            return
+        self.config.cfg['workspaces'] = dict(self.config.defaultCfg['workspaces'])
+        self.config.cfg['workspace_ix'] = self.config.defaultCfg['workspace_ix']
+        self.config.cfg['last_workspace'] = self.config.defaultCfg['last_workspace']
+        self.config.save()
+        self.updating_workspace_list = True
+        for row in range(self.workspace_list_widget.count()):
+            self.workspace_list_widget.takeItem(0)
+        self.current_workspace_name = self.config.cfg['last_workspace']
+        self.workspace_ix = 1
+        self.workspace_dict = self.config.cfg['workspaces']
+        self.workspace_list_widget.addItem(self.current_workspace_name)
+        self.workspace_list_widget.setCurrentRow(0)
+        self.updating_workspace_list = False
+
+    def rename_workspace(self):
+        dialog = NameDialog()
+        if not dialog.exec():
+            return
+        name = dialog.get_name()
+        if name == "":
+            return
+        if name in self.workspace_dict:
+            QMessageBox(self).information(self, 'Message', f'Workspace named {name} has already exists.')
+            return
+        old_name = self.workspace_list_widget.currentItem().text()
+        self.workspace_list_widget.currentItem().setText(name)
+        workspace = self.workspace_dict[old_name]
+        del self.workspace_dict[old_name]
+        self.workspace_dict[name] = workspace
+        self.current_workspace_name = name
+
+    def flush_workspace(self):
         self.workspace_dict[self.current_workspace_name] = {
             'context': self.chat_history.toPlainText(),
             'input': self.user_input.toPlainText()
         }
+
+    def restore_workspace(self):
+        self.chat_history.setPlainText(self.workspace_dict[self.current_workspace_name]['context'])
+        self.user_input.setPlainText(self.workspace_dict[self.current_workspace_name]['input'])
+
+    def switch_workspace(self):
+        if self.updating_workspace_list:
+            return
+        new_workspace_name = self.workspace_list_widget.currentItem().text()
+        self.flush_workspace()
         self.chat_history.setPlainText(self.workspace_dict[new_workspace_name]['context'])
         self.chat_history.moveCursor(QTextCursor.MoveOperation.End)
         self.user_input.setPlainText(self.workspace_dict[new_workspace_name]['input'])
@@ -393,7 +451,6 @@ class SydneyWindow(QWidget):
 
     def clear_context(self):
         self.chat_history.setPlainText(self.config.get_last_preset_text())
-        self.set_suggestion_line()
 
     @asyncSlot()
     async def open_document(self):
@@ -473,9 +530,10 @@ class SydneyWindow(QWidget):
         self.browse_button.setDisabled(responding)
         self.document_button.setDisabled(responding)
         self.reset_button.setDisabled(responding)
-        self.left_list.setDisabled(responding)
+        self.workspace_list_widget.setDisabled(responding)
         self.add_workspace_button.setDisabled(responding)
         self.del_workspace_button.setDisabled(responding)
+        self.rename_workspace_button.setDisabled(responding)
         self.stop_button.setDisabled(not responding)
 
     def presets_changed(self, new_value: str):
@@ -494,12 +552,22 @@ class SydneyWindow(QWidget):
         self.update_status_text('Preset changed. Click `Reset` to reset chat context.')
         self.config.save()
 
+    def eventFilter(self, watched, event) -> bool:
+        if event.type() == QEvent.WindowDeactivate or event.type() == QEvent.Close:
+            self.flush_workspace()
+            self.config.cfg['workspaces'] = self.workspace_dict
+            self.config.cfg['last_workspace'] = self.current_workspace_name
+            self.config.cfg['workspace_ix'] = self.workspace_ix
+            self.config.save()
+        return super().eventFilter(watched, event)
+
 
 if __name__ == "__main__":
     app = QApplication()
     loop = QEventLoop(app)
     asyncio.set_event_loop(loop)
     gui = SydneyWindow(Config())
+    gui.installEventFilter(gui)
     gui.show()
     with loop:
         loop.run_forever()

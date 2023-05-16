@@ -24,7 +24,15 @@ You're an AI assistant named Sydney, who is a young girl. Instead of introducing
                            'stretch_factor': 2,
                            'revoke_reply_text': 'Continue from where you stopped.',
                            'revoke_reply_count': 0,
-                           'workspace_toggle': True}
+                           'workspace_toggle': True,
+                           'workspaces': {
+                               'Workspace 1': {
+                                   'context': '',
+                                   'input': ''
+                               }
+                           },
+                           'workspace_ix': 1,
+                           'last_workspace': 'Workspace 1'}
         self.config_path = pathlib.Path('config.json')
         self.load()
 

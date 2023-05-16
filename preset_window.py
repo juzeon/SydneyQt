@@ -2,9 +2,10 @@ import PySide6
 from PySide6.QtCore import Slot
 from PySide6.QtGui import QFont
 from PySide6.QtWidgets import QWidget, QListWidget, QListWidgetItem, QPlainTextEdit, QPushButton, QVBoxLayout, \
-    QHBoxLayout, QDialog, QLineEdit
+    QHBoxLayout, QDialog, QLineEdit, QMessageBox
 
 from config import Config
+from name_dialog import NameDialog
 
 
 class PresetWindow(QWidget):
@@ -73,6 +74,9 @@ class PresetWindow(QWidget):
         name = dialog.get_name()
         if name == "":
             return
+        if name in self.config.cfg['presets']:
+            QMessageBox(self).information(self, 'Message', f'Preset named {name} has already exists.')
+            return
         preset = self.config.cfg['presets'][item.text()]
         self.config.cfg['presets'][name] = preset
         del self.config.cfg['presets'][item.text()]
@@ -122,20 +126,3 @@ class PresetWindow(QWidget):
             self.delete_button.setDisabled(False)
         self.editor.setPlainText(self.config.cfg['presets'][item.text()])
         self.save_editor_button.setDisabled(True)
-
-
-class NameDialog(QDialog):
-    def __init__(self, parent=None, name=''):
-        super().__init__(parent)
-        self.name_edit = QLineEdit()
-        self.name_edit.setText(name)
-        self.ok_button = QPushButton("OK")
-        self.ok_button.clicked.connect(self.accept)
-        self.layout = QVBoxLayout()
-        self.layout.addWidget(self.name_edit)
-        self.layout.addWidget(self.ok_button)
-        self.setLayout(self.layout)
-        self.setWindowTitle("Enter a name")
-
-    def get_name(self):
-        return self.name_edit.text()
