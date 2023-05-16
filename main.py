@@ -207,10 +207,12 @@ class SydneyWindow(QWidget):
         self.setWindowIcon(icon)
 
         self.send_button.clicked.connect(self.send_clicked)
-        self.restore_workspace()
+
         if self.workspace_dict[self.current_workspace_name]['context'] == "":
             self.clear_context()
-        self.set_suggestion_line()
+        else:
+            self.restore_workspace()
+            self.set_suggestion_line()
 
     def stop_responding_task(self):
         if self.current_responding_task is not None:
@@ -381,6 +383,7 @@ class SydneyWindow(QWidget):
         self.user_input.setPlainText(self.workspace_dict[new_workspace_name]['input'])
         self.user_input.moveCursor(QTextCursor.MoveOperation.End)
         self.current_workspace_name = new_workspace_name
+        self.set_suggestion_line()
 
     def append_chat_context(self, text, new_block=False):
         self.chat_history.moveCursor(QTextCursor.MoveOperation.End)
@@ -451,6 +454,7 @@ class SydneyWindow(QWidget):
 
     def clear_context(self):
         self.chat_history.setPlainText(self.config.get_last_preset_text())
+        self.set_suggestion_line()
 
     @asyncSlot()
     async def open_document(self):
