@@ -377,6 +377,7 @@ class SydneyWindow(QWidget):
     def restore_workspace(self):
         self.chat_history.setPlainText(self.workspace_dict[self.current_workspace_name]['context'])
         self.user_input.setPlainText(self.workspace_dict[self.current_workspace_name]['input'])
+        self.chat_history.moveCursor(QTextCursor.MoveOperation.End)
 
     def switch_workspace(self):
         if self.updating_workspace_list:
