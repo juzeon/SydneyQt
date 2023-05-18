@@ -54,12 +54,17 @@ class SydneyWindow(QWidget):
         self.user_input = UserInput(self, config=self.config)
         self.user_input.textChanged.connect(self.update_token_count)
         self.snap_button = QPushButton("Snap")
+        self.snap_button.setToolTip('Take a snapshot of the current chat context '
+                                    'and open in a new window with rich text support.')
         self.snap_button.clicked.connect(self.snap_context)
         self.reset_button = QPushButton("Reset")
+        self.reset_button.setToolTip('Reset the current chat context using the selected preset.')
         self.reset_button.clicked.connect(self.clear_context)
         self.load_button = QPushButton("Load")
+        self.load_button.setToolTip('Load a text file into the chat context.')
         self.load_button.clicked.connect(self.load_file)
         self.save_button = QPushButton("Save")
+        self.save_button.setToolTip('Save the current chat context into a text file.')
         self.save_button.clicked.connect(self.save_file)
         self.snap_button.setFixedWidth(50)
         self.reset_button.setFixedWidth(50)
@@ -114,9 +119,11 @@ class SydneyWindow(QWidget):
 
         self.document_button = QPushButton('Document')
         self.document_button.clicked.connect(self.open_document)
+        self.document_button.setToolTip('Import a document file into the chat context.')
 
         self.browse_button = QPushButton('Browse')
         self.browse_button.clicked.connect(self.open_browse_window)
+        self.browse_button.setToolTip('Browse a webpage and insert its content into the chat context.')
 
         self.stop_button = QPushButton('Stop')
         self.stop_button.clicked.connect(self.stop_responding_task)
@@ -124,6 +131,7 @@ class SydneyWindow(QWidget):
 
         self.revoke_button = QPushButton('Revoke')
         self.revoke_button.clicked.connect(self.revoke_edit)
+        self.revoke_button.setToolTip('Revoke the latest message sent by the user.')
 
         bottom_half_layout.addWidget(self.suggestion_widget)
         bottom_half_layout.addLayout(bottom_half_buttons)
