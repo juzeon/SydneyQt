@@ -1,6 +1,7 @@
 import asyncio
 import json
 import pathlib
+import re
 import signal
 from typing import List
 
@@ -121,6 +122,9 @@ class SydneyWindow(QWidget):
         self.stop_button.clicked.connect(self.stop_responding_task)
         self.stop_button.setDisabled(True)
 
+        self.revoke_button = QPushButton('Revoke')
+        self.revoke_button.clicked.connect(self.revoke_edit)
+
         bottom_half_layout.addWidget(self.suggestion_widget)
         bottom_half_layout.addLayout(bottom_half_buttons)
         bottom_half_buttons.addWidget(QLabel("Follow-up User Input:"))
@@ -128,6 +132,7 @@ class SydneyWindow(QWidget):
         bottom_half_buttons.addWidget(self.document_button)
         bottom_half_buttons.addWidget(self.browse_button)
         bottom_half_buttons.addWidget(self.stop_button)
+        bottom_half_buttons.addWidget(self.revoke_button)
         bottom_half_buttons.addWidget(self.send_button)
         bottom_half_layout.addWidget(self.user_input)
 
@@ -311,6 +316,37 @@ class SydneyWindow(QWidget):
                 await self.send_message(revoke_reply_text, reply_deep + 1)
             else:
                 self.set_suggestion_line([revoke_reply_text])
+
+    def revoke_edit(self):
+        arr = self.get_chat_context_array()
+        users_arr = [obj for obj in arr if obj['role'] == 'user' and obj['type'] == 'message']
+        if len(users_arr) < 1:
+            QMessageBox(self).information(self, 'Message', 'Nothing to revoke.')
+            return
+        self.user_input.setPlainText(users_arr[-1]['message'])
+        self.apply_chat_context_array(arr[:arr.index(users_arr[-1])])
+
+    def get_chat_context_array(self, chat_context: str = None):
+        ctx = self.chat_history.toPlainText() if chat_context is None else chat_context
+        ctx += '\n\n[system](#sydney__placeholder)'
+        result = re.compile(
+            r"\[(system|user|assistant)]\(#(.*?)\)([\s\S]*?)(?=\n.*?(^\[(system|user|assistant)]\(#.*?\)))", re.M) \
+            .findall(ctx)
+        arr = []
+        for match in result:
+            if match[1] == 'sydney__placeholder':
+                continue
+            arr.append({
+                'role': match[0],
+                'type': match[1],
+                'message': str(match[2]).strip()
+            })
+        return arr
+
+    def apply_chat_context_array(self, arr):
+        self.chat_history.setPlainText('')
+        self.append_chat_context(
+            '\n\n'.join([f"[{obj['role']}](#{obj['type']})\n{obj['message']}" for obj in arr]) + '\n\n')
 
     def add_workspace(self):
         self.workspace_ix = self.workspace_ix + 1
@@ -538,6 +574,7 @@ class SydneyWindow(QWidget):
         self.load_button.setEnabled(not responding)
         self.chat_history.setReadOnly(responding)
         self.browse_button.setDisabled(responding)
+        self.revoke_button.setDisabled(responding)
         self.document_button.setDisabled(responding)
         self.reset_button.setDisabled(responding)
         self.workspace_list_widget.setDisabled(responding)
