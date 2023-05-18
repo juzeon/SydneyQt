@@ -3,6 +3,7 @@ import json
 import pathlib
 import re
 import signal
+import traceback
 from typing import List
 
 import PySide6
@@ -249,6 +250,7 @@ class SydneyWindow(QWidget):
         try:
             chatbot = await Chatbot.create(cookie_path="cookies.json", proxy=proxy if proxy != "" else None)
         except Exception as e:
+            traceback.print_exc()
             QErrorMessage(self).showMessage(str(e))
             self.update_status_text('Error: ' + str(e))
             self.set_responding(False)
@@ -312,6 +314,7 @@ class SydneyWindow(QWidget):
         try:
             await stream_output()
         except Exception as e:
+            traceback.print_exc()
             QErrorMessage(self).showMessage(str(e))
             self.update_status_text('Error: ' + str(e))
         else:

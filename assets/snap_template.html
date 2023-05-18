@@ -103,10 +103,15 @@
             return original_text(replace_math_with_ids(text))
         }
         const rendered_md_only = marked.parse(content, {renderer: renderer, mangle: false, headerIds: false})
-        return rendered_md_only.replace(/(__special_katext_id_\d+__)/g, (_match, capture) => {
-            const {type, expression} = math_expressions[capture]
-            return katex.renderToString(expression, {displayMode: type === 'block'})
-        })
+        try {
+            return rendered_md_only.replace(/(__special_katext_id_\d+__)/g, (_match, capture) => {
+                const {type, expression} = math_expressions[capture]
+                return katex.renderToString(expression, {displayMode: type === 'block'})
+            })
+        } catch (e) {
+            console.log(e)
+        }
+        return rendered_md_only
     }
 </script>
 </body>
