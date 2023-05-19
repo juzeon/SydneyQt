@@ -191,6 +191,7 @@ class SydneyWindow(QWidget):
         if not self.config.get('workspace_toggle'):
             self.left_layout_widget.hide()
         menu_bar = QMenuBar()
+        menu_bar.setNativeMenuBar(False)
 
         def toggle_workspace():
             if self.left_layout_widget.isHidden():
