@@ -16,17 +16,16 @@ class UserInput(QPlainTextEdit):
         key = event.key()
         modifiers = event.modifiers()
         if key == Qt.Key.Key_Enter or key == Qt.Key.Key_Return:
-            match self.parent.enter_mode:
-                case "Enter":
-                    if modifiers == Qt.KeyboardModifier.NoModifier:
-                        self.parent.send_clicked()
-                    else:
-                        super().keyPressEvent(event)
-                        self.insertPlainText("\n")
-                case "Ctrl+Enter":
-                    if modifiers == Qt.KeyboardModifier.ControlModifier:
-                        self.parent.send_clicked()
-                    else:
-                        super().keyPressEvent(event)
+            if self.parent.enter_mode == "Enter":
+                if modifiers == Qt.KeyboardModifier.NoModifier:
+                    self.parent.send_clicked()
+                else:
+                    super().keyPressEvent(event)
+                    self.insertPlainText("\n")
+            elif self.parent.enter_mode == "Ctrl+Enter":
+                if modifiers == Qt.KeyboardModifier.ControlModifier:
+                    self.parent.send_clicked()
+                else:
+                    super().keyPressEvent(event)
         else:
             super().keyPressEvent(event)
