@@ -249,7 +249,11 @@ class SydneyWindow(QWidget):
             user_input = text_to_send
         proxy = self.config.get('proxy')
         try:
-            chatbot = await Chatbot.create(cookie_path="cookies.json", proxy=proxy if proxy != "" else None)
+            cookie_path = pathlib.Path('cookies.json')
+            cookies = None
+            if cookie_path.exists():
+                cookies = json.loads(cookie_path.read_text(encoding='utf-8'))
+            chatbot = await Chatbot.create(cookies=cookies, proxy=proxy if proxy != "" else None)
         except Exception as e:
             traceback.print_exc()
             QErrorMessage(self).showMessage(str(e))
