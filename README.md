@@ -20,7 +20,7 @@ A desktop client for New Bing AI (Sydney ver.) based on Python and Qt.
 
 ## Usage
 
-1. Put your `cookies.json` in the same folder as `main.py` according to the instructions in the README file of [EdgeGPT](https://github.com/acheong08/EdgeGPT):
+1. (Optional) Put your `cookies.json` in the same folder as `main.py` according to the instructions in the README file of [EdgeGPT](https://github.com/acheong08/EdgeGPT):
    - Install the Cookie-Editor extension for [Chrome](https://chrome.google.com/webstore/detail/cookie-editor/hlkenndednhfkekhgcdicdfddnkalmdm) or [Firefox](https://addons.mozilla.org/en-US/firefox/addon/cookie-editor/)
    - Go to `bing.com`
    - Open the extension
