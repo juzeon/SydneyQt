@@ -158,7 +158,7 @@ class SydneyWindow(QWidget):
         def reload_quick_menu():
             self.quick_menu.clear()
             for text in self.config.get('quick'):
-                self.quick_menu.addAction(text, use_quick(text))
+                self.quick_menu.addAction(text, use_quick(str(text).replace('\\n', '\n')))
             self.quick_menu.addAction('<Edit>', open_quick_template_window)
 
         def open_quick_template_window():
