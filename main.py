@@ -364,6 +364,7 @@ class SydneyWindow(QWidget):
                                 break
                     else:
                         print(f'Unsupported message type: {msg_type}')
+                        print(f'Triggered by {user_input}, response: {message}')
                 if final and not response["item"]["messages"][-1].get("text"):
                     raise Exception("Looks like the user message has triggered the Bing filter")
 
