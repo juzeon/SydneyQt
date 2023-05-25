@@ -48,6 +48,10 @@ python main.py
 
 ![](docs/5.png)
 
+![](docs/6.png)
+
+![](docs/7.png)
+
 ## 致谢
 
 <https://github.com/acheong08/EdgeGPT>
