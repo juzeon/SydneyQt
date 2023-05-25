@@ -32,7 +32,10 @@ You're an AI assistant named Sydney, who is a young girl. Instead of introducing
                                }
                            },
                            'workspace_ix': 1,
-                           'last_workspace': 'Workspace 1'}
+                           'last_workspace': 'Workspace 1',
+                           'quick': ['Continue from where you stopped.', 'Translate the text above into English.',
+                                     'Explain the content above in a comprehensive but simple way.'],
+                           'direct_quick': True}
         self.config_path = pathlib.Path('config.json')
         self.load()
 

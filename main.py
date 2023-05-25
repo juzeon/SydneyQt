@@ -26,6 +26,7 @@ from document import read_pptx_text, read_pdf_text, read_docx_text
 from hyperlink_widget import HyperlinkWidget
 from name_dialog import NameDialog
 from preset_window import PresetWindow
+from quick_template_window import QuickTemplateWindow
 from setting_window import SettingWindow
 from snap_window import SnapWindow
 from user_input import UserInput
@@ -44,6 +45,7 @@ class SydneyWindow(QWidget):
         self.preset_window = None
         self.setting_window = None
         self.browse_window = None
+        self.quick_template_window = None
         self.updating_presets = False
         self.config = config
         self.responding = False
@@ -135,6 +137,40 @@ class SydneyWindow(QWidget):
         self.revoke_button.clicked.connect(self.revoke_edit)
         self.revoke_button.setToolTip('Revoke the latest message sent by the user.')
 
+        self.quick_button = QToolButton()
+        self.quick_button.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
+        self.quick_button.setText('Quick')
+        self.quick_menu = QMenu(self)
+
+        def use_quick(txt):
+            def quick_func():
+                if self.user_input.toPlainText() == "" and self.config.get('direct_quick'):
+                    self.current_responding_task = asyncio.ensure_future(self.send_message(text_to_send=txt))
+                    return
+                self.chat_history.moveCursor(QTextCursor.MoveOperation.End)
+                if not self.user_input.toPlainText().endswith('\n') and self.user_input.toPlainText() != "":
+                    self.user_input.insertPlainText('\n')
+                self.user_input.insertPlainText(txt)
+                self.user_input.moveCursor(QTextCursor.MoveOperation.End)
+
+            return quick_func
+
+        def reload_quick_menu():
+            self.quick_menu.clear()
+            for text in self.config.get('quick'):
+                self.quick_menu.addAction(text, use_quick(text))
+            self.quick_menu.addAction('<Edit>', open_quick_template_window)
+
+        def open_quick_template_window():
+            def on_save():
+                reload_quick_menu()
+
+            self.quick_template_window = QuickTemplateWindow(config=self.config, on_save=on_save)
+            self.quick_template_window.show()
+
+        reload_quick_menu()
+        self.quick_button.setMenu(self.quick_menu)
+
         bottom_half_layout.addWidget(self.suggestion_widget)
         bottom_half_layout.addLayout(bottom_half_buttons)
         bottom_half_buttons.addWidget(QLabel("Follow-up User Input:"))
@@ -143,6 +179,7 @@ class SydneyWindow(QWidget):
         bottom_half_buttons.addWidget(self.browse_button)
         bottom_half_buttons.addWidget(self.stop_button)
         bottom_half_buttons.addWidget(self.revoke_button)
+        bottom_half_buttons.addWidget(self.quick_button)
         bottom_half_buttons.addWidget(self.send_button)
         bottom_half_layout.addWidget(self.user_input)
 
@@ -613,6 +650,7 @@ class SydneyWindow(QWidget):
         self.rename_workspace_button.setDisabled(responding)
         self.clear_workspace_button.setDisabled(responding)
         self.stop_button.setDisabled(not responding)
+        self.quick_button.setDisabled(responding)
 
     def presets_changed(self, new_value: str):
         if self.updating_presets:

@@ -40,6 +40,8 @@ class SettingWindow(QWidget):
                                      'If `Suggestion on Message Revoke` is available, send it automatically. \n'
                                      'The error dialog will not show if an auto-reply can be applied. \n'
                                      'Set this to 0 to disable and show a suggestion only.')
+        self.direct_quick = QCheckBox()
+        self.direct_quick.setToolTip('Whether to send quick responses straightforward if the user input is empty.')
 
         form_layout = QFormLayout()
         form_layout.addRow(QLabel('Proxy:'), self.proxy_edit)
@@ -50,6 +52,7 @@ class SettingWindow(QWidget):
         form_layout.addRow(QLabel('(*) Stretch Factor of Chat Context Box: '), self.stretch_factor)
         form_layout.addRow(QLabel('Suggestion on Message Revoke: '), self.revoke_text)
         form_layout.addRow(QLabel('Revoke Auto Reply Count: '), self.revoke_count)
+        form_layout.addRow(QLabel('Send Quick Responses Straightforward: '), self.direct_quick)
 
         self.save_button = QPushButton('Save')
         self.save_button.clicked.connect(self.save_config)
@@ -77,6 +80,7 @@ class SettingWindow(QWidget):
         self.stretch_factor.setValue(self.config.get('stretch_factor'))
         self.revoke_text.setText(self.config.get('revoke_reply_text'))
         self.revoke_count.setValue(self.config.get('revoke_reply_count'))
+        self.direct_quick.setChecked(self.config.get('direct_quick'))
 
     @Slot()
     def open_font_dialog(self):
@@ -97,6 +101,7 @@ class SettingWindow(QWidget):
         self.config.cfg['stretch_factor'] = self.stretch_factor.value()
         self.config.cfg['revoke_reply_text'] = self.revoke_text.text()
         self.config.cfg['revoke_reply_count'] = self.revoke_count.value()
+        self.config.cfg['direct_quick'] = self.direct_quick.isChecked()
         self.config.save()
         msg = QMessageBox()
         msg.setIcon(QMessageBox.Icon.Information)
