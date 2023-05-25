@@ -37,6 +37,7 @@ signal.signal(signal.SIGINT, signal.SIG_DFL)
 class SydneyWindow(QWidget):
     def __init__(self, config: Config, parent=None):
         super().__init__(parent)
+        self.deleted_workspace = False
         self.updating_workspace_list = False
         self.current_responding_task = None
         self.snap_window = None
@@ -388,6 +389,7 @@ class SydneyWindow(QWidget):
             return
         name = self.workspace_list_widget.currentItem().text()
         del self.workspace_dict[name]
+        self.deleted_workspace = True
         self.workspace_list_widget.takeItem(self.workspace_list_widget.currentRow())
 
     def clear_workspace(self):
@@ -444,7 +446,10 @@ class SydneyWindow(QWidget):
         if self.updating_workspace_list:
             return
         new_workspace_name = self.workspace_list_widget.currentItem().text()
-        self.flush_workspace()
+        if self.deleted_workspace:
+            self.deleted_workspace = False
+        else:
+            self.flush_workspace()
         self.chat_history.setPlainText(self.workspace_dict[new_workspace_name]['context'])
         self.chat_history.moveCursor(QTextCursor.MoveOperation.End)
         self.user_input.setPlainText(self.workspace_dict[new_workspace_name]['input'])
