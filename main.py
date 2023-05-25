@@ -183,6 +183,10 @@ class SydneyWindow(QWidget):
         bottom_half_buttons.addWidget(self.send_button)
         bottom_half_layout.addWidget(self.user_input)
 
+        push_button_size = self.revoke_button.sizeHint()
+        self.send_button.setFixedSize(push_button_size)
+        self.quick_button.setFixedSize(push_button_size)
+
         self.status_bar = QStatusBar()
         self.status_bar.addWidget(self.status_label)
         self.status_bar.addPermanentWidget(self.token_count_label)
