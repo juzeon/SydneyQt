@@ -12,6 +12,7 @@ A desktop client for New Bing AI (Sydney ver.) based on Python and Qt.
 - Ability to edit chat context freely.
 - Anti message revoke.
 - Revoke and edit the last user message sent.
+- Select and send custom quick response messages to the chat.
 - Rich and plain text support in snapped context, with LaTeX support.
 - Browse webpages and chat with them.
 - Open documents (including pdf, docx and pptx) and chat with them.
