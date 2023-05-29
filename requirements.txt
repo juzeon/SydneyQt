@@ -9,3 +9,4 @@ bs4
 python-pptx
 pdfminer.six
 docx2txt
+httpx[socks]
