@@ -322,6 +322,7 @@ class SydneyWindow(QWidget):
                     conversation_style=self.config.cfg['conversation_style'],
                     search_result=not self.config.cfg['no_search']
             ):
+                # print(response)
                 if not final and response["type"] == 1 and "messages" in response["arguments"][0]:
                     self.chat_history.moveCursor(QTextCursor.MoveOperation.End)
                     message = response["arguments"][0]["messages"][0]
@@ -365,6 +366,13 @@ class SydneyWindow(QWidget):
                     else:
                         print(f'Unsupported message type: {msg_type}')
                         print(f'Triggered by {user_input}, response: {message}')
+                if response["type"] == 2 and "item" in response and "messages" in response["item"]:
+                    message = response["item"]["messages"][-1]
+                    if "suggestedResponses" in message:
+                        suggested_responses = list(
+                            map(lambda x: x["text"], message["suggestedResponses"]))
+                        self.set_suggestion_line(suggested_responses)
+                        break
                 if final and not response["item"]["messages"][-1].get("text"):
                     raise Exception("Looks like the user message has triggered the Bing filter")
 
