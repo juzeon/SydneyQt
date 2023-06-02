@@ -19,6 +19,7 @@
     const fontFamily = `##FONT_FAMILY_HERE##`
     let content = Base64.decode(b64content)
     content = content.replace(/\n+/g, '\n\n')
+    content = content.replace(/\|\n\n\|/g, '|\n|')
     content = content.replace(/^\[(.*?)]\(#(.*?)\)/gm, '### \\[$1\\]\\(#$2\\)')
     let contentElem = document.getElementById('content');
     contentElem.innerHTML = renderMD(content)

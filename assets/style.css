@@ -31,3 +31,12 @@ pre button:hover {
   cursor: pointer;
   background-color: #bcbabb;
 }
+
+table {
+  border-collapse: collapse;
+}
+
+th, td {
+  border: 1px solid black;
+  padding: 8px;
+}
