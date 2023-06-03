@@ -147,7 +147,7 @@ class SydneyWindow(QWidget):
                 if self.user_input.toPlainText() == "" and self.config.get('direct_quick'):
                     self.current_responding_task = asyncio.ensure_future(self.send_message(text_to_send=txt))
                     return
-                self.chat_history.moveCursor(QTextCursor.MoveOperation.End)
+                self.user_input.moveCursor(QTextCursor.MoveOperation.End)
                 if not self.user_input.toPlainText().endswith('\n') and self.user_input.toPlainText() != "":
                     self.user_input.insertPlainText('\n')
                 self.user_input.insertPlainText(txt)
