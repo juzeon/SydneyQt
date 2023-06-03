@@ -53,6 +53,10 @@ python main.py
 
 ![](docs/7.png)
 
+## Star 记录
+
+[![Star History Chart](https://api.star-history.com/svg?repos=juzeon/SydneyQt&type=Date)](https://star-history.com/#juzeon/SydneyQt&Date)
+
 ## 致谢
 
 <https://github.com/acheong08/EdgeGPT>
