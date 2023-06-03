@@ -577,6 +577,7 @@ class SydneyWindow(QWidget):
     def clear_context(self):
         self.chat_history.setPlainText(self.config.get_last_preset_text())
         self.set_suggestion_line()
+        self.chat_history.moveCursor(QTextCursor.MoveOperation.End)
 
     @asyncSlot()
     async def open_document(self):
@@ -617,6 +618,7 @@ class SydneyWindow(QWidget):
             with open(file_name, "r", encoding='utf-8') as f:
                 file_content = f.read()
             self.chat_history.setPlainText(file_content)
+            self.chat_history.moveCursor(QTextCursor.MoveOperation.End)
 
     def save_file(self):
         file_dialog = QFileDialog(self)
