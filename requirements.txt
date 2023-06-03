@@ -1,4 +1,4 @@
-EdgeGPT
+EdgeGPT==0.6.11
 PySide6
 PySide6_Addons
 PySide6_Essentials
@@ -9,4 +9,3 @@ bs4
 python-pptx
 pdfminer.six
 docx2txt
-httpx[socks]
