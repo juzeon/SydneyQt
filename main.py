@@ -690,6 +690,8 @@ class SydneyWindow(QWidget):
             self.config.cfg['last_workspace'] = self.current_workspace_name
             self.config.cfg['workspace_ix'] = self.workspace_ix
             self.config.save()
+        if event.type() == QEvent.Close:
+            app.exit()
         return super().eventFilter(watched, event)
 
 
