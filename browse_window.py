@@ -1,7 +1,5 @@
-import asyncio
 import json
-
-import requests
+import aiohttp
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLineEdit, QPushButton, QLabel, QPlainTextEdit, \
     QErrorMessage
 from bs4 import BeautifulSoup
@@ -15,6 +13,10 @@ class BrowseWindow(QWidget):
         super().__init__()
         self.config = config
         self.on_insert = on_insert
+
+        self.session = aiohttp.ClientSession(
+            headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) '
+                                   'Gecko/20100101 Firefox/113.0'})
 
         self.url_edit = QLineEdit()
         self.url_edit.returnPressed.connect(self.fetch_button_clicked)
@@ -55,17 +57,8 @@ class BrowseWindow(QWidget):
         self.set_responding(False)
 
     async def fetch_webpage(self, url: str) -> str:
-        loop = asyncio.get_event_loop()
-
-        def runner():
-            return requests.get(url, headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) '
-                                                            'Gecko/20100101 Firefox/113.0'},
-                                proxies=dict(
-                                    http=self.config.get('proxy'),
-                                    https=self.config.get('proxy')) if self.config.get('proxy') != '' else None)
-
-        html = await loop.run_in_executor(None, runner)
-        soup = BeautifulSoup(html.text, features="html.parser")
+        html = await self.session.get(url, proxy=self.config.get('proxy') if self.config.get('proxy') != '' else None)
+        soup = BeautifulSoup(await html.text(), features="html.parser")
         for script in soup(["script", "style"]):
             script.extract()
         text = soup.get_text()

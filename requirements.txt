@@ -4,8 +4,8 @@ PySide6_Addons==6.5.0
 PySide6_Essentials==6.5.0
 qasync
 tiktoken
-requests
 bs4
 python-pptx
 pdfminer.six
 docx2txt
+aiohttp
