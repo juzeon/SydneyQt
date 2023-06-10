@@ -4,10 +4,8 @@ import pathlib
 import re
 import signal
 import traceback
-from typing import List
-
-import PySide6
 import tiktoken
+from EdgeGPT import Chatbot
 from PySide6.QtCore import QEvent
 from PySide6.QtGui import QTextCursor, Qt, QFont, QIcon
 from PySide6.QtWidgets import (
@@ -19,8 +17,6 @@ from PySide6.QtWidgets import (
     QGridLayout
 )
 from qasync import QEventLoop, asyncSlot
-from EdgeGPT import Chatbot
-
 from browse_window import BrowseWindow
 from document import read_pptx_text, read_pdf_text, read_docx_text
 from hyperlink_widget import HyperlinkWidget
