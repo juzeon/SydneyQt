@@ -86,6 +86,17 @@ class SydneyWindow(QWidget):
         self.presets.currentTextChanged.connect(self.presets_changed)
         self.update_presets()
 
+        self.locales = QComboBox()
+        self.locales.addItems(['zh-CN', 'en-US', 'en-IE', 'en-GB'])
+        self.locales.setCurrentText(self.config.get('locale'))
+        self.locales.setToolTip('Locale hint for the conversation.')
+
+        def change_locale():
+            self.config.cfg['locale'] = self.locales.currentText()
+            self.config.save()
+
+        self.locales.currentTextChanged.connect(change_locale)
+
         upper_half = QWidget()
         upper_half_layout = QVBoxLayout()
         upper_half.setLayout(upper_half_layout)
@@ -94,11 +105,15 @@ class SydneyWindow(QWidget):
         upper_half_buttons.addWidget(QLabel("Chat Context:"))
         upper_half_buttons.addStretch()
         preset_label = QLabel('Preset:')
-        preset_label.setStyleSheet("padding-left: 10px")
+        preset_label.setStyleSheet("margin-left: 3px")
+        locale_label = QLabel('Locale:')
+        locale_label.setStyleSheet("margin-left: 3px")
+        upper_half_buttons.addWidget(locale_label)
+        upper_half_buttons.addWidget(self.locales)
         upper_half_buttons.addWidget(preset_label)
         upper_half_buttons.addWidget(self.presets)
         action_label = QLabel('Actions:')
-        action_label.setStyleSheet("padding-left: 10px")
+        action_label.setStyleSheet("margin-left: 3px")
         upper_half_buttons.addWidget(action_label)
         upper_half_buttons.addWidget(self.reset_button)
         upper_half_buttons.addWidget(self.snap_button)
@@ -316,7 +331,8 @@ class SydneyWindow(QWidget):
                     raw=True,
                     webpage_context=self.chat_history.toPlainText(),
                     conversation_style=self.config.cfg['conversation_style'],
-                    search_result=not self.config.cfg['no_search']
+                    search_result=not self.config.cfg['no_search'],
+                    locale=self.config.get('locale')
             ):
                 # print(response)
                 if not final and response["type"] == 1 and "messages" in response["arguments"][0]:
