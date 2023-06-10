@@ -370,6 +370,8 @@ class SydneyWindow(QWidget):
                         else:
                             self.append_chat_context(message["text"][wrote:])
                             wrote = len(message["text"])
+                            token_wrote = len(tiktoken.encoding_for_model('gpt-4').encode(message["text"]))
+                            self.update_status_text(f'Fetching response, {token_wrote} tokens received currently.')
                             if "suggestedResponses" in message:
                                 suggested_responses = list(
                                     map(lambda x: x["text"], message["suggestedResponses"]))
