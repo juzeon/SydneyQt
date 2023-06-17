@@ -18,6 +18,7 @@ from PySide6.QtWidgets import (
 )
 from qasync import QEventLoop, asyncSlot
 from browse_window import BrowseWindow
+from cookie_checker import CookieChecker
 from document import read_pptx_text, read_pdf_text, read_docx_text
 from hyperlink_widget import HyperlinkWidget
 from name_dialog import NameDialog
@@ -42,6 +43,7 @@ class SydneyWindow(QWidget):
         self.setting_window = None
         self.browse_window = None
         self.quick_template_window = None
+        self.cookie_checker = None
         self.updating_presets = False
         self.config = config
         self.responding = False
@@ -256,7 +258,12 @@ class SydneyWindow(QWidget):
                 self.config.cfg['workspace_toggle'] = False
                 self.config.save()
 
+        def open_cookie_checker():
+            self.cookie_checker = CookieChecker(config=self.config)
+            self.cookie_checker.show()
+
         menu_bar.addAction('Show/Hide Workspace', toggle_workspace)
+        menu_bar.addAction('Cookie Checker', open_cookie_checker)
         menu_bar.addAction('Settings', self.open_setting_window)
         main_layout = QHBoxLayout()
         main_layout.addWidget(self.left_layout_widget, 1)
