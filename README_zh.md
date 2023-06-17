@@ -37,6 +37,19 @@ pip install -r requirements.txt
 python main.py
 ```
 
+## 常见问题
+
+如果你遇到以下问题：`Request is throttled`, `Authentication Failed`, `OSError: [WinError 64]` 等，请尝试以下步骤来解决：
+
+1. 更新 SydneyQt 到最新版本。
+2. 在 Edge 浏览器中打开一个隐私窗口，登录 bing.com 并向 New Bing 发送一条随机消息。
+3. 导出 cookies.json 文件并替换原来的文件。
+
+如果这些步骤仍然无效，请检查你的代理设置，如下：
+
+1. 在 SydneyQt 的设置中尝试不同的代理类型。例如：http://127.0.0.1:7890, socks5h://127.0.0.1:7890 (这里的 `h` 字母表示将主机名发送给代理)
+2. 如果这也不行，就在 SydneyQt 中留空代理设置，并尝试使用 [Proxifier](https://www.proxifier.com/) 或 Clash TUN 模式。
+
 ## 截图
 
 ![](docs/1.png)
