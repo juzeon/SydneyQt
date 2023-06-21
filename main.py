@@ -350,6 +350,7 @@ class SydneyWindow(QWidget):
                 messages.append({'role': item['role'], 'content': content})
             all_context = ' '.join([message['content'] for message in messages])
             current_length = len(tiktoken.encoding_for_model(current_encoder_name).encode(all_context))
+            # print(current_length)
             if current_length > self.config.get('openai_threshold'):
                 current_model = self.config.get('openai_long_model')
                 current_encoder_name = 'gpt-3.5-turbo' if current_model.startswith('gpt-3.5') else 'gpt-4'
