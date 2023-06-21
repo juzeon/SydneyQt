@@ -106,6 +106,17 @@ class SydneyWindow(QWidget):
 
         self.locales.currentTextChanged.connect(change_locale)
 
+        self.backend = QComboBox()
+        self.backend.addItems(["Sydney", "ChatGPT"])
+        self.backend.setCurrentText(self.config.get('backend'))
+        self.backend.setToolTip('Switch this from sydney to openai will disable Sydney and enable ChatGPT.')
+
+        def change_backend():
+            self.config.cfg['backend'] = self.backend.currentText()
+            self.config.save()
+
+        self.backend.currentTextChanged.connect(change_backend)
+
         upper_half = QWidget()
         upper_half_layout = QVBoxLayout()
         upper_half.setLayout(upper_half_layout)
@@ -113,10 +124,14 @@ class SydneyWindow(QWidget):
         upper_half_layout.addLayout(upper_half_buttons)
         upper_half_buttons.addWidget(QLabel("Chat Context:"))
         upper_half_buttons.addStretch()
+        backend_label = QLabel('Backend:')
+        backend_label.setStyleSheet("margin-left: 3px")
         preset_label = QLabel('Preset:')
         preset_label.setStyleSheet("margin-left: 3px")
         locale_label = QLabel('Locale:')
         locale_label.setStyleSheet("margin-left: 3px")
+        upper_half_buttons.addWidget(backend_label)
+        upper_half_buttons.addWidget(self.backend)
         upper_half_buttons.addWidget(locale_label)
         upper_half_buttons.addWidget(self.locales)
         upper_half_buttons.addWidget(preset_label)
@@ -307,7 +322,7 @@ class SydneyWindow(QWidget):
         self.current_responding_task = asyncio.ensure_future(self.send_message())
 
     async def send_message(self, text_to_send: str = None):
-        if self.config.get('backend') == 'sydney':
+        if str(self.config.get('backend')).lower() == 'sydney':
             await self.send_sydney(text_to_send)
         else:
             await self.send_openai(text_to_send)
@@ -350,7 +365,7 @@ class SydneyWindow(QWidget):
             self.update_status_text(err_text + '.')
             self.set_responding(False)
             return
-        self.update_status_text('Fetching response...')
+        self.update_status_text(f'Fetching response using {current_model}...')
         self.append_chat_context(f"[user](#message)\n{user_input}\n\n", new_block=True)
         first_chunk = True
         token_wrote = 0
@@ -364,7 +379,8 @@ class SydneyWindow(QWidget):
                 content = chunk['choices'][0]['delta']['content']
                 token_wrote += len(tiktoken.encoding_for_model(current_encoder_name).encode(content))
                 self.append_chat_context(content)
-                self.update_status_text(f'Fetching response, {token_wrote} tokens received currently.')
+                self.update_status_text(f'Fetching response using {current_model}, '
+                                        f'{token_wrote} tokens received currently.')
         except Exception as e:
             print(e)
             err_text = 'Error fetching response'

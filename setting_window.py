@@ -54,9 +54,6 @@ class SettingWindow(QWidget):
         top_form_layout.addRow(QLabel('Revoke Auto Reply Count: '), self.revoke_count)
         top_form_layout.addRow(QLabel('Send Quick Responses Straightforward: '), self.direct_quick)
 
-        self.backend = QComboBox()
-        self.backend.addItems(["sydney", "openai"])
-        self.backend.setToolTip('Switch this from sydney to openai will disable Sydney and enable ChatGPT.')
         self.openai_key = QLineEdit()
         self.openai_key.setToolTip('OpenAI API Key.')
         self.openai_endpoint = QLineEdit()
@@ -81,7 +78,6 @@ class SettingWindow(QWidget):
         self.openai_temperature.setToolTip('Temperature for the model.')
 
         bottom_form_layout = QFormLayout()
-        bottom_form_layout.addRow(QLabel('Backend:'), self.backend)
         bottom_form_layout.addRow(QLabel('OpenAI Key:'), self.openai_key)
         bottom_form_layout.addRow(QLabel('OpenAI Endpoint:'), self.openai_endpoint)
         bottom_form_layout.addRow(QLabel('Short Model:'), self.openai_short_model)
@@ -120,7 +116,6 @@ class SettingWindow(QWidget):
         self.revoke_text.setText(self.config.get('revoke_reply_text'))
         self.revoke_count.setValue(self.config.get('revoke_reply_count'))
         self.direct_quick.setChecked(self.config.get('direct_quick'))
-        self.backend.setCurrentText(self.config.get('backend'))
         self.openai_key.setText(self.config.get('openai_key'))
         self.openai_endpoint.setText(self.config.get('openai_endpoint'))
         self.openai_short_model.setText(self.config.get('openai_short_model'))
@@ -148,7 +143,6 @@ class SettingWindow(QWidget):
         self.config.cfg['revoke_reply_text'] = self.revoke_text.text()
         self.config.cfg['revoke_reply_count'] = self.revoke_count.value()
         self.config.cfg['direct_quick'] = self.direct_quick.isChecked()
-        self.config.cfg['backend'] = self.backend.currentText()
         self.config.cfg['openai_key'] = self.openai_key.text()
         self.config.cfg['openai_endpoint'] = self.openai_endpoint.text()
         self.config.cfg['openai_short_model'] = self.openai_short_model.text()

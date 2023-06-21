@@ -39,7 +39,7 @@ You're an AI assistant named Sydney, who is a young girl. Instead of introducing
                                      'Explain the content above in a comprehensive but simple way.'],
                            'direct_quick': True,
                            'locale': 'zh-CN',
-                           'backend': 'sydney',
+                           'backend': 'Sydney',
                            'openai_key': 'sk-',
                            'openai_endpoint': 'https://api.openai.com/v1',
                            'openai_short_model': 'gpt-3.5-turbo',
