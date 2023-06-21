@@ -16,6 +16,7 @@ A desktop client for New Bing AI (Sydney ver.) based on Python and Qt.
 - Rich and plain text support in snapped context, with LaTeX support.
 - Browse webpages and chat with them.
 - Open documents (including pdf, docx and pptx) and chat with them.
+- Support OpenAI ChatGPT API.
 - Multiple custom prompt presets.
 - Highly customizable settings.
 
