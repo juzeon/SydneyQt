@@ -1,7 +1,7 @@
 from PySide6.QtCore import Slot
 from PySide6.QtGui import QCloseEvent, QFont
 from PySide6.QtWidgets import QWidget, QFormLayout, QLabel, QLineEdit, QCheckBox, QVBoxLayout, QHBoxLayout, QPushButton, \
-    QMessageBox, QComboBox, QFontDialog, QSpinBox
+    QMessageBox, QComboBox, QFontDialog, QSpinBox, QDoubleSpinBox
 
 from config import Config
 
@@ -43,16 +43,51 @@ class SettingWindow(QWidget):
         self.direct_quick = QCheckBox()
         self.direct_quick.setToolTip('Whether to send quick responses straightforward if the user input is empty.')
 
-        form_layout = QFormLayout()
-        form_layout.addRow(QLabel('Proxy:'), self.proxy_edit)
-        form_layout.addRow(QLabel('Conversation Style:'), self.conversation_style)
-        form_layout.addRow(QLabel('No Suggestion:'), self.no_suggestion_checkbox)
-        form_layout.addRow(QLabel('No Search Result:'), self.no_search_checkbox)
-        form_layout.addRow(QLabel('Font Family and Size:'), self.font_button)
-        form_layout.addRow(QLabel('(*) Stretch Factor of Chat Context Box: '), self.stretch_factor)
-        form_layout.addRow(QLabel('Suggestion on Message Revoke: '), self.revoke_text)
-        form_layout.addRow(QLabel('Revoke Auto Reply Count: '), self.revoke_count)
-        form_layout.addRow(QLabel('Send Quick Responses Straightforward: '), self.direct_quick)
+        top_form_layout = QFormLayout()
+        top_form_layout.addRow(QLabel('Proxy:'), self.proxy_edit)
+        top_form_layout.addRow(QLabel('Conversation Style:'), self.conversation_style)
+        top_form_layout.addRow(QLabel('No Suggestion:'), self.no_suggestion_checkbox)
+        top_form_layout.addRow(QLabel('No Search Result:'), self.no_search_checkbox)
+        top_form_layout.addRow(QLabel('Font Family and Size:'), self.font_button)
+        top_form_layout.addRow(QLabel('(*) Stretch Factor of Chat Context Box: '), self.stretch_factor)
+        top_form_layout.addRow(QLabel('Suggestion on Message Revoke: '), self.revoke_text)
+        top_form_layout.addRow(QLabel('Revoke Auto Reply Count: '), self.revoke_count)
+        top_form_layout.addRow(QLabel('Send Quick Responses Straightforward: '), self.direct_quick)
+
+        self.backend = QComboBox()
+        self.backend.addItems(["sydney", "openai"])
+        self.backend.setToolTip('Switch this from sydney to openai will disable Sydney and enable ChatGPT.')
+        self.openai_key = QLineEdit()
+        self.openai_key.setToolTip('OpenAI API Key.')
+        self.openai_endpoint = QLineEdit()
+        self.openai_endpoint.setToolTip('OpenAI API Endpoint. Must be started with https:// and ended with /v1.')
+        self.openai_short_model = QLineEdit()
+        self.openai_short_model.setToolTip('Model for shorter conversations. See\n'
+                                           'https://platform.openai.com/docs/models/model-endpoint-compatibility\n'
+                                           'for all models.')
+        self.openai_long_model = QLineEdit()
+        self.openai_long_model.setToolTip('Model for longer conversations. See\n'
+                                          'https://platform.openai.com/docs/models/model-endpoint-compatibility\n'
+                                          'for all models.')
+        self.openai_threshold = QSpinBox()
+        self.openai_threshold.setMinimum(0)
+        self.openai_threshold.setMaximum(100000)
+        self.openai_threshold.setToolTip('Threshold of token length to switch between '
+                                         'the short model and the long model.')
+        self.openai_temperature = QDoubleSpinBox()
+        self.openai_temperature.setMinimum(0)
+        self.openai_temperature.setMaximum(2)
+        self.openai_temperature.setSingleStep(0.1)
+        self.openai_temperature.setToolTip('Temperature for the model.')
+
+        bottom_form_layout = QFormLayout()
+        bottom_form_layout.addRow(QLabel('Backend:'), self.backend)
+        bottom_form_layout.addRow(QLabel('OpenAI Key:'), self.openai_key)
+        bottom_form_layout.addRow(QLabel('OpenAI Endpoint:'), self.openai_endpoint)
+        bottom_form_layout.addRow(QLabel('Short Model:'), self.openai_short_model)
+        bottom_form_layout.addRow(QLabel('Long Model:'), self.openai_long_model)
+        bottom_form_layout.addRow(QLabel('Model Switching Threshold:'), self.openai_threshold)
+        bottom_form_layout.addRow(QLabel('Model Temperature:'), self.openai_temperature)
 
         self.save_button = QPushButton('Save')
         self.save_button.clicked.connect(self.save_config)
@@ -60,7 +95,11 @@ class SettingWindow(QWidget):
         layout = QVBoxLayout()
         layout.addWidget(QLabel('Note: Hover to show tooltips of options. \n'
                                 'Settings marked with (*) need a restart to be applied.'))
-        layout.addLayout(form_layout)
+        layout.addLayout(top_form_layout)
+        openai_label = QLabel('ChatGPT specified settings:')
+        openai_label.setStyleSheet('padding-top: 5px;')
+        layout.addWidget(openai_label)
+        layout.addLayout(bottom_form_layout)
         bottom_layout = QHBoxLayout()
         bottom_layout.addStretch()
         bottom_layout.addWidget(self.save_button)
@@ -81,6 +120,13 @@ class SettingWindow(QWidget):
         self.revoke_text.setText(self.config.get('revoke_reply_text'))
         self.revoke_count.setValue(self.config.get('revoke_reply_count'))
         self.direct_quick.setChecked(self.config.get('direct_quick'))
+        self.backend.setCurrentText(self.config.get('backend'))
+        self.openai_key.setText(self.config.get('openai_key'))
+        self.openai_endpoint.setText(self.config.get('openai_endpoint'))
+        self.openai_short_model.setText(self.config.get('openai_short_model'))
+        self.openai_long_model.setText(self.config.get('openai_long_model'))
+        self.openai_threshold.setValue(self.config.get('openai_threshold'))
+        self.openai_temperature.setValue(self.config.get('openai_temperature'))
 
     @Slot()
     def open_font_dialog(self):
@@ -102,6 +148,13 @@ class SettingWindow(QWidget):
         self.config.cfg['revoke_reply_text'] = self.revoke_text.text()
         self.config.cfg['revoke_reply_count'] = self.revoke_count.value()
         self.config.cfg['direct_quick'] = self.direct_quick.isChecked()
+        self.config.cfg['backend'] = self.backend.currentText()
+        self.config.cfg['openai_key'] = self.openai_key.text()
+        self.config.cfg['openai_endpoint'] = self.openai_endpoint.text()
+        self.config.cfg['openai_short_model'] = self.openai_short_model.text()
+        self.config.cfg['openai_long_model'] = self.openai_long_model.text()
+        self.config.cfg['openai_threshold'] = self.openai_threshold.value()
+        self.config.cfg['openai_temperature'] = self.openai_temperature.value()
         self.config.save()
         msg = QMessageBox()
         msg.setIcon(QMessageBox.Icon.Information)

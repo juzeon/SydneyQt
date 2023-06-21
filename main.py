@@ -4,6 +4,8 @@ import pathlib
 import re
 import signal
 import traceback
+
+import openai
 import tiktoken
 from EdgeGPT import Chatbot
 from PySide6.QtCore import QEvent
@@ -48,6 +50,11 @@ class SydneyWindow(QWidget):
         self.config = config
         self.responding = False
         self.enter_mode = "Enter"
+
+        openai.api_key = self.config.get('openai_key')
+        openai.api_base = self.config.get('openai_endpoint')
+        openai.proxy = self.config.get('proxy')
+
         self.status_label = QLabel('Ready.')
         self.token_count_label = QLabel('Token Count')
         self.chat_history = QPlainTextEdit()
@@ -299,7 +306,77 @@ class SydneyWindow(QWidget):
     def send_clicked(self):
         self.current_responding_task = asyncio.ensure_future(self.send_message())
 
-    async def send_message(self, text_to_send: str = None, reply_deep=0):
+    async def send_message(self, text_to_send: str = None):
+        if self.config.get('backend') == 'sydney':
+            await self.send_sydney(text_to_send)
+        else:
+            await self.send_openai(text_to_send)
+
+    async def send_openai(self, text_to_send: str = None):
+        openai.api_key = self.config.get('openai_key')
+        openai.api_base = self.config.get('openai_endpoint')
+        if self.responding:
+            return
+        self.set_responding(True)
+        self.update_status_text('Creating conversation...')
+        user_input = self.user_input.toPlainText()
+        if text_to_send is not None:
+            user_input = text_to_send
+        context_arr = self.get_chat_context_array(self.chat_history.toPlainText())
+        context_arr.append({'role': 'user', 'type': 'message', 'message': user_input})
+        current_model = str(self.config.get('openai_short_model'))
+        current_encoder_name = 'gpt-3.5-turbo' if current_model.startswith('gpt-3.5') else 'gpt-4'
+        try:
+            messages = []
+            for item in context_arr:
+                content = item['message']
+                if item['type'] != 'message':
+                    content = '(#' + item['type'] + ') ' + content
+                messages.append({'role': item['role'], 'content': content})
+            all_context = ' '.join([message['content'] for message in messages])
+            current_length = len(tiktoken.encoding_for_model(current_encoder_name).encode(all_context))
+            if current_length > self.config.get('openai_threshold'):
+                current_model = self.config.get('openai_long_model')
+                current_encoder_name = 'gpt-3.5-turbo' if current_model.startswith('gpt-3.5') else 'gpt-4'
+            response = await openai.ChatCompletion.acreate(model=current_model, messages=messages, stream=True,
+                                                           temperature=self.config.get('openai_temperature'))
+            if text_to_send is None:
+                self.user_input.clear()
+        except Exception as e:
+            print(e)
+            err_text = 'Cannot create conversation'
+            err = err_text + ': ' + str(e)
+            QErrorMessage(self).showMessage(err)
+            self.update_status_text(err_text + '.')
+            self.set_responding(False)
+            return
+        self.update_status_text('Fetching response...')
+        self.append_chat_context(f"[user](#message)\n{user_input}\n\n", new_block=True)
+        first_chunk = True
+        token_wrote = 0
+        try:
+            async for chunk in response:
+                if 'content' not in chunk['choices'][0]['delta']:
+                    continue
+                if first_chunk:
+                    self.append_chat_context(f"[assistant](#message)\n", new_block=True)
+                    first_chunk = False
+                content = chunk['choices'][0]['delta']['content']
+                token_wrote += len(tiktoken.encoding_for_model(current_encoder_name).encode(content))
+                self.append_chat_context(content)
+                self.update_status_text(f'Fetching response, {token_wrote} tokens received currently.')
+        except Exception as e:
+            print(e)
+            err_text = 'Error fetching response'
+            err = err_text + ': ' + str(e)
+            QErrorMessage(self).showMessage(err)
+            self.update_status_text(err_text + '.')
+            self.set_responding(False)
+            return
+        self.update_status_text('Ready.')
+        self.set_responding(False)
+
+    async def send_sydney(self, text_to_send: str = None, reply_deep=0):
         if self.responding:
             return
         self.set_responding(True)
@@ -410,7 +487,7 @@ class SydneyWindow(QWidget):
         await chatbot.close()
         if revoke_reply_text != '' and message_revoked:
             if reply_deep < revoke_reply_count:
-                await self.send_message(revoke_reply_text, reply_deep + 1)
+                await self.send_sydney(revoke_reply_text, reply_deep + 1)
             else:
                 self.set_suggestion_line([revoke_reply_text])
 
