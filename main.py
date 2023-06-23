@@ -543,7 +543,10 @@ class SydneyWindow(QWidget):
         self.workspace_ix = self.workspace_ix + 1
         self.workspace_dict[f'Workspace {self.workspace_ix}'] = {
             'context': self.config.get_last_preset_text(),
-            'input': ''
+            'input': '',
+            'backend': self.backend.currentText(),
+            'locale': self.locales.currentText(),
+            'preset': self.presets.currentText()
         }
         self.workspace_list_widget.addItem(f'Workspace {self.workspace_ix}')
         self.workspace_list_widget.setCurrentRow(self.workspace_list_widget.count() - 1)
@@ -599,12 +602,24 @@ class SydneyWindow(QWidget):
     def flush_workspace(self):
         self.workspace_dict[self.current_workspace_name] = {
             'context': self.chat_history.toPlainText(),
-            'input': self.user_input.toPlainText()
+            'input': self.user_input.toPlainText(),
+            'backend': self.backend.currentText(),
+            'locale': self.locales.currentText(),
+            'preset': self.presets.currentText()
         }
+
+    def _restore_optional_workspace_value(self, workspace_name):
+        if 'backend' in self.workspace_dict[workspace_name]:
+            self.backend.setCurrentText(self.workspace_dict[workspace_name]['backend'])
+        if 'locale' in self.workspace_dict[workspace_name]:
+            self.locales.setCurrentText(self.workspace_dict[workspace_name]['locale'])
+        if 'preset' in self.workspace_dict[workspace_name]:
+            self.presets.setCurrentText(self.workspace_dict[workspace_name]['preset'])
 
     def restore_workspace(self):
         self.chat_history.setPlainText(self.workspace_dict[self.current_workspace_name]['context'])
         self.user_input.setPlainText(self.workspace_dict[self.current_workspace_name]['input'])
+        self._restore_optional_workspace_value(self.current_workspace_name)
         self.chat_history.moveCursor(QTextCursor.MoveOperation.End)
 
     def switch_workspace(self):
@@ -619,6 +634,7 @@ class SydneyWindow(QWidget):
         self.chat_history.moveCursor(QTextCursor.MoveOperation.End)
         self.user_input.setPlainText(self.workspace_dict[new_workspace_name]['input'])
         self.user_input.moveCursor(QTextCursor.MoveOperation.End)
+        self._restore_optional_workspace_value(new_workspace_name)
         self.current_workspace_name = new_workspace_name
         self.set_suggestion_line()
 
