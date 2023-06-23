@@ -9,3 +9,5 @@ python-pptx
 pdfminer.six
 docx2txt
 aiohttp
+tiktoken
+openai
