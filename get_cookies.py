@@ -25,14 +25,14 @@ def hack_cookies(jfile):
 def get_cookies_loop(jfile):
     x = 0
     cookies = False
-    while x < 5 and not cookies:
+    while x < 2 and not cookies:
         x+=1
         try:
             hack_cookies(jfile)
         except Exception as e:
             print(str(e))
         if cookies:
-            x = 6 
+            x = 2 
             break
 
 
