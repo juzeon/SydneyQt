@@ -828,9 +828,6 @@ class SydneyWindow(QWidget):
         self.visual_search_window = VisualSearchWindow(self)
         self.visual_search_window.show()
 
-    def visual_url_changed(self, url):
-        self.visual_search_url = url
-
     def eventFilter(self, watched, event) -> bool:
         if event.type() == QEvent.WindowDeactivate or event.type() == QEvent.Close:
             self.flush_workspace()
