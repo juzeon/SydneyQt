@@ -384,6 +384,8 @@ class _ChatHubRequest:
                     "messageId": "discover-web--page-ping-mriduna-----",
                 },
             ]
+        if image_url != "":
+            self.struct["arguments"][0]["message"]["imageUrl"] = image_url
         self.invocation_id += 1
 
 
