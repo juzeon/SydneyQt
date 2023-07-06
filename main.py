@@ -159,7 +159,7 @@ class SydneyWindow(QWidget):
         self.suggestion_widget.setLayout(self.suggestion_layout)
         self.suggestion_widget.setVisible(not self.config.cfg.get('no_suggestion'))
 
-        self.visual_search_button = QPushButton('Visual Search')
+        self.visual_search_button = QPushButton('Image')
         self.visual_search_button.setToolTip('Perform a visual search in the current chat context.')
         self.visual_search_button.clicked.connect(self.visual_search)
 
@@ -825,7 +825,15 @@ class SydneyWindow(QWidget):
         self.config.save()
 
     def visual_search(self):
-        self.visual_search_window = VisualSearchWindow(self)
+        def update_image_url(url: str):
+            self.visual_search_url = url
+            if url == "":
+                self.visual_search_button.setText("Image")
+            else:
+                self.visual_search_button.setText("Image(Set)")
+
+        self.visual_search_window = VisualSearchWindow(config=self.config, current_image_url=self.visual_search_url,
+                                                       update_image_url=update_image_url)
         self.visual_search_window.show()
 
     def eventFilter(self, watched, event) -> bool:
