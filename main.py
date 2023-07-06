@@ -468,6 +468,16 @@ class SydneyWindow(QWidget):
                         except Exception as err:
                             print('Error when parsing InternalSearchResult: ' + str(err))
                             traceback.print_exc()
+                    elif msg_type == "InternalLoaderMessage":
+                        if 'hiddenText' in message:
+                            self.append_chat_context(
+                                f"[assistant](#loading)\n{message['hiddenText']}\n\n")
+                        elif 'text' in message:
+                            self.append_chat_context(
+                                f"[assistant](#loading)\n{message['text']}\n\n")
+                        else:
+                            self.append_chat_context(
+                                f"[assistant](#loading)\n{json.dumps(message)}\n\n")
                     elif msg_type is None:
                         if "cursor" in response["arguments"][0]:
                             self.append_chat_context("[assistant](#message)\n")
