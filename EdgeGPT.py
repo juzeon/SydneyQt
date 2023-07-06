@@ -40,7 +40,6 @@ from rich.markdown import Markdown
 
 DELIMITER = "\x1e"
 
-
 # Generate random IP between range 13.104.0.0/14
 FORWARDED_IP = (
     f"13.{random.randint(104, 107)}.{random.randint(0, 255)}.{random.randint(0, 255)}"
@@ -271,11 +270,11 @@ def _get_ran_hex(length: int = 32) -> str:
 
 class _ChatHubRequest:
     def __init__(
-        self,
-        conversation_signature: str,
-        client_id: str,
-        conversation_id: str,
-        invocation_id: int = 0,
+            self,
+            conversation_signature: str,
+            client_id: str,
+            conversation_id: str,
+            invocation_id: int = 0,
     ) -> None:
         self.struct: dict = {}
 
@@ -285,14 +284,14 @@ class _ChatHubRequest:
         self.invocation_id: int = invocation_id
 
     def update(
-        self,
-        prompt: str,
-        conversation_style: CONVERSATION_STYLE_TYPE,
-        options: list | None = None,
-        webpage_context: str | None = None,
-        search_result: bool = False,
-        locale: str = guess_locale(),
-        image_url: str = "",
+            self,
+            prompt: str,
+            conversation_style: CONVERSATION_STYLE_TYPE,
+            options: list | None = None,
+            webpage_context: str | None = None,
+            search_result: bool = False,
+            locale: str = guess_locale(),
+            image_url: str = "",
     ) -> None:
         if options is None:
             options = [
@@ -353,7 +352,6 @@ class _ChatHubRequest:
                         "inputMethod": "Keyboard",
                         "text": prompt,
                         "messageType": random.choice(["SearchQuery", "Chat"]),
-                        "imageUrl": image_url,
                     },
                     "conversationSignature": self.conversation_signature,
                     "participant": {
@@ -391,10 +389,10 @@ class _ChatHubRequest:
 
 class _Conversation:
     def __init__(
-        self,
-        proxy: str | None = None,
-        async_mode: bool = False,
-        cookies: list[dict] | None = None,
+            self,
+            proxy: str | None = None,
+            async_mode: bool = False,
+            cookies: list[dict] | None = None,
     ) -> None:
         if async_mode:
             return
@@ -406,15 +404,15 @@ class _Conversation:
         }
         self.proxy = proxy
         proxy = (
-            proxy
-            or os.environ.get("all_proxy")
-            or os.environ.get("ALL_PROXY")
-            or os.environ.get("https_proxy")
-            or os.environ.get("HTTPS_PROXY")
-            or None
+                proxy
+                or os.environ.get("all_proxy")
+                or os.environ.get("ALL_PROXY")
+                or os.environ.get("https_proxy")
+                or os.environ.get("HTTPS_PROXY")
+                or None
         )
         if proxy is not None and proxy.startswith("socks5h://"):
-            proxy = "socks5://" + proxy[len("socks5h://") :]
+            proxy = "socks5://" + proxy[len("socks5h://"):]
         self.session = httpx.Client(
             proxies=proxy,
             timeout=900,
@@ -426,7 +424,7 @@ class _Conversation:
         # Send GET request
         response = self.session.get(
             url=os.environ.get("BING_PROXY_URL")
-            or "https://edgeservices.bing.com/edgesvc/turing/conversation/create",
+                or "https://edgeservices.bing.com/edgesvc/turing/conversation/create",
         )
         if response.status_code != 200:
             response = self.session.get(
@@ -448,8 +446,8 @@ class _Conversation:
 
     @staticmethod
     async def create(
-        proxy: str | None = None,
-        cookies: list[dict] | None = None,
+            proxy: str | None = None,
+            cookies: list[dict] | None = None,
     ) -> _Conversation:
         self = _Conversation(async_mode=True)
         self.struct = {
@@ -460,15 +458,15 @@ class _Conversation:
         }
         self.proxy = proxy
         proxy = (
-            proxy
-            or os.environ.get("all_proxy")
-            or os.environ.get("ALL_PROXY")
-            or os.environ.get("https_proxy")
-            or os.environ.get("HTTPS_PROXY")
-            or None
+                proxy
+                or os.environ.get("all_proxy")
+                or os.environ.get("ALL_PROXY")
+                or os.environ.get("https_proxy")
+                or os.environ.get("HTTPS_PROXY")
+                or None
         )
         if proxy is not None and proxy.startswith("socks5h://"):
-            proxy = "socks5://" + proxy[len("socks5h://") :]
+            proxy = "socks5://" + proxy[len("socks5h://"):]
         transport = httpx.AsyncHTTPTransport(retries=900)
         # Convert cookie format to httpx format
         formatted_cookies = None
@@ -477,16 +475,16 @@ class _Conversation:
             for cookie in cookies:
                 formatted_cookies.set(cookie["name"], cookie["value"])
         async with httpx.AsyncClient(
-            proxies=proxy,
-            timeout=30,
-            headers=HEADERS_INIT_CONVER,
-            transport=transport,
-            cookies=formatted_cookies,
+                proxies=proxy,
+                timeout=30,
+                headers=HEADERS_INIT_CONVER,
+                transport=transport,
+                cookies=formatted_cookies,
         ) as client:
             # Send GET request
             response = await client.get(
                 url=os.environ.get("BING_PROXY_URL")
-                or "https://edgeservices.bing.com/edgesvc/turing/conversation/create",
+                    or "https://edgeservices.bing.com/edgesvc/turing/conversation/create",
             )
         if response.status_code != 200:
             print(f"Status code: {response.status_code}")
@@ -506,10 +504,10 @@ class _Conversation:
 
 class _ChatHub:
     def __init__(
-        self,
-        conversation: _Conversation,
-        proxy: str = None,
-        cookies: list[dict] | None = None,
+            self,
+            conversation: _Conversation,
+            proxy: str = None,
+            cookies: list[dict] | None = None,
     ) -> None:
         self.session: aiohttp.ClientSession | None = None
         self.wss: aiohttp.ClientWebSocketResponse | None = None
@@ -525,16 +523,16 @@ class _ChatHub:
         self.proxy: str = proxy
 
     async def ask_stream(
-        self,
-        prompt: str,
-        wss_link: str,
-        conversation_style: CONVERSATION_STYLE_TYPE = None,
-        raw: bool = False,
-        options: dict = None,
-        webpage_context: str | None = None,
-        search_result: bool = False,
-        locale: str = guess_locale(),
-        image_url: str = ""
+            self,
+            prompt: str,
+            wss_link: str,
+            conversation_style: CONVERSATION_STYLE_TYPE = None,
+            raw: bool = False,
+            options: dict = None,
+            webpage_context: str | None = None,
+            search_result: bool = False,
+            locale: str = guess_locale(),
+            image_url: str = ""
     ) -> Generator[str, None, None]:
         timeout = aiohttp.ClientTimeout(total=900)
         self.session = aiohttp.ClientSession(timeout=timeout)
@@ -609,12 +607,12 @@ class _ChatHub:
                 if response.get("type") != 2 and raw:
                     yield False, response
                 elif response.get("type") == 1 and response["arguments"][0].get(
-                    "messages",
+                        "messages",
                 ):
                     if not draw:
                         if (
-                            response["arguments"][0]["messages"][0].get("messageType")
-                            == "GenerateContentQuery"
+                                response["arguments"][0]["messages"][0].get("messageType")
+                                == "GenerateContentQuery"
                         ):
                             async with ImageGenAsync("", True) as image_generator:
                                 images = await image_generator.get_images(
@@ -624,8 +622,8 @@ class _ChatHub:
                                 resp_txt = f"{resp_txt}\n![image{i}]({image})"
                             draw = True
                         if (
-                            response["arguments"][0]["messages"][0]["contentOrigin"]
-                            != "Apology"
+                                response["arguments"][0]["messages"][0]["contentOrigin"]
+                                != "Apology"
                         ) and not draw:
                             resp_txt = result_text + response["arguments"][0][
                                 "messages"
@@ -634,21 +632,21 @@ class _ChatHub:
                                 "messages"
                             ][0].get("text", "")
                             if response["arguments"][0]["messages"][0].get(
-                                "messageType",
+                                    "messageType",
                             ):
                                 resp_txt = (
-                                    resp_txt
-                                    + response["arguments"][0]["messages"][0][
-                                        "adaptiveCards"
-                                    ][0]["body"][0]["inlines"][0].get("text")
-                                    + "\n"
+                                        resp_txt
+                                        + response["arguments"][0]["messages"][0][
+                                            "adaptiveCards"
+                                        ][0]["body"][0]["inlines"][0].get("text")
+                                        + "\n"
                                 )
                                 result_text = (
-                                    result_text
-                                    + response["arguments"][0]["messages"][0][
-                                        "adaptiveCards"
-                                    ][0]["body"][0]["inlines"][0].get("text")
-                                    + "\n"
+                                        result_text
+                                        + response["arguments"][0]["messages"][0][
+                                            "adaptiveCards"
+                                        ][0]["body"][0]["inlines"][0].get("text")
+                                        + "\n"
                                 )
                         yield False, resp_txt
 
@@ -666,8 +664,8 @@ class _ChatHub:
                             "text"
                         ] = (cache + resp_txt)
                     if (
-                        response["item"]["messages"][-1]["contentOrigin"] == "Apology"
-                        and resp_txt
+                            response["item"]["messages"][-1]["contentOrigin"] == "Apology"
+                            and resp_txt
                     ):
                         response["item"]["messages"][-1]["text"] = resp_txt_no_link
                         response["item"]["messages"][-1]["adaptiveCards"][0]["body"][0][
@@ -698,9 +696,9 @@ class Chatbot:
     """
 
     def __init__(
-        self,
-        proxy: str | None = None,
-        cookies: list[dict] | None = None,
+            self,
+            proxy: str | None = None,
+            cookies: list[dict] | None = None,
     ) -> None:
         self.proxy: str | None = proxy
         self.chat_hub: _ChatHub = _ChatHub(
@@ -711,8 +709,8 @@ class Chatbot:
 
     @staticmethod
     async def create(
-        proxy: str | None = None,
-        cookies: list[dict] | None = None,
+            proxy: str | None = None,
+            cookies: list[dict] | None = None,
     ) -> Chatbot:
         self = Chatbot.__new__(Chatbot)
         self.proxy = proxy
@@ -738,26 +736,26 @@ class Chatbot:
             self.chat_hub.struct = json.loads(f.read())
 
     async def ask(
-        self,
-        prompt: str,
-        wss_link: str = "wss://sydney.bing.com/sydney/ChatHub",
-        conversation_style: CONVERSATION_STYLE_TYPE = None,
-        options: dict = None,
-        webpage_context: str | None = None,
-        search_result: bool = False,
-        locale: str = guess_locale(),
+            self,
+            prompt: str,
+            wss_link: str = "wss://sydney.bing.com/sydney/ChatHub",
+            conversation_style: CONVERSATION_STYLE_TYPE = None,
+            options: dict = None,
+            webpage_context: str | None = None,
+            search_result: bool = False,
+            locale: str = guess_locale(),
     ) -> dict:
         """
         Ask a question to the bot
         """
         async for final, response in self.chat_hub.ask_stream(
-            prompt=prompt,
-            conversation_style=conversation_style,
-            wss_link=wss_link,
-            options=options,
-            webpage_context=webpage_context,
-            search_result=search_result,
-            locale=locale,
+                prompt=prompt,
+                conversation_style=conversation_style,
+                wss_link=wss_link,
+                options=options,
+                webpage_context=webpage_context,
+                search_result=search_result,
+                locale=locale,
         ):
             if final:
                 return response
@@ -765,30 +763,30 @@ class Chatbot:
         return {}
 
     async def ask_stream(
-        self,
-        prompt: str,
-        wss_link: str = "wss://sydney.bing.com/sydney/ChatHub",
-        conversation_style: CONVERSATION_STYLE_TYPE = None,
-        raw: bool = False,
-        options: dict = None,
-        webpage_context: str | None = None,
-        search_result: bool = False,
-        locale: str = guess_locale(),
-        image_url: str = "",
+            self,
+            prompt: str,
+            wss_link: str = "wss://sydney.bing.com/sydney/ChatHub",
+            conversation_style: CONVERSATION_STYLE_TYPE = None,
+            raw: bool = False,
+            options: dict = None,
+            webpage_context: str | None = None,
+            search_result: bool = False,
+            locale: str = guess_locale(),
+            image_url: str = "",
     ) -> Generator[str, None, None]:
         """
         Ask a question to the bot
         """
         async for response in self.chat_hub.ask_stream(
-            prompt=prompt,
-            conversation_style=conversation_style,
-            wss_link=wss_link,
-            raw=raw,
-            options=options,
-            webpage_context=webpage_context,
-            search_result=search_result,
-            locale=locale,
-            image_url=image_url,
+                prompt=prompt,
+                conversation_style=conversation_style,
+                wss_link=wss_link,
+                raw=raw,
+                options=options,
+                webpage_context=webpage_context,
+                search_result=search_result,
+                locale=locale,
+                image_url=image_url,
         ):
             yield response
 
@@ -811,8 +809,8 @@ class Chatbot:
 
 
 async def _get_input_async(
-    session: PromptSession = None,
-    completer: WordCompleter = None,
+        session: PromptSession = None,
+        completer: WordCompleter = None,
 ) -> str:
     """
     Multiline input function.
@@ -930,11 +928,11 @@ async def async_main(args: argparse.Namespace) -> None:
                 md = Markdown("")
                 with Live(md, auto_refresh=False) as live:
                     async for final, response in bot.ask_stream(
-                        prompt=question,
-                        conversation_style=args.style,
-                        wss_link=args.wss_link,
-                        search_result=args.search_result,
-                        locale=args.locale,
+                            prompt=question,
+                            conversation_style=args.style,
+                            wss_link=args.wss_link,
+                            search_result=args.search_result,
+                            locale=args.locale,
                     ):
                         if not final:
                             if not wrote:
@@ -949,11 +947,11 @@ async def async_main(args: argparse.Namespace) -> None:
                             live.update(md, refresh=True)
             else:
                 async for final, response in bot.ask_stream(
-                    prompt=question,
-                    conversation_style=args.style,
-                    wss_link=args.wss_link,
-                    search_result=args.search_result,
-                    locale=args.locale,
+                        prompt=question,
+                        conversation_style=args.style,
+                        wss_link=args.wss_link,
+                        search_result=args.search_result,
+                        locale=args.locale,
                 ):
                     if not final:
                         if not wrote:
@@ -1064,6 +1062,7 @@ async def upload_image(filename, proxy):
 
         async with session.post(url, data=data, proxy=proxy) as resp:
             return (await resp.json())["blobId"]
+
 
 if __name__ == "__main__":
     main()
