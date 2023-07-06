@@ -30,6 +30,7 @@ from setting_window import SettingWindow
 from snap_window import SnapWindow
 from user_input import UserInput
 from config import Config
+from visual_search_window import VisualSearchWindow
 
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 
@@ -37,6 +38,8 @@ signal.signal(signal.SIGINT, signal.SIG_DFL)
 class SydneyWindow(QWidget):
     def __init__(self, config: Config, parent=None):
         super().__init__(parent)
+        self.visual_search_url = ""
+        self.visual_search_window = None
         self.deleted_workspace = False
         self.updating_workspace_list = False
         self.current_responding_task = None
@@ -156,6 +159,10 @@ class SydneyWindow(QWidget):
         self.suggestion_widget.setLayout(self.suggestion_layout)
         self.suggestion_widget.setVisible(not self.config.cfg.get('no_suggestion'))
 
+        self.visual_search_button = QPushButton('Visual Search')
+        self.visual_search_button.setToolTip('Perform a visual search in the current chat context.')
+        self.visual_search_button.clicked.connect(self.visual_search)
+
         self.document_button = QPushButton('Document')
         self.document_button.clicked.connect(self.open_document)
         self.document_button.setToolTip('Import a document file into the chat context.')
@@ -210,6 +217,7 @@ class SydneyWindow(QWidget):
         bottom_half_layout.addLayout(bottom_half_buttons)
         bottom_half_buttons.addWidget(QLabel("Follow-up User Input:"))
         bottom_half_buttons.addStretch()
+        bottom_half_buttons.addWidget(self.visual_search_button)
         bottom_half_buttons.addWidget(self.document_button)
         bottom_half_buttons.addWidget(self.browse_button)
         bottom_half_buttons.addWidget(self.stop_button)
@@ -433,7 +441,8 @@ class SydneyWindow(QWidget):
                     webpage_context=self.chat_history.toPlainText(),
                     conversation_style=self.config.cfg['conversation_style'],
                     search_result=not self.config.cfg['no_search'],
-                    locale=self.config.get('locale')
+                    locale=self.config.get('locale'),
+                    image_url=self.visual_search_url,
             ):
                 # print(response)
                 if not final and response["type"] == 1 and "messages" in response["arguments"][0]:
@@ -786,6 +795,7 @@ class SydneyWindow(QWidget):
         self.send_button.setEnabled(not responding)
         self.load_button.setEnabled(not responding)
         self.chat_history.setReadOnly(responding)
+        self.visual_search_button.setDisabled(responding)
         self.browse_button.setDisabled(responding)
         self.revoke_button.setDisabled(responding)
         self.document_button.setDisabled(responding)
@@ -813,6 +823,10 @@ class SydneyWindow(QWidget):
         self.config.cfg['last_preset'] = last_preset
         self.update_status_text('Preset changed. Click `Reset` to reset chat context.')
         self.config.save()
+
+    def visual_search(self):
+        self.visual_search_window = VisualSearchWindow(self)
+        self.visual_search_window.show()
 
     def eventFilter(self, watched, event) -> bool:
         if event.type() == QEvent.WindowDeactivate or event.type() == QEvent.Close:

@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import base64
 import json
 import os
 import random
@@ -207,12 +208,17 @@ class ConversationStyle(Enum):
         "disable_emoji_spoken_text",
         "responsible_ai_policy_235",
         "enablemm",
-        "h3imaginative",
-        "cachewriteext",
-        "e2ecachewrite",
-        "nodlcpcwrite",
-        "enablenewsfc",
+        "iycapbing",
+        "iyxapbing",
+        "uquopt",
+        "authsndfdbk",
+        "refpromptv1",
+        "enuaug",
+        "dagslnv1nr",
         "dv3sugg",
+        "iyoloxap",
+        "iyoloneutral",
+        "h3imaginative",
         "clgalileo",
         "gencontentv3",
         "nojbfedge",
@@ -286,6 +292,7 @@ class _ChatHubRequest:
         webpage_context: str | None = None,
         search_result: bool = False,
         locale: str = guess_locale(),
+        image_url: str = "",
     ) -> None:
         if options is None:
             options = [
@@ -346,6 +353,7 @@ class _ChatHubRequest:
                         "inputMethod": "Keyboard",
                         "text": prompt,
                         "messageType": random.choice(["SearchQuery", "Chat"]),
+                        "imageUrl": image_url,
                     },
                     "conversationSignature": self.conversation_signature,
                     "participant": {
@@ -524,6 +532,7 @@ class _ChatHub:
         webpage_context: str | None = None,
         search_result: bool = False,
         locale: str = guess_locale(),
+        image_url: str = ""
     ) -> Generator[str, None, None]:
         timeout = aiohttp.ClientTimeout(total=900)
         self.session = aiohttp.ClientSession(timeout=timeout)
@@ -548,6 +557,7 @@ class _ChatHub:
                 webpage_context=webpage_context,
                 search_result=search_result,
                 locale=locale,
+                image_url=image_url,
             )
         else:
             async with httpx.AsyncClient() as client:
@@ -762,6 +772,7 @@ class Chatbot:
         webpage_context: str | None = None,
         search_result: bool = False,
         locale: str = guess_locale(),
+        image_url: str = "",
     ) -> Generator[str, None, None]:
         """
         Ask a question to the bot
@@ -775,6 +786,7 @@ class Chatbot:
             webpage_context=webpage_context,
             search_result=search_result,
             locale=locale,
+            image_url=image_url,
         ):
             yield response
 
@@ -1020,6 +1032,36 @@ def main() -> None:
     args = parser.parse_args()
     asyncio.run(async_main(args))
 
+
+async def upload_image(filename, proxy):
+    async with aiohttp.ClientSession(
+            headers={"Referer": "https://www.bing.com/search?q=Bing+AI&showconv=1&FORM=hpcodx"}
+    ) as session:
+        url = "https://www.bing.com/images/kblob"
+
+        payload = {
+            "imageInfo": {},
+            "knowledgeRequest": {
+                "invokedSkills": ["ImageById"],
+                "subscriptionId": "Bing.Chat.Multimodal",
+                "invokedSkillsRequestData": {"enableFaceBlur": False},
+                "convoData": {
+                    "convoid": "",
+                    "convotone": "Creative"
+                }
+            }
+        }
+
+        with open(filename, 'rb') as f:
+            file_data = f.read()
+            image_base64 = base64.b64encode(file_data)
+
+        data = aiohttp.FormData()
+        data.add_field('knowledgeRequest', json.dumps(payload), content_type="application/json")
+        data.add_field('imageBase64', image_base64.decode('utf-8'), content_type="application/octet-stream")
+
+        async with session.post(url, data=data, proxy=proxy) as resp:
+            return (await resp.json())["blobId"]
 
 if __name__ == "__main__":
     main()
