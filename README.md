@@ -8,17 +8,18 @@ A desktop client for New Bing AI (Sydney ver.) based on Python and Qt.
 
 ## Features
 
-- Jailbroken version of New Bing using prompt injection.
-- Ability to edit chat context freely.
-- Anti message revoke.
-- Revoke and edit the last user message sent.
-- Select and send custom quick response messages to the chat.
-- Rich and plain text support in snapped context, with LaTeX support.
-- Browse webpages and chat with them.
-- Open documents (including pdf, docx and pptx) and chat with them.
-- Support OpenAI ChatGPT API.
-- Multiple custom prompt presets.
-- Highly customizable settings.
+- Jailbreak New Bing with prompt injection.
+- Edit chat context as you wish.
+- Prevent message revoking.
+- Revoke and edit your last message.
+- Choose and send custom quick responses to the chat.
+- Use rich and plain text in snapped context, with LaTeX support.
+- Chat with webpages you browse.
+- Chat with documents you open (including pdf, docx and pptx).
+- Send images and ask the AI to do something with them.
+- Use OpenAI ChatGPT API.
+- Switch between custom prompt presets.
+- Customize settings to your liking.
 
 ## Usage
 
