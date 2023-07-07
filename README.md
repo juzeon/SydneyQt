@@ -53,6 +53,8 @@ If these steps don't work, check your proxy settings as follows:
 1. Go to settings in SydneyQt and try different proxy types. For example: http://127.0.0.1:7890, socks5h://127.0.0.1:7890 (the `h` letter means to send the hostname to the proxy)
 2. If this doesn't work either, leave the proxy blank in SydneyQt, and try using [Proxifier](https://www.proxifier.com/) or Clash TUN mode.
 
+To avoid the `User needs to solve CAPTCHA to continue` message, make sure your proxy IP does not change. If you use Clash, disable load-balancing or round-robin modes and stick to one node only.
+
 ## Screenshots
 
 ![](docs/1.png)

@@ -51,6 +51,8 @@ python main.py
 1. 在 SydneyQt 的设置中尝试不同的代理类型。例如：http://127.0.0.1:7890, socks5h://127.0.0.1:7890 (这里的 `h` 字母表示将主机名发送给代理)
 2. 如果这也不行，就在 SydneyQt 中留空代理设置，并尝试使用 [Proxifier](https://www.proxifier.com/) 或 Clash TUN 模式。
 
+要避免出现`User needs to solve CAPTCHA to continue`的提示，请确保你的代理IP不变。如果你使用Clash，关闭负载均衡或轮询模式，只选择一个节点。
+
 ## 截图
 
 ![](docs/1.png)
