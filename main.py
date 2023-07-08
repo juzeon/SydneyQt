@@ -7,7 +7,7 @@ import traceback
 
 import openai
 import tiktoken
-from EdgeGPT import Chatbot
+import sydney
 from PySide6.QtCore import QEvent
 from PySide6.QtGui import QTextCursor, Qt, QFont, QIcon
 from PySide6.QtWidgets import (
@@ -415,7 +415,7 @@ class SydneyWindow(QWidget):
             cookies = None
             if cookie_path.exists():
                 cookies = json.loads(cookie_path.read_text(encoding='utf-8'))
-            chatbot = await Chatbot.create(cookies=cookies, proxy=proxy if proxy != "" else None)
+            conversation = await sydney.create_conversation(cookies=cookies, proxy=proxy if proxy != "" else None)
         except Exception as e:
             traceback.print_exc()
             QErrorMessage(self).showMessage(str(e))
@@ -435,17 +435,18 @@ class SydneyWindow(QWidget):
             nonlocal revoke_reply_text
             self.append_chat_context(f"[user](#message)\n{user_input}\n\n", new_block=True)
             wrote = 0
-            async for final, response in chatbot.ask_stream(
-                    prompt=user_input,
-                    raw=True,
-                    webpage_context=self.chat_history.toPlainText(),
+            replied = False
+            async for response in sydney.ask_stream(
+                    conversation=conversation,
+                    prompt=user_input + (" #no_search" if self.config.cfg['no_search'] else ""),
+                    context=self.chat_history.toPlainText(),
                     conversation_style=self.config.cfg['conversation_style'],
-                    search_result=not self.config.cfg['no_search'],
                     locale=self.config.get('locale'),
+                    proxy=proxy if proxy != "" else None,
                     image_url=self.visual_search_url,
             ):
                 # print(response)
-                if not final and response["type"] == 1 and "messages" in response["arguments"][0]:
+                if response["type"] == 1 and "messages" in response["arguments"][0]:
                     self.chat_history.moveCursor(QTextCursor.MoveOperation.End)
                     message = response["arguments"][0]["messages"][0]
                     msg_type = message.get("messageType")
@@ -484,10 +485,13 @@ class SydneyWindow(QWidget):
                             wrote = 0
                         if message.get("contentOrigin") == "Apology":
                             message_revoked = True
-                            if revoke_reply_text == '' or reply_deep >= revoke_reply_count:
+                            if replied and (revoke_reply_text == '' or reply_deep >= revoke_reply_count):
                                 QErrorMessage(self).showMessage("Message revoke detected")
+                            else:
+                                raise Exception("Looks like the user message has triggered the Bing filter")
                             break
                         else:
+                            replied = True
                             self.append_chat_context(message["text"][wrote:])
                             wrote = len(message["text"])
                             token_wrote = len(tiktoken.encoding_for_model('gpt-4').encode(message["text"]))
@@ -507,8 +511,6 @@ class SydneyWindow(QWidget):
                             map(lambda x: x["text"], message["suggestedResponses"]))
                         self.set_suggestion_line(suggested_responses)
                         break
-                if final and not response["item"]["messages"][-1].get("text"):
-                    raise Exception("Looks like the user message has triggered the Bing filter")
 
         try:
             await stream_output()
@@ -520,7 +522,6 @@ class SydneyWindow(QWidget):
             self.update_status_text('Ready.')
         self.set_responding(False)
         self.chat_history.moveCursor(QTextCursor.MoveOperation.End)
-        await chatbot.close()
         if revoke_reply_text != '' and message_revoked:
             if reply_deep < revoke_reply_count:
                 await self.send_sydney(revoke_reply_text, reply_deep + 1)
