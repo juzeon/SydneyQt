@@ -2,7 +2,7 @@ from PySide6.QtWidgets import QDialog, QVBoxLayout, QPushButton, QFileDialog, QL
     QErrorMessage
 from qasync import asyncSlot
 
-import EdgeGPT
+import sydney
 from config import Config
 
 
@@ -62,7 +62,7 @@ class VisualSearchWindow(QDialog):
             if file_dialog.exec_():
                 file_path = file_dialog.selectedFiles()[0]
                 self.url_input.setText("https://www.bing.com/images/blob?bcid=" +
-                                       await EdgeGPT.upload_image(file_path, proxy=self.config.get('proxy')))
+                                       await sydney.upload_image(file_path, proxy=self.config.get('proxy')))
         except Exception as e:
             print(e)
             QErrorMessage(self).showMessage(str(e))
