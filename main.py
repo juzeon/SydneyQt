@@ -4,6 +4,7 @@ import pathlib
 import re
 import signal
 import traceback
+from contextlib import aclosing
 
 import openai
 import tiktoken
@@ -436,7 +437,7 @@ class SydneyWindow(QWidget):
             self.append_chat_context(f"[user](#message)\n{user_input}\n\n", new_block=True)
             wrote = 0
             replied = False
-            async for response in sydney.ask_stream(
+            async with aclosing(sydney.ask_stream(
                     conversation=conversation,
                     prompt=user_input + (" #no_search" if self.config.cfg['no_search'] else ""),
                     context=self.chat_history.toPlainText(),
@@ -444,73 +445,74 @@ class SydneyWindow(QWidget):
                     locale=self.config.get('locale'),
                     proxy=proxy if proxy != "" else None,
                     image_url=self.visual_search_url,
-            ):
-                # print(response)
-                if response["type"] == 1 and "messages" in response["arguments"][0]:
-                    self.chat_history.moveCursor(QTextCursor.MoveOperation.End)
-                    message = response["arguments"][0]["messages"][0]
-                    msg_type = message.get("messageType")
-                    if msg_type == "InternalSearchQuery":
-                        self.append_chat_context(
-                            f"[assistant](#search_query)\n{message['hiddenText']}\n\n")
-                    elif msg_type == "InternalSearchResult":
-                        try:
-                            links = []
-                            if 'Web search returned no relevant result' in message['hiddenText']:
+            )) as agen:
+                async for response in agen:
+                    # print(response)
+                    if response["type"] == 1 and "messages" in response["arguments"][0]:
+                        self.chat_history.moveCursor(QTextCursor.MoveOperation.End)
+                        message = response["arguments"][0]["messages"][0]
+                        msg_type = message.get("messageType")
+                        if msg_type == "InternalSearchQuery":
+                            self.append_chat_context(
+                                f"[assistant](#search_query)\n{message['hiddenText']}\n\n")
+                        elif msg_type == "InternalSearchResult":
+                            try:
+                                links = []
+                                if 'Web search returned no relevant result' in message['hiddenText']:
+                                    self.append_chat_context(
+                                        f"[assistant](#search_results)\n{message['hiddenText']}\n\n")
+                                else:
+                                    for group in json.loads(message['hiddenText'][8:-4]).values():
+                                        for sub_group in group:
+                                            links.append(
+                                                f'[^{sub_group["index"]}^][{sub_group["title"]}]({sub_group["url"]})')
+                                    self.append_chat_context(
+                                        "[assistant](#search_results)\n" + '\n\n'.join(links) + "\n\n")
+                            except Exception as err:
+                                print('Error when parsing InternalSearchResult: ' + str(err))
+                                traceback.print_exc()
+                        elif msg_type == "InternalLoaderMessage":
+                            if 'hiddenText' in message:
                                 self.append_chat_context(
-                                    f"[assistant](#search_results)\n{message['hiddenText']}\n\n")
-                            else:
-                                for group in json.loads(message['hiddenText'][8:-4]).values():
-                                    for sub_group in group:
-                                        links.append(
-                                            f'[^{sub_group["index"]}^][{sub_group["title"]}]({sub_group["url"]})')
+                                    f"[assistant](#loading)\n{message['hiddenText']}\n\n")
+                            elif 'text' in message:
                                 self.append_chat_context(
-                                    "[assistant](#search_results)\n" + '\n\n'.join(links) + "\n\n")
-                        except Exception as err:
-                            print('Error when parsing InternalSearchResult: ' + str(err))
-                            traceback.print_exc()
-                    elif msg_type == "InternalLoaderMessage":
-                        if 'hiddenText' in message:
-                            self.append_chat_context(
-                                f"[assistant](#loading)\n{message['hiddenText']}\n\n")
-                        elif 'text' in message:
-                            self.append_chat_context(
-                                f"[assistant](#loading)\n{message['text']}\n\n")
-                        else:
-                            self.append_chat_context(
-                                f"[assistant](#loading)\n{json.dumps(message)}\n\n")
-                    elif msg_type is None:
-                        if "cursor" in response["arguments"][0]:
-                            self.append_chat_context("[assistant](#message)\n")
-                            wrote = 0
-                        if message.get("contentOrigin") == "Apology":
-                            message_revoked = True
-                            if replied and (revoke_reply_text == '' or reply_deep >= revoke_reply_count):
-                                QErrorMessage(self).showMessage("Message revoke detected")
+                                    f"[assistant](#loading)\n{message['text']}\n\n")
                             else:
-                                raise Exception("Looks like the user message has triggered the Bing filter")
-                            break
-                        else:
-                            replied = True
-                            self.append_chat_context(message["text"][wrote:])
-                            wrote = len(message["text"])
-                            token_wrote = len(tiktoken.encoding_for_model('gpt-4').encode(message["text"]))
-                            self.update_status_text(f'Fetching response, {token_wrote} tokens received currently.')
-                            if "suggestedResponses" in message:
-                                suggested_responses = list(
-                                    map(lambda x: x["text"], message["suggestedResponses"]))
-                                self.set_suggestion_line(suggested_responses)
+                                self.append_chat_context(
+                                    f"[assistant](#loading)\n{json.dumps(message)}\n\n")
+                        elif msg_type is None:
+                            if "cursor" in response["arguments"][0]:
+                                self.append_chat_context("[assistant](#message)\n")
+                                wrote = 0
+                            if message.get("contentOrigin") == "Apology":
+                                message_revoked = True
+                                if replied and (revoke_reply_text == '' or reply_deep >= revoke_reply_count):
+                                    QErrorMessage(self).showMessage("Message revoke detected")
+                                else:
+                                    raise Exception("Looks like the user message has triggered the Bing filter")
                                 break
-                    else:
-                        print(f'Unsupported message type: {msg_type}')
-                        print(f'Triggered by {user_input}, response: {message}')
-                if response["type"] == 2 and "item" in response and "messages" in response["item"]:
-                    message = response["item"]["messages"][-1]
-                    if "suggestedResponses" in message:
-                        suggested_responses = list(
-                            map(lambda x: x["text"], message["suggestedResponses"]))
-                        self.set_suggestion_line(suggested_responses)
-                        break
+                            else:
+                                replied = True
+                                self.append_chat_context(message["text"][wrote:])
+                                wrote = len(message["text"])
+                                token_wrote = len(tiktoken.encoding_for_model('gpt-4').encode(message["text"]))
+                                self.update_status_text(f'Fetching response, {token_wrote} tokens received currently.')
+                                if "suggestedResponses" in message:
+                                    suggested_responses = list(
+                                        map(lambda x: x["text"], message["suggestedResponses"]))
+                                    self.set_suggestion_line(suggested_responses)
+                                    break
+                        else:
+                            print(f'Unsupported message type: {msg_type}')
+                            print(f'Triggered by {user_input}, response: {message}')
+                    if response["type"] == 2 and "item" in response and "messages" in response["item"]:
+                        message = response["item"]["messages"][-1]
+                        if "suggestedResponses" in message:
+                            suggested_responses = list(
+                                map(lambda x: x["text"], message["suggestedResponses"]))
+                            self.set_suggestion_line(suggested_responses)
+                            break
 
         try:
             await stream_output()
