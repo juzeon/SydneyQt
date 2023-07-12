@@ -4,6 +4,8 @@ import pathlib
 import re
 import signal
 import traceback
+import urllib.parse
+import uuid
 from contextlib import aclosing
 
 import openai
@@ -481,6 +483,13 @@ class SydneyWindow(QWidget):
                             else:
                                 self.append_chat_context(
                                     f"[assistant](#loading)\n{json.dumps(message)}\n\n")
+                        elif msg_type == "GenerateContentQuery":
+                            if message['contentType'] == 'IMAGE':
+                                self.append_chat_context(
+                                    f"[assistant](#generative_image)\nKeyword: {message['text']}\n"
+                                    f"Link: <https://www.bing.com/images/create?q="
+                                    f"{urllib.parse.quote(message['text'])}&rt=4&FORM=GENCRE&id={uuid.uuid4().hex}>",
+                                    new_block=True)
                         elif msg_type is None:
                             if "cursor" in response["arguments"][0]:
                                 self.append_chat_context("[assistant](#message)\n")
