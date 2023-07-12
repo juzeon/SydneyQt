@@ -10,3 +10,4 @@ pdfminer.six
 docx2txt
 aiohttp
 openai
+Pillow

@@ -342,7 +342,7 @@ async def ask_stream(
                         break
 
 
-async def upload_image(filename, proxy):
+async def upload_image(filename=None, img_base64=None, proxy=None):
     async with aiohttp.ClientSession(
             headers={"Referer": "https://www.bing.com/search?q=Bing+AI&showconv=1&FORM=hpcodx"}
     ) as session:
@@ -361,9 +361,14 @@ async def upload_image(filename, proxy):
             }
         }
 
-        with open(filename, 'rb') as f:
-            file_data = f.read()
-            image_base64 = base64.b64encode(file_data)
+        if filename is not None:
+            with open(filename, 'rb') as f:
+                file_data = f.read()
+                image_base64 = base64.b64encode(file_data)
+        elif img_base64 is not None:
+            image_base64 = img_base64
+        else:
+            raise Exception('no image provided')
 
         data = aiohttp.FormData()
         data.add_field('knowledgeRequest', json.dumps(payload), content_type="application/json")
