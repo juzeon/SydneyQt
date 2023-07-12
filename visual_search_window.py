@@ -1,7 +1,7 @@
 from io import BytesIO
 
 from PySide6.QtWidgets import QDialog, QVBoxLayout, QPushButton, QFileDialog, QLabel, QLineEdit, QHBoxLayout, \
-    QErrorMessage
+    QErrorMessage, QComboBox, QCheckBox
 from qasync import asyncSlot
 import sydney
 from config import Config
@@ -38,10 +38,24 @@ class VisualSearchWindow(QDialog):
         actions_layout.addStretch()
         actions_layout.addWidget(self.ok_button)
         actions_layout.addWidget(self.cancel_button)
+        bottom_layout = QHBoxLayout()
+        self.clear_checkbox = QCheckBox('Clear Image After Send')
+        self.clear_checkbox.setChecked(self.config.get('clear_image_after_send'))
+        self.clear_checkbox.clicked.connect(self.change_clear_checkbox)
+        bottom_layout.addWidget(self.clear_checkbox)
+        bottom_layout.addStretch()
         self.layout.addLayout(actions_layout)
+        self.layout.addLayout(bottom_layout)
 
         self.setLayout(self.layout)
         self.setFixedWidth(400)
+
+    def change_clear_checkbox(self):
+        if self.clear_checkbox.isChecked():
+            self.config.cfg['clear_image_after_send'] = True
+        else:
+            self.config.cfg['clear_image_after_send'] = False
+        self.config.save()
 
     def clear_action(self):
         self.url_input.setText('')
@@ -59,6 +73,7 @@ class VisualSearchWindow(QDialog):
     @asyncSlot()
     async def file_button_clicked(self):
         self.file_button.setDisabled(True)
+        self.ok_button.setDisabled(True)
         file_dialog = QFileDialog()
         file_dialog.setFileMode(QFileDialog.FileMode.ExistingFile)
         file_dialog.setNameFilters(["Image files (*.gif *.jpeg *.jpg *.png)"])
@@ -73,6 +88,7 @@ class VisualSearchWindow(QDialog):
             QErrorMessage(self).showMessage(str(e))
         finally:
             self.file_button.setDisabled(False)
+            self.ok_button.setDisabled(False)
 
 
 def compress_and_encode_img(image_path):

@@ -522,6 +522,9 @@ class SydneyWindow(QWidget):
             self.update_status_text('Error: ' + str(e))
         else:
             self.update_status_text('Ready.')
+            if self.config.get('clear_image_after_send'):
+                self.visual_search_url = ''
+                self.visual_search_button.setText("Image")
         self.set_responding(False)
         self.chat_history.moveCursor(QTextCursor.MoveOperation.End)
         if revoke_reply_text != '' and message_revoked:
