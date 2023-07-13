@@ -53,7 +53,7 @@ python main.py
 5. Give your worker a name and click `Deploy`.
 6. On the worker detail page, click `Quick edit`.
 7. Copy all the code from [here](https://github.com/adams549659584/go-proxy-bingai/blob/master/cloudflare/worker.js) and paste it over the existing code in `worker.js`. Then click `Save and deploy`.
-8. Copy the worker domain that looks like `xxxx-xxxx-xxxx.xxxx.workers.dev` and paste it as `Wss Domain` in the settings dialog of SydneyQt. Then click `Save`.
+8. Copy the worker domain that looks like `xxxx-xxxx-xxxx.xxxx.workers.dev` (not a URL like `https://xxxx-xxxx-xxxx.xxxx.workers.dev/`, please remove the prefixes and suffixes) and paste it as `Wss Domain` in the settings dialog of SydneyQt. Then click `Save`.
 </details>
 
 ## FAQ
