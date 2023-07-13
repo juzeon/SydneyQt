@@ -39,6 +39,21 @@ pip install -r requirements.txt
 python main.py
 ```
 
+4. 如果你看到一个错误信息，像这样 `200, message='Invalid response status', url=URL('wss://sydney.bing.com/sydney/ChatHub')`，你需要用 Cloudflare Workers 建立一个代理服务。以下是操作步骤：
+
+<details>
+<summary>点击我</summary>
+
+1. 点击[这个链接](https://dash.cloudflare.com/)，登录或注册一个 Cloudflare 账号。
+2. 在侧边栏，选择 `Workers & Pages`。
+3. 在打开的页面，点击 `Create application`。
+4. 选择 `Create Worker`。
+5. 给你的 worker 起一个名字，然后点击 `Deploy`。
+6. 在 worker 详情页面，点击 `Quick edit`。
+7. 从[这里](https://github.com/adams549659584/go-proxy-bingai/blob/master/cloudflare/worker.js)复制所有的代码，然后粘贴到 `worker.js` 中，覆盖原有的代码。然后点击 `Save and deploy`。
+8. 复制 worker 域名，看起来像 `xxxx-xxxx-xxxx.xxxx.workers.dev`，然后粘贴到 SydneyQt 的设置对话框中的 `Wss Domain`。然后点击 `Save`。
+</details>
+
 ## 常见问题
 
 如果你遇到以下问题：`Request is throttled`, `Authentication Failed`, `OSError: [WinError 64]` 等，请尝试以下步骤来解决：
