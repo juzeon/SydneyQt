@@ -41,6 +41,21 @@ pip install -r requirements.txt
 python main.py
 ```
 
+4. If you see an error message like `200, message='Invalid response status', url=URL('wss://sydney.bing.com/sydney/ChatHub')`, you need to set up a proxy service with Cloudflare Workers. Here are the steps to do that:
+
+<details>
+<summary>Click me</summary>
+
+1. Go to [this link](https://dash.cloudflare.com/) and sign in or sign up for a Cloudflare account.
+2. In the sidebar, select `Workers & Pages`.
+3. On the page that opens, click `Create application`.
+4. Choose `Create Worker`.
+5. Give your worker a name and click `Deploy`.
+6. On the worker detail page, click `Quick edit`.
+7. Copy all the code from [here](https://github.com/adams549659584/go-proxy-bingai/blob/master/cloudflare/worker.js) and paste it over the existing code in `worker.js`. Then click `Save and deploy`.
+8. Copy the worker domain that looks like `xxxx-xxxx-xxxx.xxxx.workers.dev` and paste it as `Wss Domain` in the settings dialog of SydneyQt. Then click `Save`.
+</details>
+
 ## FAQ
 
 If you encounter any of these issues: `Request is throttled`, `Authentication Failed`, `OSError: [WinError 64]`, etc, please try the following steps to fix them:
