@@ -251,10 +251,15 @@ async def ask_stream(
         locale: str = "zh-CN",
         proxy=_PROXY,
         image_url=None,
-        wss_url='wss://sydney.bing.com/sydney/ChatHub'
+        wss_url='wss://sydney.bing.com/sydney/ChatHub',
+        cookies: list[dict] | None = None,
 ):
     timeout = aiohttp.ClientTimeout(total=900)
-    async with aiohttp.ClientSession(timeout=timeout) as session:
+    formatted_cookies = {}
+    if cookies:
+        for cookie in cookies:
+            formatted_cookies[cookie["name"]] = cookie["value"]
+    async with aiohttp.ClientSession(timeout=timeout, cookies=formatted_cookies) as session:
         conversation_id = conversation["conversationId"]
         client_id = conversation["clientId"]
         conversation_signature = conversation["conversationSignature"]
