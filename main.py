@@ -447,6 +447,7 @@ class SydneyWindow(QWidget):
                     locale=self.config.get('locale'),
                     proxy=proxy if proxy != "" else None,
                     image_url=self.visual_search_url,
+                    wss_url='wss://' + self.config.get('wss_domain') + '/sydney/ChatHub'
             )) as agen:
                 async for response in agen:
                     # print(response)

@@ -13,6 +13,9 @@ class SettingWindow(QWidget):
         self.config = config
         self.font = QFont(config.get('font_family'), config.get('font_size'))
 
+        self.wss_domain = QLineEdit()
+        self.wss_domain.setToolTip('Domain for Sydney Websocket, without any prefixes or suffixes.\n'
+                                   'Default: sydney.bing.com')
         self.proxy_edit = QLineEdit()
         self.proxy_edit.setToolTip('Example: socks5h://127.0.0.1:7890')
         self.conversation_style = QComboBox()
@@ -44,6 +47,7 @@ class SettingWindow(QWidget):
         self.direct_quick.setToolTip('Whether to send quick responses straightforward if the user input is empty.')
 
         top_form_layout = QFormLayout()
+        top_form_layout.addRow(QLabel('Wss Domain:'), self.wss_domain)
         top_form_layout.addRow(QLabel('Proxy:'), self.proxy_edit)
         top_form_layout.addRow(QLabel('Conversation Style:'), self.conversation_style)
         top_form_layout.addRow(QLabel('No Suggestion:'), self.no_suggestion_checkbox)
@@ -108,6 +112,7 @@ class SettingWindow(QWidget):
         self.render_config()
 
     def render_config(self):
+        self.wss_domain.setText(self.config.get('wss_domain'))
         self.proxy_edit.setText(self.config.cfg['proxy'])
         self.conversation_style.setCurrentText(self.config.cfg['conversation_style'])
         self.no_suggestion_checkbox.setChecked(self.config.cfg['no_suggestion'])
@@ -133,6 +138,7 @@ class SettingWindow(QWidget):
 
     @Slot()
     def save_config(self):
+        self.config.cfg['wss_domain'] = self.wss_domain.text()
         self.config.cfg['proxy'] = self.proxy_edit.text()
         self.config.cfg['conversation_style'] = self.conversation_style.currentText()
         self.config.cfg['no_suggestion'] = self.no_suggestion_checkbox.isChecked()

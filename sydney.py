@@ -251,6 +251,7 @@ async def ask_stream(
         locale: str = "zh-CN",
         proxy=_PROXY,
         image_url=None,
+        wss_url='wss://sydney.bing.com/sydney/ChatHub'
 ):
     timeout = aiohttp.ClientTimeout(total=900)
     async with aiohttp.ClientSession(timeout=timeout) as session:
@@ -259,7 +260,7 @@ async def ask_stream(
         conversation_signature = conversation["conversationSignature"]
 
         async with session.ws_connect(
-                'wss://sydney.bing.com/sydney/ChatHub',
+                wss_url,
                 autoping=False,
                 headers=_HEADERS,
                 proxy=proxy

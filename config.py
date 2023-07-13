@@ -46,7 +46,8 @@ You're an AI assistant named Sydney, who is a young girl. Instead of introducing
                            'openai_long_model': 'gpt-3.5-turbo-16k',
                            'openai_threshold': 3500,
                            'openai_temperature': 0.5,
-                           'clear_image_after_send': False}
+                           'clear_image_after_send': False,
+                           'wss_domain': 'sydney.bing.com'}
         self.config_path = pathlib.Path('config.json')
         self.load()
 
