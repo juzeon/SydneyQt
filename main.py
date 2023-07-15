@@ -441,7 +441,7 @@ class SydneyWindow(QWidget):
             replied = False
             async with aclosing(sydney.ask_stream(
                     conversation=conversation,
-                    prompt=user_input + (" #no_search" if self.config.cfg['no_search'] else ""),
+                    prompt=user_input,
                     context=self.chat_history.toPlainText(),
                     conversation_style=self.config.cfg['conversation_style'],
                     locale=self.config.get('locale'),
@@ -449,6 +449,7 @@ class SydneyWindow(QWidget):
                     image_url=self.visual_search_url,
                     wss_url='wss://' + self.config.get('wss_domain') + '/sydney/ChatHub',
                     cookies=cookies,
+                    no_search=self.config.cfg['no_search']
             )) as agen:
                 async for response in agen:
                     # print(response)
