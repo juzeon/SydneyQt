@@ -26,8 +26,7 @@ class SettingWindow(QWidget):
         self.no_suggestion_checkbox.setToolTip('Do no show suggestion links if enabled. '
                                                'Note that suggestions will still be generated in the background.')
         self.no_search_checkbox = QCheckBox()
-        self.no_search_checkbox.setToolTip('Do no fill search result into the context if enabled. '
-                                           'Note that web search will still be performed in the background.')
+        self.no_search_checkbox.setToolTip('Answer without searching the web under all circumstances.')
         self.font_button = QPushButton('Select')
         self.font_button.setToolTip('Open a dialog to adjust font settings.')
         self.font_button.clicked.connect(self.open_font_dialog)
