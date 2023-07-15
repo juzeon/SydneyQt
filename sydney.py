@@ -253,6 +253,7 @@ async def ask_stream(
         image_url=None,
         wss_url='wss://sydney.bing.com/sydney/ChatHub',
         cookies: list[dict] | None = None,
+        no_search: bool = False,
 ):
     timeout = aiohttp.ClientTimeout(total=900)
     formatted_cookies = {}
@@ -273,11 +274,14 @@ async def ask_stream(
             await wss.send_str(_format({'protocol': 'json', 'version': 1}))
             await wss.receive(timeout=900)
             await wss.send_str(_format({"type": 6}))
+            option_sets = getattr(_OptionSets, conversation_style.upper()).value.copy()
+            if no_search:
+                option_sets.append("nosearch")
 
             struct = {
                 'arguments': [
                     {
-                        'optionsSets': getattr(_OptionSets, conversation_style.upper()).value,
+                        'optionsSets': option_sets,
                         'source': 'cib',
                         'allowedMessageTypes': _ALLOWED_MESSAGE_TYPES,
                         'sliceIds': _SLICE_IDS,
