@@ -21,12 +21,12 @@
 
 ## 用法
 
-1. （可选）根据[EdgeGPT](https://github.com/acheong08/EdgeGPT)的README文件中的说明，将你的`cookies.json`放在与`main.py`相同的文件夹中：
+1. 根据[EdgeGPT](https://github.com/acheong08/EdgeGPT)的README文件中的说明，将你的`cookies.json`放在与`main.py`相同的文件夹中：
    - 为[Chrome](https://chrome.google.com/webstore/detail/cookie-editor/hlkenndednhfkekhgcdicdfddnkalmdm)或[Firefox](https://addons.mozilla.org/en-US/firefox/addon/cookie-editor/)安装Cookie-Editor扩展
    - 前往`bing.com`
    - 打开扩展
    - 点击右下角的`Export`，然后选择`Export as JSON`（这会将你的cookies保存到剪贴板）
-   - 将你的cookies粘贴到一个名为`cookies.json`的文件中
+   - 将你的cookies粘贴到一个名为`cookies.json`的文件中，请在与`main.py`同级的文件夹下创建。
 2. 安装依赖：
 
 ```bash
