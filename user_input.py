@@ -21,7 +21,6 @@ class UserInput(QPlainTextEdit):
                     self.parent.send_clicked()
                 else:
                     super().keyPressEvent(event)
-                    self.insertPlainText("\n")
             elif self.parent.enter_mode == "Ctrl+Enter":
                 if modifiers == Qt.KeyboardModifier.ControlModifier:
                     self.parent.send_clicked()
