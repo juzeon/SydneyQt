@@ -21,7 +21,7 @@ from PySide6.QtWidgets import (
     QPushButton,
     QWidget, QPlainTextEdit, QErrorMessage, QHBoxLayout, QFileDialog, QToolButton, QMenu, QSizePolicy, QVBoxLayout,
     QSplitter, QComboBox, QProgressBar, QSpacerItem, QLayout, QStatusBar, QListView, QListWidget, QMessageBox, QMenuBar,
-    QGridLayout
+    QGridLayout, QLineEdit
 )
 from qasync import QEventLoop, asyncSlot
 from browse_window import BrowseWindow
@@ -269,10 +269,20 @@ class SydneyWindow(QWidget):
         self.rename_workspace_button.clicked.connect(self.rename_workspace)
         self.clear_workspace_button = QPushButton('Clear')
         self.clear_workspace_button.clicked.connect(self.clear_workspace)
+
+        self.search_editor = QLineEdit()
+        self.search_editor.setToolTip('Press enter to search the text in chat context of all workspaces.')
+        self.search_editor.returnPressed.connect(self.search_workspace)
+        search_label = QLabel('Search:')
+        search_layout = QHBoxLayout()
+        search_layout.addWidget(search_label)
+        search_layout.addStretch()
         left_buttons_layout.addWidget(self.add_workspace_button, 0, 0)
         left_buttons_layout.addWidget(self.del_workspace_button, 0, 1)
         left_buttons_layout.addWidget(self.rename_workspace_button, 1, 0)
         left_buttons_layout.addWidget(self.clear_workspace_button, 1, 1)
+        left_layout.addLayout(search_layout)
+        left_layout.addWidget(self.search_editor)
         left_layout.addLayout(left_buttons_layout)
 
         self.left_layout_widget = QWidget()
@@ -637,6 +647,27 @@ class SydneyWindow(QWidget):
         del self.workspace_dict[old_name]
         self.workspace_dict[name] = workspace
         self.current_workspace_name = name
+
+    def search_workspace(self):
+        self.flush_workspace()
+        workspace_names = list[str]([])
+        for i in range(self.workspace_list_widget.count()):
+            workspace_names.append(self.workspace_list_widget.item(i).text())
+        ix = workspace_names.index(self.current_workspace_name)
+        start_ix = ix
+        while True:
+            ix += 1
+            if ix >= len(workspace_names):
+                ix = 0
+            if ix == start_ix:
+                QMessageBox(self).information(self, 'Message', 'Cannot find the text specified in workspaces '
+                                                               'other than the current one.')
+                return
+            workspace_name = workspace_names[ix]
+            if self.search_editor.text() in self.workspace_dict[workspace_name]['context']:
+                self.workspace_list_widget.setCurrentRow(ix)
+                self.switch_workspace()
+                return
 
     def flush_workspace(self):
         self.workspace_dict[self.current_workspace_name] = {
