@@ -17,10 +17,13 @@
     const b64content = `##CONTENT_HERE##`
     const fontSize = parseInt(`##FONT_SIZE_HERE##`) + 3
     const fontFamily = `##FONT_FAMILY_HERE##`
-    let content = Base64.decode(b64content)
+    let content = Base64.decode(b64content).trim()
     content = content.replace(/\n+/g, '\n\n')
     content = content.replace(/\|\n\n\|/g, '|\n|')
-    content = content.replace(/^\[(.*?)]\(#(.*?)\)/gm, '### \\[$1\\]\\(#$2\\)')
+    content = content.replace(/^\[(.*?)]\(#(.*?)\)/gm, '---\n\n### \\[$1\\]\\(#$2\\)')
+    if (content.startsWith('---\n\n')) {
+        content = content.substring(5)
+    }
     let contentElem = document.getElementById('content');
     contentElem.innerHTML = renderMD(content)
     contentElem.setAttribute('style', 'font-family: "' + fontFamily + '";font-size: ' + fontSize + 'px;')
