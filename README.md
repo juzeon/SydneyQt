@@ -19,6 +19,7 @@ A desktop client for New Bing AI (Sydney ver.) based on Python and Qt.
 - Send images and ask the AI to do something with them.
 - Use OpenAI ChatGPT API.
 - Switch between custom prompt presets.
+- Dark mode.
 - Customize settings to your liking.
 
 ## Usage
@@ -86,6 +87,10 @@ To avoid the `User needs to solve CAPTCHA to continue` message, make sure your p
 ![](docs/6.png)
 
 ![](docs/7.png)
+
+Dark mode is supported now:
+
+![](docs/8.png)
 
 ## Star History
 
