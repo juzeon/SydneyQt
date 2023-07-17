@@ -11,3 +11,4 @@ docx2txt
 aiohttp
 openai
 Pillow
+qdarkstyle
