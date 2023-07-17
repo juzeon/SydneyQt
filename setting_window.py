@@ -18,6 +18,8 @@ class SettingWindow(QWidget):
                                    'Default: sydney.bing.com')
         self.proxy_edit = QLineEdit()
         self.proxy_edit.setToolTip('Example: socks5h://127.0.0.1:7890')
+        self.dark_mode = QCheckBox()
+        self.dark_mode.setToolTip('Enable dark mode.')
         self.conversation_style = QComboBox()
         self.conversation_style.addItems(["creative", "balanced", "precise"])
         self.conversation_style.setToolTip('Balanced mode uses GPT-3.5, '
@@ -48,6 +50,7 @@ class SettingWindow(QWidget):
         top_form_layout = QFormLayout()
         top_form_layout.addRow(QLabel('Wss Domain:'), self.wss_domain)
         top_form_layout.addRow(QLabel('Proxy:'), self.proxy_edit)
+        top_form_layout.addRow(QLabel('(*) Dark Mode:'), self.dark_mode)
         top_form_layout.addRow(QLabel('Conversation Style:'), self.conversation_style)
         top_form_layout.addRow(QLabel('No Suggestion:'), self.no_suggestion_checkbox)
         top_form_layout.addRow(QLabel('No Search Result:'), self.no_search_checkbox)
@@ -113,6 +116,7 @@ class SettingWindow(QWidget):
     def render_config(self):
         self.wss_domain.setText(self.config.get('wss_domain'))
         self.proxy_edit.setText(self.config.cfg['proxy'])
+        self.dark_mode.setChecked(self.config.get('dark_mode'))
         self.conversation_style.setCurrentText(self.config.cfg['conversation_style'])
         self.no_suggestion_checkbox.setChecked(self.config.cfg['no_suggestion'])
         self.no_search_checkbox.setChecked(self.config.cfg['no_search'])
@@ -139,6 +143,7 @@ class SettingWindow(QWidget):
     def save_config(self):
         self.config.cfg['wss_domain'] = self.wss_domain.text()
         self.config.cfg['proxy'] = self.proxy_edit.text()
+        self.config.cfg['dark_mode'] = self.dark_mode.isChecked()
         self.config.cfg['conversation_style'] = self.conversation_style.currentText()
         self.config.cfg['no_suggestion'] = self.no_suggestion_checkbox.isChecked()
         self.config.cfg['no_search'] = self.no_search_checkbox.isChecked()

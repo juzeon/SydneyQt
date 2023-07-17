@@ -3,12 +3,14 @@ import json
 import pathlib
 import re
 import signal
+import sys
 import traceback
 import urllib.parse
 import uuid
 from contextlib import aclosing
 
 import openai
+import qdarkstyle
 import tiktoken
 import sydney
 from PySide6.QtCore import QEvent
@@ -877,10 +879,13 @@ class SydneyWindow(QWidget):
 
 
 if __name__ == "__main__":
+    config = Config()
     app = QApplication()
+    if config.get('dark_mode'):
+        app.setStyleSheet(qdarkstyle.load_stylesheet(qt_api='pyside6'))
     loop = QEventLoop(app)
     asyncio.set_event_loop(loop)
-    gui = SydneyWindow(Config())
+    gui = SydneyWindow(config)
     gui.installEventFilter(gui)
     gui.show()
     with loop:
