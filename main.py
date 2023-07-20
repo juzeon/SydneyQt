@@ -876,13 +876,18 @@ class SydneyWindow(QWidget):
         if new_value in ['----', '<Edit>']:
             self.presets.setCurrentText(last_preset)
         else:
+            if self.config.get_last_preset_text().strip() == self.chat_history.toPlainText().strip():
+                self.chat_history.setPlainText(self.config.get('presets')[new_value])
+                self.chat_history.moveCursor(QTextCursor.MoveOperation.End)
+                self.update_status_text('Preset changed. Chat context has been updated.')
+            else:
+                self.update_status_text('Preset changed. Click `Reset` to reset chat context.')
             last_preset = new_value
         if new_value == '<Edit>':
             self.preset_window = PresetWindow(self.config, on_close=self.update_presets)
             self.preset_window.show()
             return
         self.config.cfg['last_preset'] = last_preset
-        self.update_status_text('Preset changed. Click `Reset` to reset chat context.')
         self.config.save()
 
     def visual_search(self):
