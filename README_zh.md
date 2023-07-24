@@ -20,6 +20,11 @@
 - 夜间模式。
 - 根据你的喜好定制设置。
 
+## 环境
+
+- Python 3.11+ 和 pip。
+- Windows 10+，macOS 或 Linux。
+
 ## 用法
 
 1. 根据[EdgeGPT](https://github.com/acheong08/EdgeGPT)的README文件中的说明，将你的`cookies.json`放在与`main.py`相同的文件夹中：

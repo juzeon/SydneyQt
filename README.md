@@ -22,6 +22,11 @@ A desktop client for New Bing AI (Sydney ver.) based on Python and Qt.
 - Dark mode.
 - Customize settings to your liking.
 
+## Environment
+
+- Python 3.11+ with pip.
+- Windows 10+, macOS or Linux.
+
 ## Usage
 
 1. Put your `cookies.json` in the same folder as `main.py` according to the instructions in the README file of [EdgeGPT](https://github.com/acheong08/EdgeGPT):
