@@ -14,14 +14,14 @@ import qdarkstyle
 import tiktoken
 import sydney
 from PySide6.QtCore import QEvent
-from PySide6.QtGui import QTextCursor, Qt, QFont, QIcon
+from PySide6.QtGui import QTextCursor, Qt, QFont, QIcon, QAction
 from PySide6.QtWidgets import (
     QApplication,
     QLabel,
     QPushButton,
     QWidget, QPlainTextEdit, QErrorMessage, QHBoxLayout, QFileDialog, QToolButton, QMenu, QSizePolicy, QVBoxLayout,
     QSplitter, QComboBox, QProgressBar, QSpacerItem, QLayout, QStatusBar, QListView, QListWidget, QMessageBox, QMenuBar,
-    QGridLayout, QLineEdit
+    QGridLayout, QLineEdit, QMainWindow
 )
 from qasync import QEventLoop, asyncSlot
 from browse_window import BrowseWindow
@@ -40,7 +40,7 @@ from visual_search_window import VisualSearchWindow
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 
 
-class SydneyWindow(QWidget):
+class SydneyWindow(QMainWindow):
     def __init__(self, config: Config, parent=None):
         super().__init__(parent)
         self.visual_search_url = ""
@@ -290,7 +290,7 @@ class SydneyWindow(QWidget):
         self.left_layout_widget.setLayout(left_layout)
         if not self.config.get('workspace_toggle'):
             self.left_layout_widget.hide()
-        menu_bar = QMenuBar()
+        menu_bar = self.menuBar()
         menu_bar.setNativeMenuBar(False)
 
         def toggle_workspace():
@@ -307,9 +307,11 @@ class SydneyWindow(QWidget):
             self.cookie_checker = CookieChecker(config=self.config)
             self.cookie_checker.show()
 
-        menu_bar.addAction('Show/Hide Workspace', toggle_workspace)
-        menu_bar.addAction('Cookie Checker', open_cookie_checker)
-        menu_bar.addAction('Settings', self.open_setting_window)
+        menu_actions = [menu_bar.addAction('Show/Hide Workspace', toggle_workspace),
+                        menu_bar.addAction('Cookie Checker', open_cookie_checker),
+                        menu_bar.addAction('Settings', self.open_setting_window)]
+        for action in menu_actions:
+            action.setMenuRole(QAction.MenuRole.ApplicationSpecificRole)
         main_layout = QHBoxLayout()
         main_layout.addWidget(self.left_layout_widget, 1)
         main_layout.addWidget(self.splitter, 6)
@@ -317,10 +319,11 @@ class SydneyWindow(QWidget):
 
         frame_layout = QVBoxLayout()
         frame_layout.setContentsMargins(0, 0, 0, 0)
-        frame_layout.addWidget(menu_bar)
         frame_layout.addLayout(main_layout)
 
-        self.setLayout(frame_layout)
+        frame_widget = QWidget()
+        frame_widget.setLayout(frame_layout)
+        self.setCentralWidget(frame_widget)
 
         self.resize(900, 600)
         self.setWindowTitle('SydneyQt')
