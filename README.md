@@ -75,7 +75,11 @@ If these steps don't work, check your proxy settings as follows:
 1. Go to settings in SydneyQt and try different proxy types. For example: http://127.0.0.1:7890, socks5h://127.0.0.1:7890 (the `h` letter means to send the hostname to the proxy)
 2. If this doesn't work either, leave the proxy blank in SydneyQt, and try using [Proxifier](https://www.proxifier.com/) or Clash TUN mode.
 
-To avoid the `User needs to solve CAPTCHA to continue` message, make sure your proxy IP does not change. If you use Clash, disable load-balancing or round-robin modes and stick to one node only.
+To avoid the `User needs to solve CAPTCHA to continue` error, please follow these steps:
+1. Check the current user with the `Cookie Checker` option on the menu bar. If it shows no user, you need to export a new cookies.json file from your browser.
+2. After making sure the cookie is valid, open Bing Web in your browser and sending a random message. You should see a CAPTCHA challenge. If not, verify that the current user matches the cookies.json file. Complete the CAPTCHA and go back to SydneyQt. It should work fine now.
+
+Make sure your proxy IP does not change. If you use Clash, disable load-balancing or round-robin modes and stick to one node only. Otherwise you will need to manually solve the CAPTCHA in your browser frequently.
 
 ## Screenshots
 

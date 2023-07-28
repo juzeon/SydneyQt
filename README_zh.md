@@ -73,7 +73,12 @@ python main.py
 1. 在 SydneyQt 的设置中尝试不同的代理类型。例如：http://127.0.0.1:7890, socks5h://127.0.0.1:7890 (这里的 `h` 字母表示将主机名发送给代理)
 2. 如果这也不行，就在 SydneyQt 中留空代理设置，并尝试使用 [Proxifier](https://www.proxifier.com/) 或 Clash TUN 模式。
 
-要避免出现`User needs to solve CAPTCHA to continue`的提示，请确保你的代理IP不变。如果你使用Clash，关闭负载均衡或轮询模式，只选择一个节点。
+为了避免出现`User needs to solve CAPTCHA to continue`的错误，请按照以下步骤操作：
+1. 在菜单栏上选择`Cookie Checker`选项，检查当前的用户。如果显示没有用户，你需要从你的浏览器中导出一个新的cookies.json文件。
+2. 确认cookie是有效的后，打开浏览器中的Bing Web，发送一条随机的消息。你应该看到一个CAPTCHA验证。如果没有，验证当前的用户是否和cookies.json文件匹配。完成CAPTCHA验证后，返回SydneyQt。它应该可以正常工作了。
+
+确保你的代理IP不要变化。如果你使用Clash，禁用负载均衡或轮询模式，只使用一个节点。否则你会需要经常在浏览器中手动解决CAPTCHA验证。
+
 
 ## 截图
 
