@@ -319,6 +319,7 @@ async def ask_stream(
             }
 
             await wss.send_str(_format(struct))
+            print(f'Sent:\n{json.dumps(struct)}')
 
             retry_count = 5
             while True:
@@ -340,9 +341,11 @@ async def ask_stream(
                 for obj in objects:
                     if int(time()) % 6 == 0:
                         await wss.send_str(_format({"type": 6}))
+                        print(f'Sent:\n{json.dumps({"type": 6})}')
                     if not obj:
                         continue
                     response = json.loads(obj)
+                    print(f'Received:\n{obj}')
                     if response["type"] == 2:
                         if response["item"]["result"].get("error"):
                             raise Exception(
