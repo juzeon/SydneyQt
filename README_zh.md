@@ -60,6 +60,33 @@ python main.py
 8. 复制 worker 域名，看起来像 `xxxx-xxxx-xxxx.xxxx.workers.dev`（请填入域名，而不是URL：不是`https://xxxx-xxxx-xxxx.xxxx.workers.dev/`，请移除前后缀），然后粘贴到 SydneyQt 的设置对话框中的 `Wss Domain`。然后点击 `Save`。
 </details>
 
+## Settings
+
+下面是SydneyQt支持的设置项的详细介绍：
+
+<details>
+<summary>Click me</summary>
+
+- Wss Domain：用于代理websocket接口，破解地域限制。
+- Proxy：访问New Bing使用的代理，建议为http代理，例如Clash的7890端口。如果使用了Cloudflare反代的Wss域名，可能不需要梯子就能连接，但由于创建会话的HTTP GET接口依旧被墙，所以还是需要代理。
+- Dark Mode：导入了Python Qt的一个自定义css实现暗黑模式效果，部分UI上可能会出现小小的渲染问题，例如文字溢出按钮等。
+- Conversation Style：New Bing提供三种聊天模式，即Creative、Balanced、Precise。其中Creative和Precise模式后台是GPT-4，Balanced模式后台是GPT-3.5。建议使用Creative模式。
+- No Suggestion：New Bing会根据AI的输出结果，生成三个建议的用户回复。勾选之后不显示建议栏，但实际上AI仍然会生成建议，也就是在每轮消息发送结束后要等待一段时间，这个就算通过修改optionsSets也没法关闭。
+- No Search Result：目前禁用搜索的方式有在越狱prompt中指示、在每个用户发送的消息后面自动加上「#no_search」关键词这两种。这个选项使用的是第二种。
+- Font Family and Size：上下文框和输入框字体字号设置。
+- Stretch Factor：用来调节Chat Context和User Input输入框的占位比例，是一个整数。这个值越大，代表Chat Context越高，相应的，User Input高度就越小。
+- Suggestion on Message Revoke：由于微软的限制，AI可能在输出一段内容后突然意识到不对，然后把消息撤回并道歉。当然在第三方客户端里撤回是无效的，顶多就是后续内容无法输出了。但与此同时也不会生成回复建议了。因此这个地方的文本是在这种时候用来替代建议栏显示的文本的。默认是`Continue from where you stopped`，指示AI继续输出。由于新发送的消息是将聊天记录上下文附带在webpage_context中的，不会经过外置审查，因此AI可以就刚刚中断的内容续写，除非在续写的内容中又一次出现了敏感输出。
+- Revoke Auto Reply Count：如果值不为0，则当检测到消息被撤回时自动发送「消息撤回建议」的文本，以让AI继续写。最大发送次数不会超过这个地方设置的数值。
+- Send Quick Responses Straightforward：输入框顶上有个Quick的按钮，用于快速发送一些模板文本。例如「翻译上面的文字为中文」之类的。这个选项在激活状态时，如果点击了Quick中的某一个模板文本，输入框里又没有文字时，就直接把模板文本发送给AI；而如果输入框中有文字时，就把模板文本加在已有文本的下面。
+
+下面是一些ChatGPT相关的设置，因为SydneyQt是支持OpenAI的API的：
+
+- OpenAI Key：API密钥，通常以`sk-`开头，但程序不会进行检测。
+- OpenAI Endpoint：自定义OpenAI API的端点，在使用第三方分销商时有用，例如国内的`openai-sb.com`提供的API就比官方便宜不少。需要以`/v1`结尾。
+- Short Model & Long Model & Model Switching Threshold：现在GPT-3.5支持4k和16k两种模型了，两种模型收费不一样。如何尽可能地减少开销？那当然是长文本用长模型，短文本用短模型了。Model Switching Threshold是一个token计数，如果当前Chat Context的token计数大于这个值，那下一次发送请求时就用Long Model，反之则用Short Model。
+- Model Temperature：模型的temperature，在0到2之间，数值越大模型的输出越随机。通常保持默认即可。
+</details>
+
 ## 常见问题
 
 如果你遇到以下问题：`Request is throttled`, `Authentication Failed`, `OSError: [WinError 64]` 等，请尝试以下步骤来解决：
