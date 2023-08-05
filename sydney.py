@@ -1,6 +1,7 @@
 import base64
 import json
 import os
+import pathlib
 import random
 import urllib.request
 import uuid
@@ -264,6 +265,7 @@ async def ask_stream(
         conversation_id = conversation["conversationId"]
         client_id = conversation["clientId"]
         conversation_signature = conversation["conversationSignature"]
+        message_id = str(uuid.uuid4())
 
         async with session.ws_connect(
                 wss_url,
@@ -276,7 +278,7 @@ async def ask_stream(
             await wss.send_str(_format({"type": 6}))
             option_sets = getattr(_OptionSets, conversation_style.upper()).value.copy()
             if no_search:
-                option_sets.append("nosearch")
+                prompt = prompt + ' #no_search'
 
             struct = {
                 'arguments': [
@@ -285,7 +287,10 @@ async def ask_stream(
                         'source': 'cib',
                         'allowedMessageTypes': _ALLOWED_MESSAGE_TYPES,
                         'sliceIds': _SLICE_IDS,
+                        "verbosity": "verbose",
+                        "scenario": "SERP",
                         'traceId': os.urandom(16).hex(),
+                        'requestId': message_id,
                         'isStartOfSession': True,
                         'message': {
                             "locale": locale,
@@ -296,12 +301,16 @@ async def ask_stream(
                             "inputMethod": "Keyboard",
                             "text": prompt,
                             "messageType": random.choice(["Chat", "SearchQuery"]),
+                            "requestId": message_id,
+                            "messageId": message_id,
                             "imageUrl": image_url or None,
                         },
+                        "tone": conversation_style.capitalize(),
                         'conversationSignature': conversation_signature,
                         'participant': {
                             'id': client_id
                         },
+                        "spokenTextMode": "None",
                         'conversationId': conversation_id,
                         'previousMessages': [
                             {
@@ -309,6 +318,7 @@ async def ask_stream(
                                 "description": context,
                                 "contextType": "WebPage",
                                 "messageType": "Context",
+                                "messageId": "discover-web--page-ping-mriduna-----",
                             },
                         ]
                     }
@@ -317,6 +327,17 @@ async def ask_stream(
                 'target': 'chat',
                 'type': 4
             }
+
+            # struct = json.loads(pathlib.Path('struct.json').read_text())
+            # struct['arguments'][0]['optionsSets'] = option_sets
+            # struct['arguments'][0]['sliceIds'] = _SLICE_IDS
+            # struct['arguments'][0]['traceId'] = struct1['arguments'][0]['traceId']
+            # struct['arguments'][0]['requestId'] = message_id
+            # struct['arguments'][0]['message']['requestId'] = message_id
+            # struct['arguments'][0]['message']['messageId'] = message_id
+            # struct['arguments'][0]['conversationSignature'] = conversation_signature
+            # struct['arguments'][0]['conversationId'] = conversation_id
+            # struct['arguments'][0]['previousMessages'] = struct1['arguments'][0]['previousMessages']
 
             await wss.send_str(_format(struct))
             print(f'Sent:\n{json.dumps(struct)}')
