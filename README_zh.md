@@ -2,7 +2,7 @@
 
 ![SydneyQt](https://socialify.git.ci/juzeon/SydneyQt/image?font=Inter&forks=1&logo=https%3A%2F%2Fupload.wikimedia.org%2Fwikipedia%2Fcommons%2F9%2F9c%2FBing_Fluent_Logo.svg&name=1&owner=1&pattern=Signal&stargazers=1&theme=Light)
 
-一个基于Python和Qt的新必应AI（Sydney版）的桌面客户端。
+一个基于Python和Qt的越狱版新必应AI（Sydney版）的桌面客户端。
 
 ## 特点
 
@@ -27,7 +27,7 @@
 
 ## 用法
 
-1. 根据[EdgeGPT](https://github.com/acheong08/EdgeGPT)的README文件中的说明，将你的`cookies.json`放在与`main.py`相同的文件夹中：
+1. 将你的`cookies.json`放在与`main.py`相同的文件夹中：
    - 为[Chrome](https://chrome.google.com/webstore/detail/cookie-editor/hlkenndednhfkekhgcdicdfddnkalmdm)或[Firefox](https://addons.mozilla.org/en-US/firefox/addon/cookie-editor/)安装Cookie-Editor扩展
    - 前往`bing.com`
    - 打开扩展
