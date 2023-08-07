@@ -178,7 +178,7 @@ class SydneyWindow(QMainWindow):
 
         self.stop_button = QPushButton('Stop')
         self.stop_button.clicked.connect(self.stop_responding_task)
-        self.stop_button.setDisabled(True)
+        self.stop_button.setVisible(False)
 
         self.revoke_button = QPushButton('Revoke')
         self.revoke_button.clicked.connect(self.revoke_edit)
@@ -225,9 +225,9 @@ class SydneyWindow(QMainWindow):
         bottom_half_buttons.addWidget(self.visual_search_button)
         bottom_half_buttons.addWidget(self.document_button)
         bottom_half_buttons.addWidget(self.browse_button)
-        bottom_half_buttons.addWidget(self.stop_button)
         bottom_half_buttons.addWidget(self.revoke_button)
         bottom_half_buttons.addWidget(self.quick_button)
+        bottom_half_buttons.addWidget(self.stop_button)
         bottom_half_buttons.addWidget(self.send_button)
         bottom_half_layout.addWidget(self.user_input)
 
@@ -876,7 +876,8 @@ class SydneyWindow(QMainWindow):
         self.del_workspace_button.setDisabled(responding)
         self.rename_workspace_button.setDisabled(responding)
         self.clear_workspace_button.setDisabled(responding)
-        self.stop_button.setDisabled(not responding)
+        self.stop_button.setVisible(responding)
+        self.send_button.setVisible(not responding)
         self.quick_button.setDisabled(responding)
 
     def presets_changed(self, new_value: str):
