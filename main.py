@@ -77,16 +77,8 @@ class SydneyWindow(QMainWindow):
         self.reset_button = QPushButton("Reset")
         self.reset_button.setToolTip('Reset the current chat context using the selected preset.')
         self.reset_button.clicked.connect(self.clear_context)
-        self.load_button = QPushButton("Load")
-        self.load_button.setToolTip('Load a text file into the chat context.')
-        self.load_button.clicked.connect(self.load_file)
-        self.save_button = QPushButton("Save")
-        self.save_button.setToolTip('Save the current chat context into a text file.')
-        self.save_button.clicked.connect(self.save_file)
         self.snap_button.setFixedWidth(50)
         self.reset_button.setFixedWidth(50)
-        self.load_button.setFixedWidth(50)
-        self.save_button.setFixedWidth(50)
         self.send_button = QToolButton()
         self.send_button.setText("Send")
         self.send_button.setPopupMode(QToolButton.ToolButtonPopupMode.MenuButtonPopup)
@@ -125,6 +117,12 @@ class SydneyWindow(QMainWindow):
 
         self.backend.currentTextChanged.connect(change_backend)
 
+        self.conversation_style = QComboBox()
+        self.conversation_style.addItems(["creative", "balanced", "precise"])
+        self.conversation_style.setToolTip('Balanced mode uses GPT-3.5, '
+                                           'while creative mode and precise mode use GPT-4.')
+        self.conversation_style.setCurrentText(self.config.get('conversation_style'))
+
         upper_half = QWidget()
         upper_half_layout = QVBoxLayout()
         upper_half.setLayout(upper_half_layout)
@@ -132,6 +130,8 @@ class SydneyWindow(QMainWindow):
         upper_half_layout.addLayout(upper_half_buttons)
         upper_half_buttons.addWidget(QLabel("Chat Context:"))
         upper_half_buttons.addStretch()
+        conversation_style_label = QLabel('Mode:')
+        conversation_style_label.setStyleSheet("margin-left: 3px")
         backend_label = QLabel('Backend:')
         backend_label.setStyleSheet("margin-left: 3px")
         preset_label = QLabel('Preset:')
@@ -140,6 +140,8 @@ class SydneyWindow(QMainWindow):
         locale_label.setStyleSheet("margin-left: 3px")
         upper_half_buttons.addWidget(backend_label)
         upper_half_buttons.addWidget(self.backend)
+        upper_half_buttons.addWidget(conversation_style_label)
+        upper_half_buttons.addWidget(self.conversation_style)
         upper_half_buttons.addWidget(locale_label)
         upper_half_buttons.addWidget(self.locales)
         upper_half_buttons.addWidget(preset_label)
@@ -149,8 +151,6 @@ class SydneyWindow(QMainWindow):
         upper_half_buttons.addWidget(action_label)
         upper_half_buttons.addWidget(self.reset_button)
         upper_half_buttons.addWidget(self.snap_button)
-        upper_half_buttons.addWidget(self.load_button)
-        upper_half_buttons.addWidget(self.save_button)
         upper_half_layout.addWidget(self.chat_history)
 
         bottom_half = QWidget()
@@ -309,9 +309,14 @@ class SydneyWindow(QMainWindow):
 
         menu_actions = [menu_bar.addAction('Show/Hide Workspace', toggle_workspace),
                         menu_bar.addAction('Cookie Checker', open_cookie_checker),
+                        menu_bar.addAction('Chat Context'),
                         menu_bar.addAction('Settings', self.open_setting_window)]
         for action in menu_actions:
             action.setMenuRole(QAction.MenuRole.ApplicationSpecificRole)
+        chat_context_menu = QMenu()
+        chat_context_menu.addAction('Load', self.load_file)
+        chat_context_menu.addAction('Save', self.save_file)
+        menu_actions[2].setMenu(chat_context_menu)
         main_layout = QHBoxLayout()
         main_layout.addWidget(self.left_layout_widget, 1)
         main_layout.addWidget(self.splitter, 6)
@@ -458,7 +463,7 @@ class SydneyWindow(QMainWindow):
                     conversation=conversation,
                     prompt=user_input,
                     context=self.chat_history.toPlainText(),
-                    conversation_style=self.config.cfg['conversation_style'],
+                    conversation_style=self.conversation_style.currentText(),
                     locale=self.config.get('locale'),
                     proxy=proxy if proxy != "" else None,
                     image_url=self.visual_search_url,
@@ -598,7 +603,8 @@ class SydneyWindow(QMainWindow):
             'input': '',
             'backend': self.backend.currentText(),
             'locale': self.locales.currentText(),
-            'preset': self.presets.currentText()
+            'preset': self.presets.currentText(),
+            'conversation_style': self.conversation_style.currentText(),
         }
         self.workspace_list_widget.addItem(f'Workspace {self.workspace_ix}')
         self.workspace_list_widget.setCurrentRow(self.workspace_list_widget.count() - 1)
@@ -678,7 +684,8 @@ class SydneyWindow(QMainWindow):
             'input': self.user_input.toPlainText(),
             'backend': self.backend.currentText(),
             'locale': self.locales.currentText(),
-            'preset': self.presets.currentText()
+            'preset': self.presets.currentText(),
+            'conversation_style': self.conversation_style.currentText(),
         }
 
     def _restore_optional_workspace_value(self, workspace_name):
@@ -688,6 +695,8 @@ class SydneyWindow(QMainWindow):
             self.locales.setCurrentText(self.workspace_dict[workspace_name]['locale'])
         if 'preset' in self.workspace_dict[workspace_name]:
             self.presets.setCurrentText(self.workspace_dict[workspace_name]['preset'])
+        if 'conversation_style' in self.workspace_dict[workspace_name]:
+            self.conversation_style.setCurrentText(self.workspace_dict[workspace_name]['conversation_style'])
 
     def restore_workspace(self):
         self.chat_history.setPlainText(self.workspace_dict[self.current_workspace_name]['context'])
@@ -856,8 +865,6 @@ class SydneyWindow(QMainWindow):
 
     def set_responding(self, responding):
         self.responding = responding
-        self.send_button.setEnabled(not responding)
-        self.load_button.setEnabled(not responding)
         self.chat_history.setReadOnly(responding)
         self.visual_search_button.setDisabled(responding)
         self.browse_button.setDisabled(responding)
