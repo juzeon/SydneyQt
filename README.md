@@ -106,7 +106,15 @@ To avoid the `User needs to solve CAPTCHA to continue` error, please follow thes
 1. Check the current user with the `Cookie Checker` option on the menu bar. If it shows no user, you need to export a new cookies.json file from your browser.
 2. After making sure the cookie is valid, open Bing Web in your browser and sending a random message. You should see a CAPTCHA challenge. If not, verify that the current user matches the cookies.json file. Complete the CAPTCHA and go back to SydneyQt. It should work fine now.
 
-Make sure your proxy IP does not change. If you use Clash, disable load-balancing or round-robin modes and stick to one node only. Otherwise you will need to manually solve the CAPTCHA in your browser frequently.
+If you experience **infinite CAPTCHA loops**, you can try the following steps:
+
+1. Install Bing for mobile on your phone.
+
+2. Log in with your Microsoft account.
+
+3. Send a message to New Bing.
+
+**Make sure your proxy IP does not change.** If you use Clash, disable load-balancing or round-robin modes and stick to one node only. Otherwise you will need to manually solve the CAPTCHA in your browser frequently.
 
 ## Screenshots
 
