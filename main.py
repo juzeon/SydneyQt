@@ -487,10 +487,12 @@ class SydneyWindow(QMainWindow):
                                     self.append_chat_context(
                                         f"[assistant](#search_results)\n{message['hiddenText']}\n\n")
                                 else:
-                                    for group in json.loads(message['hiddenText'][8:-4]).values():
+                                    for group in json.loads(message['text']).values():
+                                        sr_index = 1
                                         for sub_group in group:
                                             links.append(
-                                                f'[^{sub_group["index"]}^][{sub_group["title"]}]({sub_group["url"]})')
+                                                f'[^{sr_index}^][{sub_group["title"]}]({sub_group["url"]})')
+                                            sr_index += 1
                                     self.append_chat_context(
                                         "[assistant](#search_results)\n" + '\n\n'.join(links) + "\n\n")
                             except Exception as err:
