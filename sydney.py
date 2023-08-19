@@ -11,6 +11,8 @@ from typing import Union
 
 import aiohttp
 
+_DEBUG = False
+
 _PROXY = urllib.request.getproxies().get("https")
 
 _BASE_OPTION_SETS = [
@@ -198,6 +200,11 @@ _HEADERS_INIT_CONVER = {
 }
 
 
+def _print(msg):
+    if _DEBUG:
+        print(msg)
+
+
 def _format(msg: dict) -> str:
     return json.dumps(msg, ensure_ascii=False) + _DELIMITER
 
@@ -340,7 +347,7 @@ async def ask_stream(
             # struct['arguments'][0]['previousMessages'] = struct1['arguments'][0]['previousMessages']
 
             await wss.send_str(_format(struct))
-            print(f'Sent:\n{json.dumps(struct)}')
+            _print(f'Sent:\n{json.dumps(struct)}')
 
             retry_count = 5
             while True:
@@ -362,11 +369,11 @@ async def ask_stream(
                 for obj in objects:
                     if int(time()) % 6 == 0:
                         await wss.send_str(_format({"type": 6}))
-                        print(f'Sent:\n{json.dumps({"type": 6})}')
+                        _print(f'Sent:\n{json.dumps({"type": 6})}')
                     if not obj:
                         continue
                     response = json.loads(obj)
-                    print(f'Received:\n{obj}')
+                    _print(f'Received:\n{obj}')
                     if response["type"] == 2:
                         if response["item"]["result"].get("error"):
                             raise Exception(
