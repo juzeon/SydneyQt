@@ -42,6 +42,8 @@ class SettingWindow(QWidget):
                                      'Set this to 0 to disable and show a suggestion only.')
         self.direct_quick = QCheckBox()
         self.direct_quick.setToolTip('Whether to send quick responses straightforward if the user input is empty.')
+        self.confirm_reset = QCheckBox()
+        self.confirm_reset.setToolTip('Show a confirmation dialog before resetting the chat context.')
 
         top_form_layout = QFormLayout()
         top_form_layout.addRow(QLabel('Wss Domain:'), self.wss_domain)
@@ -54,6 +56,7 @@ class SettingWindow(QWidget):
         top_form_layout.addRow(QLabel('Suggestion on Message Revoke: '), self.revoke_text)
         top_form_layout.addRow(QLabel('Revoke Auto Reply Count: '), self.revoke_count)
         top_form_layout.addRow(QLabel('Send Quick Responses Straightforward: '), self.direct_quick)
+        top_form_layout.addRow(QLabel('Confirm Reset: '), self.confirm_reset)
 
         self.openai_key = QLineEdit()
         self.openai_key.setToolTip('OpenAI API Key.')
@@ -118,6 +121,7 @@ class SettingWindow(QWidget):
         self.revoke_text.setText(self.config.get('revoke_reply_text'))
         self.revoke_count.setValue(self.config.get('revoke_reply_count'))
         self.direct_quick.setChecked(self.config.get('direct_quick'))
+        self.confirm_reset.setChecked(self.config.get('confirm_reset'))
         self.openai_key.setText(self.config.get('openai_key'))
         self.openai_endpoint.setText(self.config.get('openai_endpoint'))
         self.openai_short_model.setText(self.config.get('openai_short_model'))
@@ -146,6 +150,7 @@ class SettingWindow(QWidget):
         self.config.cfg['revoke_reply_text'] = self.revoke_text.text()
         self.config.cfg['revoke_reply_count'] = self.revoke_count.value()
         self.config.cfg['direct_quick'] = self.direct_quick.isChecked()
+        self.config.cfg['confirm_reset'] = self.confirm_reset.isChecked()
         self.config.cfg['openai_key'] = self.openai_key.text()
         self.config.cfg['openai_endpoint'] = self.openai_endpoint.text()
         self.config.cfg['openai_short_model'] = self.openai_short_model.text()

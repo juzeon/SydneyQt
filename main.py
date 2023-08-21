@@ -76,7 +76,19 @@ class SydneyWindow(QMainWindow):
         self.snap_button.clicked.connect(self.snap_context)
         self.reset_button = QPushButton("Reset")
         self.reset_button.setToolTip('Reset the current chat context using the selected preset.')
-        self.reset_button.clicked.connect(self.clear_context)
+
+        def reset_button_clicked():
+            if self.config.get('confirm_reset'):
+                msg_box = QMessageBox()
+                msg_box.setIcon(QMessageBox.Icon.Warning)
+                msg_box.setText("This will reset the chat context and cannot be undone!")
+                msg_box.setStandardButtons(QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+                resp = msg_box.exec()
+                if resp != QMessageBox.StandardButton.Yes:
+                    return
+            self.clear_context()
+
+        self.reset_button.clicked.connect(reset_button_clicked)
         self.snap_button.setFixedWidth(50)
         self.reset_button.setFixedWidth(50)
         self.send_button = QToolButton()
