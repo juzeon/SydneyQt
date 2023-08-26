@@ -8,6 +8,7 @@ import uuid
 from enum import Enum
 from time import time
 from typing import Union
+import urllib.parse
 
 import aiohttp
 
@@ -235,6 +236,7 @@ async def create_conversation(
         raise Exception(text)
     if conversation["result"]["value"] == "UnauthorizedRequest":
         raise Exception(conversation["result"]["message"])
+    conversation['sec_access_token'] = response.headers['X-Sydney-Encryptedconversationsignature']
     return conversation
 
 
@@ -271,11 +273,11 @@ async def ask_stream(
     async with aiohttp.ClientSession(timeout=timeout, cookies=formatted_cookies) as session:
         conversation_id = conversation["conversationId"]
         client_id = conversation["clientId"]
-        conversation_signature = conversation["conversationSignature"]
+        sec_access_token = conversation["sec_access_token"]
         message_id = str(uuid.uuid4())
 
         async with session.ws_connect(
-                wss_url,
+                wss_url + '?sec_access_token=' + urllib.parse.quote_plus(sec_access_token),
                 autoping=False,
                 headers=_HEADERS,
                 proxy=proxy
@@ -313,7 +315,6 @@ async def ask_stream(
                             "imageUrl": image_url or None,
                         },
                         "tone": conversation_style.capitalize(),
-                        'conversationSignature': conversation_signature,
                         'participant': {
                             'id': client_id
                         },
