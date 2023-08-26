@@ -236,7 +236,8 @@ async def create_conversation(
         raise Exception(text)
     if conversation["result"]["value"] == "UnauthorizedRequest":
         raise Exception(conversation["result"]["message"])
-    conversation['sec_access_token'] = response.headers['X-Sydney-Encryptedconversationsignature']
+    if 'X-Sydney-Encryptedconversationsignature' in response.headers:
+        conversation['sec_access_token'] = response.headers['X-Sydney-Encryptedconversationsignature']
     return conversation
 
 
@@ -273,11 +274,14 @@ async def ask_stream(
     async with aiohttp.ClientSession(timeout=timeout, cookies=formatted_cookies) as session:
         conversation_id = conversation["conversationId"]
         client_id = conversation["clientId"]
-        sec_access_token = conversation["sec_access_token"]
+        sec_access_token = conversation["sec_access_token"] if 'sec_access_token' in conversation else None
+        conversation_signature = conversation["conversationSignature"] \
+            if 'conversationSignature' in conversation else None
         message_id = str(uuid.uuid4())
 
         async with session.ws_connect(
-                wss_url + '?sec_access_token=' + urllib.parse.quote_plus(sec_access_token),
+                wss_url + (
+                        '?sec_access_token=' + urllib.parse.quote_plus(sec_access_token) if sec_access_token else ''),
                 autoping=False,
                 headers=_HEADERS,
                 proxy=proxy
@@ -315,6 +319,7 @@ async def ask_stream(
                             "imageUrl": image_url or None,
                         },
                         "tone": conversation_style.capitalize(),
+                        'conversationSignature': conversation_signature if conversation_signature else None,
                         'participant': {
                             'id': client_id
                         },
