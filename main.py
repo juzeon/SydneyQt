@@ -40,6 +40,13 @@ from visual_search_window import VisualSearchWindow
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 
 
+def list_rindex(li, x):
+    for i in reversed(range(len(li))):
+        if li[i] == x:
+            return i
+    raise ValueError("{} is not in list".format(x))
+
+
 class SydneyWindow(QMainWindow):
     def __init__(self, config: Config, parent=None):
         super().__init__(parent)
@@ -586,7 +593,7 @@ class SydneyWindow(QMainWindow):
             QMessageBox(self).information(self, 'Message', 'Nothing to revoke.')
             return
         self.user_input.setPlainText(users_arr[-1]['message'])
-        self.apply_chat_context_array(arr[:arr.index(users_arr[-1])])
+        self.apply_chat_context_array(arr[:list_rindex(arr, users_arr[-1])])
 
     def get_chat_context_array(self, chat_context: str = None):
         ctx = self.chat_history.toPlainText() if chat_context is None else chat_context
