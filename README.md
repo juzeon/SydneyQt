@@ -100,7 +100,8 @@ If you encounter any of these issues: `Request is throttled`, `Authentication Fa
 If these steps don't work, check your proxy settings as follows:
 
 1. Go to settings in SydneyQt and try different proxy types. For example: http://127.0.0.1:7890, socks5h://127.0.0.1:7890 (the `h` letter means to send the hostname to the proxy)
-2. If this doesn't work either, leave the proxy blank in SydneyQt, and try using [Proxifier](https://www.proxifier.com/) or Clash TUN mode.
+2. If you use Clash or a similar proxy software, make sure that domains with the suffix `bing.com` are routed through the proxy. Some proxy providers may add `bing.com` to the direct rule, which means it will bypass the proxy.
+3. If this doesn't work either, leave the proxy blank in SydneyQt, and try using [Proxifier](https://www.proxifier.com/) or Clash TUN mode.
 
 To avoid the `User needs to solve CAPTCHA to continue` error, please follow these steps:
 1. Check the current user with the `Cookie Checker` option on the menu bar. If it shows no user, you need to export a new cookies.json file from your browser.

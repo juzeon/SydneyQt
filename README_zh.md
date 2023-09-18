@@ -98,7 +98,8 @@ python main.py
 如果这些步骤仍然无效，请检查你的代理设置，如下：
 
 1. 在 SydneyQt 的设置中尝试不同的代理类型。例如：http://127.0.0.1:7890, socks5h://127.0.0.1:7890 (这里的 `h` 字母表示将主机名发送给代理)
-2. 如果这也不行，就在 SydneyQt 中留空代理设置，并尝试使用 [Proxifier](https://www.proxifier.com/) 或 Clash TUN 模式。
+2. 如果你使用Clash或类似的代理软件，请确保以`bing.com`为后缀的域名都通过代理转发。有些代理提供商可能会把`bing.com`加入直连规则，这意味着它会绕过代理。
+3. 如果这也不行，就在 SydneyQt 中留空代理设置，并尝试使用 [Proxifier](https://www.proxifier.com/) 或 Clash TUN 模式。
 
 为了避免出现`User needs to solve CAPTCHA to continue`的错误，请按照以下步骤操作：
 1. 在菜单栏上选择`Cookie Checker`选项，检查当前的用户。如果显示没有用户，你需要从你的浏览器中导出一个新的cookies.json文件。
