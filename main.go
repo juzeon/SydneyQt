@@ -2,7 +2,6 @@ package main
 
 import (
 	"embed"
-
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
@@ -18,8 +17,8 @@ func main() {
 	// Create application with options
 	err := wails.Run(&options.App{
 		Title:  "SydneyQt",
-		Width:  1024,
-		Height: 768,
+		Width:  900,
+		Height: 600,
 		AssetServer: &assetserver.Options{
 			Assets: assets,
 		},
