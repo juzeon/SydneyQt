@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import {ref} from "vue"
+import Conversation from "./components/Conversation.vue"
 
 let navDrawer = ref(true)
 </script>
@@ -16,7 +17,9 @@ let navDrawer = ref(true)
         </v-app-bar>
         <v-navigation-drawer v-model="navDrawer">
           <v-list>
-            <v-list-item title="Navigation drawer"></v-list-item>
+            <v-list-item>
+              <conversation :id="1" title="New Chat" :created-at="new Date()"></conversation>
+            </v-list-item>
           </v-list>
         </v-navigation-drawer>
         <div style="height: 98%" class="ma-2">
