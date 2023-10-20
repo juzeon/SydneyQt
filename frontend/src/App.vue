@@ -1,3 +1,9 @@
+<script lang="ts" setup>
+import {ref} from "vue"
+
+let navDrawer = ref(true)
+</script>
+
 <template>
   <div>
     <v-app>
@@ -13,15 +19,10 @@
             <v-list-item title="Navigation drawer"></v-list-item>
           </v-list>
         </v-navigation-drawer>
-        <v-container class="d-flex">
-          <v-btn color="primary">hello</v-btn>
-        </v-container>
+        <div style="height: 98%" class="ma-2">
+          <router-view></router-view>
+        </div>
       </v-main>
     </v-app>
   </div>
 </template>
-
-<script lang="ts" setup>
-import {ref} from "vue"
-let navDrawer = ref(true)
-</script>

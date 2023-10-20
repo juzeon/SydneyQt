@@ -9,6 +9,8 @@ import {createVuetify} from 'vuetify'
 import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
 import {aliases, mdi} from "vuetify/iconsets/mdi"
+import IndexPage from "./pages/IndexPage.vue"
+import * as VueRouter from 'vue-router'
 
 const vuetify = createVuetify({
     components,
@@ -36,6 +38,12 @@ const vuetify = createVuetify({
         }
     }
 })
-
+const routes = [
+    {path: '/', component: IndexPage},
+]
+const router = VueRouter.createRouter({
+    history: VueRouter.createWebHashHistory(),
+    routes,
+})
 // @ts-ignore
-createApp(App).use(vuetify).mount('#app')
+createApp(App).use(router).use(vuetify).mount('#app')
