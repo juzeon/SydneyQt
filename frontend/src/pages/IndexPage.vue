@@ -1,32 +1,47 @@
 <script setup lang="ts">
-import {onMounted, ref} from "vue"
+import {computed, onMounted, ref, watch} from "vue"
+import {GetConfig, SetConfig} from "../../wailsjs/go/main/Settings"
+import {main} from "../../wailsjs/go/models"
+import Config = main.Config
 
 let modeList = ['Creative', 'Balanced', 'Precise']
-let mode = ref('Creative')
-let backendList = ref([])
-let backend = ref('')
+let backendList = computed(() => {
+  return ['Sydney', ...config.value.open_ai_backends.map(v => v.name)]
+})
 let localeList = ['zh-CN', 'en-US', 'en-IE', 'en-GB']
-let locale = ref('zh-CN')
-let presetList = ref([])
-let preset = ref('')
-onMounted(() => {
+let config = ref<main.Config>(new Config())
+let loading = ref(true)
+watch(config, value => {
+  console.log('new value:')
+  console.log(value)
+  SetConfig(config.value)
+}, {deep: true})
 
+async function updateFromSettings() {
+  loading.value = true
+  config.value = await GetConfig()
+  loading.value = false
+}
+
+onMounted(() => {
+  updateFromSettings()
 })
 </script>
 
 <template>
-  <div style="height: 100%" class="d-flex flex-column">
+  <div style="height: 100%" class="d-flex flex-column" v-if="!loading">
     <div class="d-flex align-center">
       <p class="mb-5">Chat Context:</p>
       <v-spacer></v-spacer>
       <div class="d-flex">
-        <v-select v-model="backend" :items="backendList" color="primary" label="Backend" density="compact"
+        <v-select v-model="config.backend" :items="backendList" color="primary" label="Backend" density="compact"
                   class="mx-2"></v-select>
-        <v-select v-model="mode" :items="modeList" color="primary" label="Mode" density="compact"
+        <v-select v-model="config.conversation_style" :items="modeList" color="primary" label="Mode" density="compact"
                   class="mx-2"></v-select>
-        <v-select v-model="locale" :items="localeList" color="primary" label="Locale" density="compact"
+        <v-select v-model="config.locale" :items="localeList" color="primary" label="Locale" density="compact"
                   class="mx-2"></v-select>
-        <v-select v-model="preset" :items="presetList" color="primary" label="Preset" density="compact"
+        <v-select v-model="config.last_preset" :items="config.presets.map(v=>v.name)" color="primary" label="Preset"
+                  density="compact"
                   class="mx-2"></v-select>
       </div>
       <v-btn color="primary" class="mb-5 ml-2">Reset</v-btn>
