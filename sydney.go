@@ -434,9 +434,6 @@ func (o *Sydney) AskStream(
 		for {
 			messages, err := conn.ReadWithTimeout()
 			if err != nil {
-				//if !errors.Is(err, context.Canceled) {
-				//	return
-				//}
 				msgChan <- Message{
 					Error: err,
 				}
