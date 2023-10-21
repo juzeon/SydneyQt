@@ -8,7 +8,7 @@ let modeList = ['Creative', 'Balanced', 'Precise']
 let backendList = computed(() => {
   return ['Sydney', ...config.value.open_ai_backends.map(v => v.name)]
 })
-let localeList = ['zh-CN', 'en-US', 'en-IE', 'en-GB']
+let localeList = ['zh-CN', 'en-US']
 let config = ref<main.Config>(new Config())
 let loading = ref(true)
 watch(config, value => {
