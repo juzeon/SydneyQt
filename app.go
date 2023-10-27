@@ -50,6 +50,7 @@ const (
 	EventChatFinish             = "chat_finish"
 	EventChatSuggestedResponses = "chat_suggested_responses"
 	EventChatToken              = "chat_token"
+	EventChatMessageRevoke      = "chat_message_revoke"
 )
 
 const (
@@ -74,7 +75,7 @@ func (a *App) askSydney(options AskOptions) {
 	}()
 	ch := sydney.AskStream(stopCtx, conversation, options.Prompt, options.ChatContext, options.ImageURL)
 	defer runtime.EventsEmit(a.ctx, EventChatFinish)
-	sendSuggResp := func(message gjson.Result) {
+	sendSuggestedResponses := func(message gjson.Result) {
 		if message.Get("suggestedResponses").Exists() {
 			runtime.EventsEmit(a.ctx, EventChatSuggestedResponses,
 				Map(message.Get("suggestedResponses").Array(), func(v gjson.Result) string {
@@ -90,7 +91,6 @@ func (a *App) askSydney(options AskOptions) {
 	if err != nil {
 		panic(err)
 	}
-	messageRevoked := false
 	wrote := 0
 	replied := false
 	for msg := range ch {
@@ -150,7 +150,7 @@ func (a *App) askSydney(options AskOptions) {
 					wrote = 0
 				}
 				if message.Get("contentOrigin").String() == "Apology" {
-					messageRevoked = true
+					runtime.EventsEmit(a.ctx, EventChatMessageRevoke, options.ReplyDeep)
 					if replied &&
 						(a.settings.config.RevokeReplyText == "" || options.ReplyDeep >= a.settings.config.RevokeReplyCount) {
 						runtime.EventsEmit(a.ctx, EventChatAlert, "Message revoke detected")
@@ -165,7 +165,7 @@ func (a *App) askSydney(options AskOptions) {
 					wrote = len(messageText)
 					runtime.EventsEmit(a.ctx, EventChatToken,
 						len(tk.Encode(messageText, nil, nil)))
-					sendSuggResp(message)
+					sendSuggestedResponses(message)
 				}
 			default:
 				log.Println("Unsupported message type: " + msgType.String())
@@ -173,7 +173,7 @@ func (a *App) askSydney(options AskOptions) {
 			}
 		} else if data.Get("type").Int() == 2 && data.Get("item.messages").Exists() {
 			message := data.Get("item.messages|@reverse|0")
-			sendSuggResp(message)
+			sendSuggestedResponses(message)
 		}
 	}
 }
