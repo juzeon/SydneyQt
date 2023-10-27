@@ -161,8 +161,10 @@ func (a *App) askSydney(options AskOptions) {
 					return
 				} else {
 					replied = true
-					chatAppend(messageText[wrote:])
-					wrote = len(messageText)
+					if wrote < len(messageText) {
+						chatAppend(messageText[wrote:])
+						wrote = len(messageText)
+					}
 					runtime.EventsEmit(a.ctx, EventChatToken, a.CountToken(messageText))
 					sendSuggestedResponses(message)
 				}
