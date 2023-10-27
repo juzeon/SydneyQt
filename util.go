@@ -55,6 +55,9 @@ func CopyMap[T comparable, E any](source map[T]E) map[T]E {
 func CreateTimeoutContext(timeout time.Duration) (context.Context, context.CancelFunc) {
 	return context.WithTimeout(context.Background(), timeout)
 }
+func CreateCancelContext() (context.Context, context.CancelFunc) {
+	return context.WithCancel(context.Background())
+}
 func MustGenerateRandomHex(length int) string {
 	randomBytes := make([]byte, length)
 	_, err := rand.New(rand.NewSource(time.Now().Unix())).Read(randomBytes)
@@ -94,4 +97,11 @@ func ReadCookiesFile() map[string]string {
 		res[cookie.Name] = cookie.Value
 	}
 	return res
+}
+func Map[T any, E any](arr []T, function func(value T) E) []E {
+	var result []E
+	for _, item := range arr {
+		result = append(result, function(item))
+	}
+	return result
 }

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
@@ -134,7 +135,7 @@ func NewSydney(debug bool, cookies map[string]string, proxy string,
 					SourceType: 1,
 				},
 			},
-			"en-US": []LocationHint{
+			"en-US": {
 				{
 					Country:           "United States",
 					State:             "California",
@@ -301,6 +302,7 @@ type PreviousMessage struct {
 }
 
 func (o *Sydney) AskStream(
+	stopCtx context.Context,
 	conversation CreateConversationResponse,
 	prompt string,
 	webpageContext string,
@@ -351,6 +353,11 @@ func (o *Sydney) AskStream(
 			return
 		}
 		defer connRaw.CloseNow()
+		select {
+		case <-stopCtx.Done():
+			return
+		default:
+		}
 		connRaw.SetReadLimit(-1)
 		conn := &Conn{Conn: connRaw, debug: o.debug}
 		err = conn.WriteWithTimeout([]byte(`{"protocol": "json", "version": 1}`))
@@ -432,6 +439,11 @@ func (o *Sydney) AskStream(
 			return
 		}
 		for {
+			select {
+			case <-stopCtx.Done():
+				return
+			default:
+			}
 			messages, err := conn.ReadWithTimeout()
 			if err != nil {
 				msgChan <- Message{
