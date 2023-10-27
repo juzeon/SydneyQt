@@ -8,6 +8,7 @@ import (
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"log"
 	"strings"
+	"sync"
 )
 
 const (
@@ -37,11 +38,12 @@ func (a *App) startup(ctx context.Context) {
 }
 
 type AskOptions struct {
-	Type        AskType `json:"type"`
-	ChatContext string  `json:"chatContext"`
-	Prompt      string  `json:"prompt"`
-	ImageURL    string  `json:"imageURL"`
-	ReplyDeep   int     `json:"reply_deep"`
+	Type          AskType `json:"type"`
+	OpenAIBackend string  `json:"openai_backend"`
+	ChatContext   string  `json:"chat_context"`
+	Prompt        string  `json:"prompt"`
+	ImageURL      string  `json:"image_url"`
+	ReplyDeep     int     `json:"reply_deep"`
 }
 
 const (
@@ -58,8 +60,9 @@ const (
 )
 
 func (a *App) askSydney(options AskOptions) {
+	currentWorkspace := a.settings.config.GetCurrentWorkspace()
 	sydney := NewSydney(a.debug, ReadCookiesFile(), a.settings.config.Proxy,
-		a.settings.config.ConversationStyle, a.settings.config.Locale, "wss://"+a.settings.config.WssDomain,
+		currentWorkspace.ConversationStyle, currentWorkspace.Locale, a.settings.config.WssDomain,
 		a.settings.config.NoSearch)
 	conversation, err := sydney.CreateConversation()
 	if err != nil {
@@ -87,15 +90,12 @@ func (a *App) askSydney(options AskOptions) {
 	chatAppend := func(text string) {
 		runtime.EventsEmit(a.ctx, EventChatAppend, text)
 	}
-	tk, err := tiktoken.EncodingForModel("gpt-4")
-	if err != nil {
-		panic(err)
-	}
 	wrote := 0
 	replied := false
 	for msg := range ch {
 		if msg.Error != nil {
-			runtime.EventsEmit(a.ctx, EventChatAlert, err.Error())
+			log.Println("error: " + msg.Error.Error())
+			runtime.EventsEmit(a.ctx, EventChatAlert, msg.Error.Error())
 			return
 		}
 		data := gjson.Parse(msg.Data)
@@ -163,8 +163,7 @@ func (a *App) askSydney(options AskOptions) {
 					replied = true
 					chatAppend(messageText[wrote:])
 					wrote = len(messageText)
-					runtime.EventsEmit(a.ctx, EventChatToken,
-						len(tk.Encode(messageText, nil, nil)))
+					runtime.EventsEmit(a.ctx, EventChatToken, a.CountToken(messageText))
 					sendSuggestedResponses(message)
 				}
 			default:
@@ -183,4 +182,17 @@ func (a *App) AskAI(options AskOptions) {
 	} else if options.Type == AskTypeOpenAI {
 		runtime.EventsEmit(a.ctx, EventChatAlert, "not implemented")
 	}
+}
+
+var tk *tiktoken.Tiktoken
+
+func (a *App) CountToken(text string) int {
+	sync.OnceFunc(func() {
+		t, err := tiktoken.EncodingForModel("gpt-4")
+		if err != nil {
+			panic(err)
+		}
+		tk = t
+	})()
+	return len(tk.Encode(text, nil, nil))
 }

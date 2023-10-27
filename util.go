@@ -105,3 +105,12 @@ func Map[T any, E any](arr []T, function func(value T) E) []E {
 	}
 	return result
 }
+func FindFirst[T any](arr []T, function func(value T) bool) (T, bool) {
+	var empty T
+	for _, item := range arr {
+		if function(item) {
+			return item, true
+		}
+	}
+	return empty, false
+}

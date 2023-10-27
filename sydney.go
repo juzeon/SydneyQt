@@ -62,7 +62,7 @@ type CreateConversationResponse struct {
 }
 
 func NewSydney(debug bool, cookies map[string]string, proxy string,
-	conversationStyle string, locale string, wssURL string, noSearch bool) *Sydney {
+	conversationStyle string, locale string, wssDomain string, noSearch bool) *Sydney {
 	basicOptionsSet := []string{
 		"nlu_direct_response_filter",
 		"deepleo",
@@ -88,9 +88,10 @@ func NewSydney(debug bool, cookies map[string]string, proxy string,
 		proxy:             proxy,
 		conversationStyle: conversationStyle,
 		locale:            locale,
-		wssURL:            Ternary(wssURL == "", "wss://sydney.bing.com/sydney/ChatHub", wssURL),
-		noSearch:          noSearch,
-		basicOptionsSet:   basicOptionsSet,
+		wssURL: Ternary(wssDomain == "", "wss://sydney.bing.com/sydney/ChatHub",
+			"wss://"+wssDomain+"/sydney/ChatHub"),
+		noSearch:        noSearch,
+		basicOptionsSet: basicOptionsSet,
 		optionsSetMap: map[string][]string{
 			"Creative": append(basicOptionsSet, "h3imaginative"),
 			"Balanced": append(basicOptionsSet, "galileo"),
@@ -245,6 +246,9 @@ func (o *Sydney) CreateConversation() (CreateConversationResponse, error) {
 	}
 	if value := resp.Header.Get("X-Sydney-Encryptedconversationsignature"); value != "" {
 		response.SecAccessToken = value
+	}
+	if o.debug {
+		log.Printf("%#v\n", response)
 	}
 	return response, nil
 }

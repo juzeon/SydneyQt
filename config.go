@@ -30,23 +30,19 @@ type OpenAIBackend struct {
 }
 type Config struct {
 	Presets             []Preset        `json:"presets"`
-	LastPreset          string          `json:"last_preset"`
 	EnterMode           string          `json:"enter_mode"`
 	Proxy               string          `json:"proxy"`
 	NoSuggestion        bool            `json:"no_suggestion"`
 	NoSearch            bool            `json:"no_search"`
-	ConversationStyle   string          `json:"conversation_style"`
 	FontFamily          string          `json:"font_family"`
 	FontSize            int             `json:"font_size"`
 	StretchFactor       int             `json:"stretch_factor"`
 	RevokeReplyText     string          `json:"revoke_reply_text"`
 	RevokeReplyCount    int             `json:"revoke_reply_count"`
 	Workspaces          []Workspace     `json:"workspaces"`
-	LastWorkspaceID     int             `json:"last_workspace_id"`
+	CurrentWorkspaceID  int             `json:"current_workspace_id"`
 	Quick               []string        `json:"quick"`
 	DisableDirectQuick  bool            `json:"disable_direct_quick"`
-	Locale              string          `json:"locale"`
-	Backend             string          `json:"backend"`
 	OpenAIBackends      []OpenAIBackend `json:"open_ai_backends"`
 	ClearImageAfterSend bool            `json:"clear_image_after_send"`
 	WssDomain           string          `json:"wss_domain"`
@@ -59,6 +55,15 @@ func fillDefault[T comparable](pointer *T, defaultValue T) {
 	if *pointer == empty {
 		*pointer = defaultValue
 	}
+}
+func (o *Config) GetCurrentWorkspace() Workspace {
+	workspace, exist := FindFirst(o.Workspaces, func(value Workspace) bool {
+		return value.ID == o.CurrentWorkspaceID
+	})
+	if !exist {
+		panic("error finding current workspace")
+	}
+	return workspace
 }
 func (o *Config) FillDefault() {
 	if len(o.Presets) == 0 {
@@ -77,9 +82,7 @@ func (o *Config) FillDefault() {
 			},
 		}
 	}
-	fillDefault(&o.LastPreset, "Sydney")
 	fillDefault(&o.EnterMode, "Enter")
-	fillDefault(&o.ConversationStyle, "Creative")
 	fillDefault(&o.FontFamily, "Microsoft Yahei")
 	fillDefault(&o.FontSize, 11)
 	fillDefault(&o.StretchFactor, 2)
@@ -91,8 +94,6 @@ func (o *Config) FillDefault() {
 			"Translate the text above into Chinese in a fluent way.",
 			"Continue the conversation in context. Assistant:"}
 	}
-	fillDefault(&o.Locale, "zh-CN")
-	fillDefault(&o.Backend, "Sydney")
 	if len(o.OpenAIBackends) == 0 {
 		o.OpenAIBackends = []OpenAIBackend{
 			{
