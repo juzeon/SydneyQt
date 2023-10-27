@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import {computed, onMounted, ref, watch} from "vue"
+import {computed, onMounted, onUnmounted, ref, watch} from "vue"
 import {GetConfig, SetConfig} from "../../wailsjs/go/main/Settings"
 import {main} from "../../wailsjs/go/models"
-import {EventsOff, EventsOn} from "../../wailsjs/runtime"
+import {EventsEmit, EventsOff, EventsOn} from "../../wailsjs/runtime"
 import {swal} from "../helper"
 import {AskAI, CountToken} from "../../wailsjs/go/main/App"
 import {AskTypeOpenAI, AskTypeSydney} from "../constants"
@@ -52,6 +52,9 @@ async function updateFromSettings() {
   }
   tokenCount.value = await CountToken(currentWorkspace.value.context)
   loading.value = false
+  setTimeout(() => {
+    scrollChatContextToBottom()
+  }, 0)
 }
 
 let suggestedResponses = ref<string[]>([])
@@ -63,13 +66,25 @@ let askEventMap = {
     swal.error(data)
   },
   "chat_append": (data: string) => {
+    let scrollBottom = false
     if (!replied.value) {
+      console.log('first reply')
       fixContextLineBreak()
       currentWorkspace.value.context += '[user](#message)\n' + currentWorkspace.value.input + "\n\n"
+      scrollBottom = true
       currentWorkspace.value.input = ''
       replied.value = true
     }
-    currentWorkspace.value.context += data
+    let chatContextElem = document.getElementById('chat-context')
+    if (chatContextElem) {
+      // if (Math.abs(chatContextElem.scrollTop - chatContextElem.scrollHeight) < 500) {
+      scrollBottom = true
+      // }
+      currentWorkspace.value.context += data
+      if (scrollBottom) {
+        chatContextElem.scrollTop = chatContextElem.scrollHeight
+      }
+    }
   },
   "chat_finish": () => {
     fixContextLineBreak()
@@ -88,6 +103,13 @@ let askEventMap = {
       // TODO send continue instruction
     }
   },
+}
+
+function scrollChatContextToBottom() {
+  let element = document.getElementById('chat-context')
+  if (element) {
+    element.scrollTop = element.scrollHeight
+  }
 }
 
 function fixContextLineBreak() {
@@ -126,8 +148,34 @@ async function startAsking() {
   await AskAI(askOptions)
 }
 
+function stopAsking() {
+  EventsEmit('chat_stop')
+  isAsking.value = false
+}
+
+function handleKeyPress(event: KeyboardEvent) {
+  if (document.getElementById('user-input') !== document.activeElement) {
+    console.log('user-input not focused')
+    return
+  }
+  if (isAsking.value) {
+    return
+  }
+  console.log('handle focused key press for user-input')
+  if (config.value.enter_mode === 'Enter' && (event.key == 'Enter' || event.key == 'NumpadEnter')) {
+    event.preventDefault()
+    startAsking()
+  } else if ((event.key == 'Enter' || event.key == 'NumpadEnter') && (event.ctrlKey && event.metaKey)) {
+    startAsking()
+  }
+}
+
 onMounted(() => {
   updateFromSettings()
+  window.addEventListener('keypress', handleKeyPress, true)
+})
+onUnmounted(() => {
+  window.removeEventListener('keypress', handleKeyPress, true)
 })
 
 
@@ -152,34 +200,43 @@ onMounted(() => {
                   density="compact"
                   class="mx-2"></v-select>
       </div>
-      <v-btn color="primary" class="mb-5 ml-2">Reset</v-btn>
+      <v-btn color="primary" class="mb-5 ml-2" :disabled="isAsking">Reset</v-btn>
     </div>
-    <div class="flex-grow-1" style="height: 50vh;overflow: auto">
-      <v-textarea class="ma-0" no-resize auto-grow :rows="20" v-model="currentWorkspace.context"></v-textarea>
+    <div class="flex-grow-1">
+      <textarea id="chat-context" class="input-textarea" v-model="currentWorkspace.context"></textarea>
     </div>
     <div class="my-2 d-flex">
       <p>Follow-up User Input:</p>
       <v-spacer></v-spacer>
-      <v-btn color="primary" density="compact" class="mx-1">Image</v-btn>
-      <v-btn color="primary" density="compact" class="mx-1">Document</v-btn>
-      <v-btn color="primary" density="compact" class="mx-1">Browse</v-btn>
-      <v-btn color="primary" density="compact" class="mx-1">Revoke</v-btn>
+      <v-btn color="primary" density="compact" class="mx-1" :disabled="isAsking">Image</v-btn>
+      <v-btn color="primary" density="compact" class="mx-1" :disabled="isAsking">Document</v-btn>
+      <v-btn color="primary" density="compact" class="mx-1" :disabled="isAsking">Browse</v-btn>
+      <v-btn color="primary" density="compact" class="mx-1" :disabled="isAsking">Revoke</v-btn>
       <v-menu>
         <template #activator="{props}">
-          <v-btn color="primary" density="compact" append-icon="mdi-menu-down" v-bind="props" class="mx-1">Quick</v-btn>
+          <v-btn color="primary" density="compact" append-icon="mdi-menu-down" v-bind="props" class="mx-1"
+                 :disabled="isAsking">Quick
+          </v-btn>
         </template>
         <v-list density="compact">
           <v-list-item>test</v-list-item>
         </v-list>
       </v-menu>
-      <v-btn color="primary" density="compact" class="mx-1" :disabled="isAsking" @click="startAsking">Send</v-btn>
+      <v-btn color="primary" density="compact" class="mx-1" v-if="isAsking" @click="stopAsking">Stop</v-btn>
+      <v-btn color="primary" density="compact" class="mx-1" v-else @click="startAsking">Send</v-btn>
     </div>
-    <div style="overflow: auto">
-      <v-textarea class="ma-0" :rows="5" no-resize v-model="currentWorkspace.input"></v-textarea>
+    <div style="height: 20vh">
+      <textarea id="user-input" class="input-textarea" v-model="currentWorkspace.input"></textarea>
     </div>
   </div>
 </template>
 
 <style scoped>
-
+.input-textarea {
+  height: 99%;
+  width: 100%;
+  border: grey 1px dashed;
+  resize: none;
+  padding: 5px
+}
 </style>
