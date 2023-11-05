@@ -31,6 +31,7 @@
    - 为[Chrome](https://chrome.google.com/webstore/detail/cookie-editor/hlkenndednhfkekhgcdicdfddnkalmdm)或[Firefox](https://addons.mozilla.org/en-US/firefox/addon/cookie-editor/)安装Cookie-Editor扩展
    - 前往`bing.com`
    - 打开扩展
+   - 首次打开需要点击 All sites 并授予权限
    - 点击右下角的`Export`，然后选择`Export as JSON`（这会将你的cookies保存到剪贴板）
    - 将你的cookies粘贴到一个名为`cookies.json`的文件中，请在与`main.py`同级的文件夹下创建。
 2. 安装依赖：
@@ -102,7 +103,7 @@ python main.py
 3. 如果这也不行，就在 SydneyQt 中留空代理设置，并尝试使用 [Proxifier](https://www.proxifier.com/) 或 Clash TUN 模式。
 
 为了避免出现`User needs to solve CAPTCHA to continue`的错误，请按照以下步骤操作：
-1. 在菜单栏上选择`Cookie Checker`选项，检查当前的用户。如果显示没有用户，你需要从你的浏览器中导出一个新的cookies.json文件。
+1. 在菜单栏上选择`Cookie Checker`选项，检查当前的用户。如果显示没有用户，你需要从你的浏览器中导出一个新的cookies.json文件。确保你已经允许Cookie-Editor读取所有网站的cookies的权限以导出完整的cookies。
 2. 确认cookie是有效的后，打开浏览器中的Bing Web，发送一条随机的消息。你应该看到一个CAPTCHA验证。如果没有，验证当前的用户是否和cookies.json文件匹配。完成CAPTCHA验证后，返回SydneyQt。它应该可以正常工作了。
 
 您可以尝试以下步骤，以解决**无限验证码循环的问题**：
@@ -111,7 +112,7 @@ python main.py
 2. 使用您的微软账号登录。
 3. 向新版必应发送一条消息。
 
-**确保你的代理IP不要变化。**如果你使用Clash，禁用负载均衡或轮询模式，只使用一个节点。否则你会需要经常在浏览器中手动解决CAPTCHA验证。
+**确保你的代理IP不会变化。** 如果你使用Clash，禁用负载均衡或轮询模式，只使用一个节点。否则你会需要经常在浏览器中手动解决CAPTCHA验证。
 
 
 ## 截图
