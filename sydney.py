@@ -28,7 +28,7 @@ _BASE_OPTION_SETS = [
     "iyoloxap",
     "iyoloneutral",
     "gencontentv3",
-    "nojbfedge",
+    "nojbf",
 ]
 
 
