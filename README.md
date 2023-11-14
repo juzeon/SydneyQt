@@ -33,6 +33,7 @@ A desktop client for the jailbroken New Bing AI (Sydney ver.) based on Python an
    - Install the Cookie-Editor extension for [Chrome](https://chrome.google.com/webstore/detail/cookie-editor/hlkenndednhfkekhgcdicdfddnkalmdm) or [Firefox](https://addons.mozilla.org/en-US/firefox/addon/cookie-editor/)
    - Go to `bing.com`
    - Open the extension
+   - Grant permission for All sites
    - Click `Export` on the bottom right, then `Export as JSON` (This saves your cookies to clipboard)
    - Paste your cookies into a file `cookies.json`, created in the same directory as `main.py`.
 2. Install requirements:
@@ -104,7 +105,7 @@ If these steps don't work, check your proxy settings as follows:
 3. If this doesn't work either, leave the proxy blank in SydneyQt, and try using [Proxifier](https://www.proxifier.com/) or Clash TUN mode.
 
 To avoid the `User needs to solve CAPTCHA to continue` error, please follow these steps:
-1. Check the current user with the `Cookie Checker` option on the menu bar. If it shows no user, you need to export a new cookies.json file from your browser.
+1. Check the current user with the `Cookie Checker` option on the menu bar. If it shows no user, you need to export a new cookies.json file from your browser. Make sure you granted All sites permission in Cookie-Editor to export all required cookies.
 2. After making sure the cookie is valid, open Bing Web in your browser and sending a random message. You should see a CAPTCHA challenge. If not, verify that the current user matches the cookies.json file. Complete the CAPTCHA and go back to SydneyQt. It should work fine now.
 
 If you experience **infinite CAPTCHA loops**, you can try the following steps:
