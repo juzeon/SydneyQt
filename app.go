@@ -8,6 +8,8 @@ import (
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"log"
 	"strings"
+	sydney2 "sydneyqt/sydney"
+	"sydneyqt/util"
 	"sync"
 )
 
@@ -61,7 +63,7 @@ const (
 
 func (a *App) askSydney(options AskOptions) {
 	currentWorkspace := a.settings.config.GetCurrentWorkspace()
-	sydney := NewSydney(a.debug, ReadCookiesFile(), a.settings.config.Proxy,
+	sydney := sydney2.NewSydney(a.debug, util.ReadCookiesFile(), a.settings.config.Proxy,
 		currentWorkspace.ConversationStyle, currentWorkspace.Locale, a.settings.config.WssDomain,
 		a.settings.config.NoSearch)
 	conversation, err := sydney.CreateConversation()
@@ -69,19 +71,19 @@ func (a *App) askSydney(options AskOptions) {
 		runtime.EventsEmit(a.ctx, EventChatAlert, err.Error())
 		return
 	}
-	stopCtx, cancel := CreateCancelContext()
+	stopCtx, cancel := util.CreateCancelContext()
 	defer cancel()
 	go func() {
 		runtime.EventsOn(a.ctx, EventChatStop, func(optionalData ...interface{}) {
 			cancel()
 		})
 	}()
-	ch := sydney.AskStream(stopCtx, conversation, options.Prompt, options.ChatContext, options.ImageURL)
+	ch := sydney.AskStreamRaw(stopCtx, conversation, options.Prompt, options.ChatContext, options.ImageURL)
 	defer runtime.EventsEmit(a.ctx, EventChatFinish)
 	sendSuggestedResponses := func(message gjson.Result) {
 		if message.Get("suggestedResponses").Exists() {
 			runtime.EventsEmit(a.ctx, EventChatSuggestedResponses,
-				Map(message.Get("suggestedResponses").Array(), func(v gjson.Result) string {
+				util.Map(message.Get("suggestedResponses").Array(), func(v gjson.Result) string {
 					return v.Get("text").String()
 				}),
 			)

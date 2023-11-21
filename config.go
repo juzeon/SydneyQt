@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/pkg/errors"
 	"os"
+	"sydneyqt/util"
 )
 
 type Preset struct {
@@ -57,7 +58,7 @@ func fillDefault[T comparable](pointer *T, defaultValue T) {
 	}
 }
 func (o *Config) GetCurrentWorkspace() Workspace {
-	workspace, exist := FindFirst(o.Workspaces, func(value Workspace) bool {
+	workspace, exist := util.FindFirst(o.Workspaces, func(value Workspace) bool {
 		return value.ID == o.CurrentWorkspaceID
 	})
 	if !exist {
