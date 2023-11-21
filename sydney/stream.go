@@ -1,7 +1,6 @@
 package sydney
 
 import (
-	"context"
 	"encoding/json"
 	"errors"
 	"github.com/google/uuid"
@@ -12,16 +11,10 @@ import (
 	"time"
 )
 
-func (o *Sydney) AskStream() {
+func (o *Sydney) AskStream(options AskStreamOptions) {
 
 }
-func (o *Sydney) AskStreamRaw(
-	stopCtx context.Context,
-	conversation CreateConversationResponse,
-	prompt string,
-	webpageContext string,
-	imageURL string,
-) <-chan Message {
+func (o *Sydney) AskStreamRaw(options AskStreamOptions) <-chan Message {
 	msgChan := make(chan Message)
 	go func() {
 		defer close(msgChan)
@@ -48,8 +41,8 @@ func (o *Sydney) AskStreamRaw(
 		ctx, cancel := util.CreateTimeoutContext(10 * time.Second)
 		defer cancel()
 		connRaw, resp, err := websocket.Dial(ctx,
-			o.wssURL+util.Ternary(conversation.SecAccessToken != "", "?sec_access_token="+
-				url.QueryEscape(conversation.SecAccessToken), ""),
+			o.wssURL+util.Ternary(options.Conversation.SecAccessToken != "", "?sec_access_token="+
+				url.QueryEscape(options.Conversation.SecAccessToken), ""),
 			&websocket.DialOptions{
 				HTTPClient: client,
 				HTTPHeader: httpHeaders,
@@ -68,7 +61,7 @@ func (o *Sydney) AskStreamRaw(
 		}
 		defer connRaw.CloseNow()
 		select {
-		case <-stopCtx.Done():
+		case <-options.StopCtx.Done():
 			return
 		default:
 		}
@@ -90,7 +83,7 @@ func (o *Sydney) AskStreamRaw(
 			return
 		}
 		if o.noSearch {
-			prompt += " #no_search"
+			options.Prompt += " #no_search"
 		}
 		chatMessage := ChatMessage{
 			Arguments: []Argument{
@@ -111,22 +104,22 @@ func (o *Sydney) AskStreamRaw(
 						LocationHints: o.locationHints[o.locale],
 						Author:        "user",
 						InputMethod:   "Keyboard",
-						Text:          prompt,
+						Text:          options.Prompt,
 						MessageType:   []string{"Chat", "SearchQuery"}[util.RandIntInclusive(0, 1)],
 						RequestId:     messageID.String(),
 						MessageId:     messageID.String(),
-						ImageUrl:      util.Ternary[any](imageURL == "", nil, imageURL),
+						ImageUrl:      util.Ternary[any](options.ImageURL == "", nil, options.ImageURL),
 					},
 					Tone: o.conversationStyle,
-					ConversationSignature: util.Ternary[any](conversation.ConversationSignature == "",
-						nil, conversation.ConversationSignature),
-					Participant:    Participant{Id: conversation.ClientId},
+					ConversationSignature: util.Ternary[any](options.Conversation.ConversationSignature == "",
+						nil, options.Conversation.ConversationSignature),
+					Participant:    Participant{Id: options.Conversation.ClientId},
 					SpokenTextMode: "None",
-					ConversationId: conversation.ConversationId,
+					ConversationId: options.Conversation.ConversationId,
 					PreviousMessages: []PreviousMessage{
 						{
 							Author:      "user",
-							Description: webpageContext,
+							Description: options.WebpageContext,
 							ContextType: "WebPage",
 							MessageType: "Context",
 							MessageId:   "discover-web--page-ping-mriduna-----",
@@ -154,7 +147,7 @@ func (o *Sydney) AskStreamRaw(
 		}
 		for {
 			select {
-			case <-stopCtx.Done():
+			case <-options.StopCtx.Done():
 				return
 			default:
 			}

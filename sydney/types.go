@@ -1,5 +1,7 @@
 package sydney
 
+import "context"
+
 const delimiter = '\x1e'
 
 type LocationHint struct {
@@ -77,4 +79,11 @@ type PreviousMessage struct {
 	ContextType string `json:"contextType"`
 	MessageType string `json:"messageType"`
 	MessageId   string `json:"messageId"`
+}
+type AskStreamOptions struct {
+	StopCtx        context.Context
+	Conversation   CreateConversationResponse
+	Prompt         string
+	WebpageContext string
+	ImageURL       string
 }

@@ -8,7 +8,7 @@ import (
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"log"
 	"strings"
-	sydney2 "sydneyqt/sydney"
+	"sydneyqt/sydney"
 	"sydneyqt/util"
 	"sync"
 )
@@ -63,10 +63,10 @@ const (
 
 func (a *App) askSydney(options AskOptions) {
 	currentWorkspace := a.settings.config.GetCurrentWorkspace()
-	sydney := sydney2.NewSydney(a.debug, util.ReadCookiesFile(), a.settings.config.Proxy,
+	sydneyIns := sydney.NewSydney(a.debug, util.ReadCookiesFile(), a.settings.config.Proxy,
 		currentWorkspace.ConversationStyle, currentWorkspace.Locale, a.settings.config.WssDomain,
 		a.settings.config.NoSearch)
-	conversation, err := sydney.CreateConversation()
+	conversation, err := sydneyIns.CreateConversation()
 	if err != nil {
 		runtime.EventsEmit(a.ctx, EventChatAlert, err.Error())
 		return
@@ -78,7 +78,13 @@ func (a *App) askSydney(options AskOptions) {
 			cancel()
 		})
 	}()
-	ch := sydney.AskStreamRaw(stopCtx, conversation, options.Prompt, options.ChatContext, options.ImageURL)
+	ch := sydneyIns.AskStreamRaw(sydney.AskStreamOptions{
+		StopCtx:        stopCtx,
+		Conversation:   conversation,
+		Prompt:         options.Prompt,
+		WebpageContext: options.ChatContext,
+		ImageURL:       options.ImageURL,
+	})
 	defer runtime.EventsEmit(a.ctx, EventChatFinish)
 	sendSuggestedResponses := func(message gjson.Result) {
 		if message.Get("suggestedResponses").Exists() {
