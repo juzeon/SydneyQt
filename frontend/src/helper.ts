@@ -9,25 +9,25 @@ export interface ISwal {
 export let swal: ISwal = {
     success(text: string) {
         return Swal.fire({
-            title: '操作成功',
+            title: 'Success',
             text,
             icon: 'success'
         })
     },
     error(text: string) {
         return Swal.fire({
-            title: '产生了错误',
+            title: 'Error',
             text,
             icon: 'error'
         })
     },
     confirm(text:string) {
         return Swal.fire({
-            title: '确认操作',
+            title: 'Confirmation',
             icon: 'question',
             text: text,
-            confirmButtonText: '确认',
-            cancelButtonText: '取消',
+            confirmButtonText: 'Confirm',
+            cancelButtonText: 'Cancel',
             showCancelButton: true
         })
     }
