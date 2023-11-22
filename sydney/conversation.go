@@ -5,6 +5,7 @@ import (
 	"errors"
 	"io"
 	"log"
+	"log/slog"
 	"net/http"
 	"sydneyqt/util"
 	"time"
@@ -49,5 +50,6 @@ func (o *Sydney) CreateConversation() (CreateConversationResponse, error) {
 	if o.debug {
 		log.Printf("%#v\n", response)
 	}
+	slog.Info("Created Conversation", "response", response)
 	return response, nil
 }

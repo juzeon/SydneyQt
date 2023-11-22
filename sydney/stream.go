@@ -7,6 +7,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/tidwall/gjson"
 	"log"
+	"log/slog"
 	"net/url"
 	"nhooyr.io/websocket"
 	"strings"
@@ -150,6 +151,7 @@ func (o *Sydney) AskStream(options AskStreamOptions) <-chan Message {
 	return out
 }
 func (o *Sydney) AskStreamRaw(options AskStreamOptions) <-chan RawMessage {
+	slog.Info("AskStreamRaw called", "options", options)
 	msgChan := make(chan RawMessage)
 	go func() {
 		defer close(msgChan)

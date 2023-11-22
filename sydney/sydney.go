@@ -2,6 +2,7 @@ package sydney
 
 import (
 	"github.com/google/uuid"
+	"log/slog"
 	"strconv"
 	"sydneyqt/util"
 )
@@ -26,6 +27,8 @@ type Sydney struct {
 
 func NewSydney(debug bool, cookies map[string]string, proxy string,
 	conversationStyle string, locale string, wssDomain string, noSearch bool) *Sydney {
+	slog.Info("New Sydney", "proxy", proxy, "conversationStyle",
+		conversationStyle, "locale", locale, "wssDomain", wssDomain, "noSearch", noSearch)
 	basicOptionsSet := []string{
 		"nlu_direct_response_filter",
 		"deepleo",
