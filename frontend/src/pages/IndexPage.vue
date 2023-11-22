@@ -25,7 +25,8 @@ let currentWorkspace = ref({
   preset: 'Sydney',
   conversation_style: 'Creative',
 })
-let tokenCount = ref(0)
+let chatContextTokenCount = ref(0)
+let userInputTokenCount = ref(0)
 let fetchingTokenCount = ref(0)
 watch(config, value => {
   console.log('config changed, set config to new value:')
@@ -33,8 +34,13 @@ watch(config, value => {
   SetConfig(config.value)
 }, {deep: true})
 watch(currentWorkspace, async () => {
-  tokenCount.value = await CountToken(currentWorkspace.value.context)
+  chatContextTokenCount.value = await CountToken(currentWorkspace.value.context)
+  userInputTokenCount.value = await CountToken(currentWorkspace.value.input)
 }, {deep: true})
+let statusTokenCountText = computed(() => {
+  return 'Chat Context: ' + chatContextTokenCount.value + ' tokens; User Input: ' + userInputTokenCount.value + ' tokens'
+})
+let statusBarText = ref('Ready.')
 
 async function updateFromSettings() {
   loading.value = true
@@ -47,7 +53,7 @@ async function updateFromSettings() {
     config.value.workspaces = [currentWorkspace.value]
     config.value.current_workspace_id = 1
   }
-  tokenCount.value = await CountToken(currentWorkspace.value.context)
+  chatContextTokenCount.value = await CountToken(currentWorkspace.value.context)
   loading.value = false
   setTimeout(() => {
     scrollChatContextToBottom()
@@ -61,6 +67,7 @@ let replied = ref(false)
 let askEventMap = {
   "chat_alert": (data: string) => {
     swal.error(data)
+    statusBarText.value = data
   },
   "chat_append": (data: string) => {
     let scrollBottom = false
@@ -83,17 +90,21 @@ let askEventMap = {
       }
     }
   },
-  "chat_finish": () => {
+  "chat_finish": (success: boolean) => {
     fixContextLineBreak()
     doListeningEvents(true)
     isAsking.value = false
     replied.value = false
+    if (success) {
+      statusBarText.value = 'Ready.'
+    }
   },
   "chat_suggested_responses": (data: string) => {
     suggestedResponses.value = JSON.parse(data)
   },
   "chat_token": (data: number) => {
     fetchingTokenCount.value = data
+    statusBarText.value = 'Fetching the response, ' + fetchingTokenCount.value + ' tokens received currently.'
   },
   "chat_message_revoke": (replyDeep: number) => {
     if (config.value.revoke_reply_text != '' && replyDeep < config.value.revoke_reply_count) {
@@ -101,7 +112,7 @@ let askEventMap = {
     }
   },
   "chat_conversation_created": () => {
-
+    statusBarText.value = 'Fetching the response...'
   }
 }
 
@@ -137,6 +148,7 @@ function doListeningEvents(isUnregister: boolean = false) {
 
 async function startAsking() {
   isAsking.value = true
+  statusBarText.value = 'Creating the conversation...'
   doListeningEvents()
   let askOptions = new AskOptions()
   askOptions.chat_context = currentWorkspace.value.context
@@ -240,8 +252,10 @@ function onPresetChange(newValue: string) {
     <div style="height: 20vh">
       <textarea id="user-input" class="input-textarea" v-model="currentWorkspace.input"></textarea>
     </div>
-    <div>
-      <p>Status</p>
+    <div class="d-flex">
+      <p class="overflow-hidden text-no-wrap">{{ statusBarText }}</p>
+      <v-spacer></v-spacer>
+      <p class="text-no-wrap ml-2">{{ statusTokenCountText }}</p>
     </div>
   </div>
 </template>

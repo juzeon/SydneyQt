@@ -84,7 +84,10 @@ func (a *App) askSydney(options AskOptions) {
 		WebpageContext: options.ChatContext,
 		ImageURL:       options.ImageURL,
 	})
-	defer runtime.EventsEmit(a.ctx, EventChatFinish)
+	success := true
+	defer func() {
+		runtime.EventsEmit(a.ctx, EventChatFinish, success)
+	}()
 	chatAppend := func(text string) {
 		runtime.EventsEmit(a.ctx, EventChatAppend, text)
 	}
@@ -96,6 +99,7 @@ func (a *App) askSydney(options AskOptions) {
 		case sydney.MessageTypeSuggestedResponses:
 			runtime.EventsEmit(a.ctx, EventChatSuggestedResponses, msg.Text)
 		case sydney.MessageTypeError:
+			success = false
 			if errors.Is(msg.Error, sydney.ErrMessageRevoke) {
 				runtime.EventsEmit(a.ctx, EventChatMessageRevoke, options.ReplyDeep)
 				if a.settings.config.RevokeReplyText == "" || options.ReplyDeep >= a.settings.config.RevokeReplyCount {
