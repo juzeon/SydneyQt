@@ -32,11 +32,8 @@ watch(config, value => {
   console.log(value)
   SetConfig(config.value)
 }, {deep: true})
-watch(currentWorkspace, async (value, oldValue) => {
-  console.log('currentWorkspace changed')
-  if (value.context !== oldValue.context) {
-    tokenCount.value = await CountToken(value.context)
-  }
+watch(currentWorkspace, async () => {
+  tokenCount.value = await CountToken(currentWorkspace.value.context)
 }, {deep: true})
 
 async function updateFromSettings() {
@@ -92,8 +89,8 @@ let askEventMap = {
     isAsking.value = false
     replied.value = false
   },
-  "chat_suggested_responses": (data: string[]) => {
-    suggestedResponses.value = data
+  "chat_suggested_responses": (data: string) => {
+    suggestedResponses.value = JSON.parse(data)
   },
   "chat_token": (data: number) => {
     fetchingTokenCount.value = data
@@ -155,7 +152,6 @@ function stopAsking() {
 
 function handleKeyPress(event: KeyboardEvent) {
   if (document.getElementById('user-input') !== document.activeElement) {
-    console.log('user-input not focused')
     return
   }
   if (isAsking.value) {
@@ -163,8 +159,10 @@ function handleKeyPress(event: KeyboardEvent) {
   }
   console.log('handle focused key press for user-input')
   if (config.value.enter_mode === 'Enter' && (event.key == 'Enter' || event.key == 'NumpadEnter')) {
-    event.preventDefault()
-    startAsking()
+    if (!event.shiftKey) {
+      event.preventDefault()
+      startAsking()
+    }
   } else if ((event.key == 'Enter' || event.key == 'NumpadEnter') && (event.ctrlKey && event.metaKey)) {
     startAsking()
   }
@@ -178,6 +176,13 @@ onUnmounted(() => {
   window.removeEventListener('keypress', handleKeyPress, true)
 })
 
+function onPresetChange(newValue: string) {
+  if (currentWorkspace.value.context.trim()
+      === config.value.presets.find(v => v.name === currentWorkspace.value.preset)?.content.trim()) {
+    currentWorkspace.value.context = config.value.presets.find(v => v.name === newValue)?.content ?? ''
+  }
+  currentWorkspace.value.preset = newValue
+}
 
 </script>
 
@@ -195,12 +200,15 @@ onUnmounted(() => {
                   class="mx-2"></v-select>
         <v-select v-model="currentWorkspace.locale" :items="localeList" color="primary" label="Locale" density="compact"
                   class="mx-2"></v-select>
-        <v-select v-model="currentWorkspace.preset" :items="config.presets.map(v=>v.name)" color="primary"
+        <v-select :model-value="currentWorkspace.preset" @update:model-value="onPresetChange"
+                  :items="config.presets.map(v=>v.name)" color="primary"
                   label="Preset"
                   density="compact"
                   class="mx-2"></v-select>
       </div>
-      <v-btn color="primary" class="mb-5 ml-2" :disabled="isAsking">Reset</v-btn>
+      <v-btn color="primary" class="mb-5 ml-2" :disabled="isAsking"
+             @click="currentWorkspace.context=config.presets.find(v=>v.name===currentWorkspace.preset).content">Reset
+      </v-btn>
     </div>
     <div class="flex-grow-1">
       <textarea id="chat-context" class="input-textarea" v-model="currentWorkspace.context"></textarea>
