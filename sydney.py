@@ -291,7 +291,7 @@ async def ask_stream(
             await wss.send_str(_format({"type": 6}))
             option_sets = getattr(_OptionSets, conversation_style.upper()).value.copy()
             if no_search:
-                prompt = prompt + ' #no_search'
+                option_sets.append("nosearchall")
 
             struct = {
                 'arguments': [
