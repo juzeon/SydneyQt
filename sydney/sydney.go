@@ -41,7 +41,7 @@ func NewSydney(debug bool, cookies map[string]string, proxy string,
 		"iyoloxap",
 		"iyoloneutral",
 		"gencontentv3",
-		"nojbfedge",
+		"nojbf",
 	}
 	uuidObj, err := uuid.NewUUID()
 	if err != nil {
