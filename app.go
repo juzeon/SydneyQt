@@ -2,12 +2,9 @@ package main
 
 import (
 	"context"
-	"fmt"
+	"errors"
 	"github.com/pkoukk/tiktoken-go"
-	"github.com/tidwall/gjson"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
-	"log"
-	"strings"
 	"sydneyqt/sydney"
 	"sydneyqt/util"
 	"sync"
@@ -78,7 +75,7 @@ func (a *App) askSydney(options AskOptions) {
 			cancel()
 		})
 	}()
-	ch := sydneyIns.AskStreamRaw(sydney.AskStreamOptions{
+	ch := sydneyIns.AskStream(sydney.AskStreamOptions{
 		StopCtx:        stopCtx,
 		Conversation:   conversation,
 		Prompt:         options.Prompt,
@@ -86,104 +83,40 @@ func (a *App) askSydney(options AskOptions) {
 		ImageURL:       options.ImageURL,
 	})
 	defer runtime.EventsEmit(a.ctx, EventChatFinish)
-	sendSuggestedResponses := func(message gjson.Result) {
-		if message.Get("suggestedResponses").Exists() {
-			runtime.EventsEmit(a.ctx, EventChatSuggestedResponses,
-				util.Map(message.Get("suggestedResponses").Array(), func(v gjson.Result) string {
-					return v.Get("text").String()
-				}),
-			)
-		}
-	}
 	chatAppend := func(text string) {
 		runtime.EventsEmit(a.ctx, EventChatAppend, text)
 	}
-	wrote := 0
-	replied := false
+	fullMessageText := ""
+	lastMessageType := ""
 	for msg := range ch {
-		if msg.Error != nil {
-			log.Println("error: " + msg.Error.Error())
-			runtime.EventsEmit(a.ctx, EventChatAlert, msg.Error.Error())
-			return
-		}
-		data := gjson.Parse(msg.Data)
-		if data.Get("type").Int() == 1 && data.Get("arguments.0.messages").Exists() {
-			message := data.Get("arguments.0.messages.0")
-			msgType := message.Get("messageType")
-			messageText := message.Get("text").String()
-			messageHiddenText := message.Get("hiddenText").String()
-			switch msgType.String() {
-			case "InternalSearchQuery":
-				chatAppend("[assistant](#search_query)\n" + messageHiddenText + "\n\n")
-			case "InternalSearchResult":
-				var links []string
-				if strings.Contains(messageHiddenText,
-					"Web search returned no relevant result") {
-					chatAppend("[assistant](#search_query)\n" + messageHiddenText + "\n\n")
-					continue
+		textToAppend := ""
+		switch msg.Type {
+		case sydney.MessageTypeSuggestedResponses:
+			runtime.EventsEmit(a.ctx, EventChatSuggestedResponses, msg.Text)
+		case sydney.MessageTypeError:
+			if errors.Is(msg.Error, sydney.ErrMessageRevoke) {
+				runtime.EventsEmit(a.ctx, EventChatMessageRevoke, options.ReplyDeep)
+				if a.settings.config.RevokeReplyText == "" || options.ReplyDeep >= a.settings.config.RevokeReplyCount {
+					runtime.EventsEmit(a.ctx, EventChatAlert, msg.Text)
 				}
-				if !gjson.Valid(messageText) {
-					log.Println("Error when parsing InternalSearchResult: " + messageText)
-					continue
-				}
-				arr := gjson.Parse(messageText).Array()
-				for _, group := range arr {
-					srIndex := 1
-					for _, subGroup := range group.Array() {
-						links = append(links, fmt.Sprintf("[^%d^][%s](%s)",
-							srIndex, subGroup.Get("title").String(), subGroup.Get("url").String()))
-						srIndex++
-					}
-				}
-				chatAppend("[assistant](#search_results)\n" + strings.Join(links, "\n\n") + "\n\n")
-			case "InternalLoaderMessage":
-				if message.Get("hiddenText").Exists() {
-					chatAppend("[assistant](#loading)\n" + messageHiddenText + "\n\n")
-					continue
-				}
-				if message.Get("text").Exists() {
-					chatAppend("[assistant](#loading)\n" + messageText + "\n\n")
-					continue
-				}
-				chatAppend("[assistant](#loading)\n" + message.Raw + "\n\n")
-			case "GenerateContentQuery":
-				if message.Get("contentType").String() != "IMAGE" {
-					continue
-				}
-				chatAppend("[assistant](#generative_image)\nKeyword: " +
-					messageText + "\n\n")
-			case "":
-				if data.Get("arguments.0.cursor").Exists() {
-					chatAppend("[assistant](#message)\n")
-					wrote = 0
-				}
-				if message.Get("contentOrigin").String() == "Apology" {
-					runtime.EventsEmit(a.ctx, EventChatMessageRevoke, options.ReplyDeep)
-					if replied &&
-						(a.settings.config.RevokeReplyText == "" || options.ReplyDeep >= a.settings.config.RevokeReplyCount) {
-						runtime.EventsEmit(a.ctx, EventChatAlert, "Message revoke detected")
-					} else {
-						runtime.EventsEmit(a.ctx, EventChatAlert,
-							"Looks like the user's message has triggered the Bing filter")
-					}
-					return
-				} else {
-					replied = true
-					if wrote < len(messageText) {
-						chatAppend(messageText[wrote:])
-						wrote = len(messageText)
-					}
-					runtime.EventsEmit(a.ctx, EventChatToken, a.CountToken(messageText))
-					sendSuggestedResponses(message)
-				}
-			default:
-				log.Println("Unsupported message type: " + msgType.String())
-				log.Println("Triggered by " + options.Prompt + ", response: " + message.Raw)
+			} else {
+				runtime.EventsEmit(a.ctx, EventChatAlert, msg.Text)
 			}
-		} else if data.Get("type").Int() == 2 && data.Get("item.messages").Exists() {
-			message := data.Get("item.messages|@reverse|0")
-			sendSuggestedResponses(message)
+			return
+		case sydney.MessageTypeMessageText:
+			fullMessageText += msg.Text
+			runtime.EventsEmit(a.ctx, EventChatToken, a.CountToken(fullMessageText))
+			textToAppend = msg.Text
+		default:
+			textToAppend = msg.Text + "\n\n"
 		}
+		if textToAppend != "" {
+			if lastMessageType != msg.Type {
+				textToAppend = "[assistant](#" + msg.Type + ")\n" + textToAppend
+			}
+			chatAppend(textToAppend)
+		}
+		lastMessageType = msg.Type
 	}
 }
 func (a *App) AskAI(options AskOptions) {

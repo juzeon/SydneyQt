@@ -3,31 +3,166 @@ package sydney
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/google/uuid"
 	"github.com/tidwall/gjson"
+	"log"
 	"net/url"
 	"nhooyr.io/websocket"
+	"strings"
 	"sydneyqt/util"
 	"time"
 )
 
-func (o *Sydney) AskStream(options AskStreamOptions) {
-
+func (o *Sydney) AskStream(options AskStreamOptions) <-chan Message {
+	out := make(chan Message)
+	ch := o.AskStreamRaw(options)
+	go func() {
+		defer close(out)
+		wrote := 0
+		sendSuggestedResponses := func(message gjson.Result) {
+			if message.Get("suggestedResponses").Exists() {
+				arr := util.Map(message.Get("suggestedResponses").Array(), func(v gjson.Result) string {
+					return v.Get("text").String()
+				})
+				v, _ := json.Marshal(arr)
+				out <- Message{
+					Type: MessageTypeSuggestedResponses,
+					Text: string(v),
+				}
+			}
+		}
+		for msg := range ch {
+			if msg.Error != nil {
+				log.Println("error: " + msg.Error.Error())
+				out <- Message{
+					Type:  MessageTypeError,
+					Text:  msg.Error.Error(),
+					Error: msg.Error,
+				}
+				return
+			}
+			data := gjson.Parse(msg.Data)
+			if data.Get("type").Int() == 1 && data.Get("arguments.0.messages").Exists() {
+				message := data.Get("arguments.0.messages.0")
+				msgType := message.Get("messageType")
+				messageText := message.Get("text").String()
+				messageHiddenText := message.Get("hiddenText").String()
+				switch msgType.String() {
+				case "InternalSearchQuery":
+					out <- Message{
+						Type: MessageTypeSearchQuery,
+						Text: messageHiddenText,
+					}
+				case "InternalSearchResult":
+					var links []string
+					if strings.Contains(messageHiddenText,
+						"Web search returned no relevant result") {
+						out <- Message{
+							Type: MessageTypeSearchResult,
+							Text: messageHiddenText,
+						}
+						continue
+					}
+					if !gjson.Valid(messageText) {
+						log.Println("Error when parsing InternalSearchResult: " + messageText)
+						continue
+					}
+					arr := gjson.Parse(messageText).Array()
+					for _, group := range arr {
+						srIndex := 1
+						for _, subGroup := range group.Array() {
+							links = append(links, fmt.Sprintf("[^%d^][%s](%s)",
+								srIndex, subGroup.Get("title").String(), subGroup.Get("url").String()))
+							srIndex++
+						}
+					}
+					out <- Message{
+						Type: MessageTypeSearchResult,
+						Text: strings.Join(links, "\n\n"),
+					}
+				case "InternalLoaderMessage":
+					if message.Get("hiddenText").Exists() {
+						out <- Message{
+							Type: MessageTypeLoading,
+							Text: messageHiddenText,
+						}
+						continue
+					}
+					if message.Get("text").Exists() {
+						out <- Message{
+							Type: MessageTypeLoading,
+							Text: messageText,
+						}
+						continue
+					}
+					out <- Message{
+						Type: MessageTypeLoading,
+						Text: message.Raw,
+					}
+				case "GenerateContentQuery":
+					if message.Get("contentType").String() != "IMAGE" {
+						continue
+					}
+					out <- Message{
+						Type: MessageTypeGenerativeImage,
+						Text: messageText,
+					}
+				case "":
+					if data.Get("arguments.0.cursor").Exists() {
+						wrote = 0
+					}
+					if message.Get("contentOrigin").String() == "Apology" {
+						if wrote != 0 {
+							out <- Message{
+								Type:  MessageTypeError,
+								Text:  "Message revoke detected",
+								Error: ErrMessageRevoke,
+							}
+						} else {
+							out <- Message{
+								Type:  MessageTypeError,
+								Text:  "Looks like the user's message has triggered the Bing filter",
+								Error: ErrMessageFiltered,
+							}
+						}
+						return
+					} else {
+						if wrote < len(messageText) {
+							out <- Message{
+								Type: MessageTypeMessageText,
+								Text: messageText[wrote:],
+							}
+							wrote = len(messageText)
+						}
+						sendSuggestedResponses(message)
+					}
+				default:
+					log.Println("Unsupported message type: " + msgType.String())
+					log.Println("Triggered by " + options.Prompt + ", response: " + message.Raw)
+				}
+			} else if data.Get("type").Int() == 2 && data.Get("item.messages").Exists() {
+				message := data.Get("item.messages|@reverse|0")
+				sendSuggestedResponses(message)
+			}
+		}
+	}()
+	return out
 }
-func (o *Sydney) AskStreamRaw(options AskStreamOptions) <-chan Message {
-	msgChan := make(chan Message)
+func (o *Sydney) AskStreamRaw(options AskStreamOptions) <-chan RawMessage {
+	msgChan := make(chan RawMessage)
 	go func() {
 		defer close(msgChan)
 		client, err := util.MakeHTTPClient(o.proxy, 0)
 		if err != nil {
-			msgChan <- Message{
+			msgChan <- RawMessage{
 				Error: err,
 			}
 			return
 		}
 		messageID, err := uuid.NewUUID()
 		if err != nil {
-			msgChan <- Message{
+			msgChan <- RawMessage{
 				Error: err,
 			}
 			return
@@ -48,13 +183,13 @@ func (o *Sydney) AskStreamRaw(options AskStreamOptions) <-chan Message {
 				HTTPHeader: httpHeaders,
 			})
 		if err != nil {
-			msgChan <- Message{
+			msgChan <- RawMessage{
 				Error: err,
 			}
 			return
 		}
 		if resp.StatusCode != 101 {
-			msgChan <- Message{
+			msgChan <- RawMessage{
 				Error: errors.New("cannot establish a websocket connection"),
 			}
 			return
@@ -69,7 +204,7 @@ func (o *Sydney) AskStreamRaw(options AskStreamOptions) <-chan Message {
 		conn := &Conn{Conn: connRaw, debug: o.debug}
 		err = conn.WriteWithTimeout([]byte(`{"protocol": "json", "version": 1}`))
 		if err != nil {
-			msgChan <- Message{
+			msgChan <- RawMessage{
 				Error: err,
 			}
 			return
@@ -77,7 +212,7 @@ func (o *Sydney) AskStreamRaw(options AskStreamOptions) <-chan Message {
 		conn.ReadWithTimeout()
 		err = conn.WriteWithTimeout([]byte(`{"type": 6}`))
 		if err != nil {
-			msgChan <- Message{
+			msgChan <- RawMessage{
 				Error: err,
 			}
 			return
@@ -133,14 +268,14 @@ func (o *Sydney) AskStreamRaw(options AskStreamOptions) <-chan Message {
 		}
 		chatMessageV, err := json.Marshal(&chatMessage)
 		if err != nil {
-			msgChan <- Message{
+			msgChan <- RawMessage{
 				Error: err,
 			}
 			return
 		}
 		err = conn.WriteWithTimeout(chatMessageV)
 		if err != nil {
-			msgChan <- Message{
+			msgChan <- RawMessage{
 				Error: err,
 			}
 			return
@@ -153,7 +288,7 @@ func (o *Sydney) AskStreamRaw(options AskStreamOptions) <-chan Message {
 			}
 			messages, err := conn.ReadWithTimeout()
 			if err != nil {
-				msgChan <- Message{
+				msgChan <- RawMessage{
 					Error: err,
 				}
 				return
@@ -161,7 +296,7 @@ func (o *Sydney) AskStreamRaw(options AskStreamOptions) <-chan Message {
 			if time.Now().Unix()%6 == 0 {
 				err = conn.WriteWithTimeout([]byte(`{"type": 6}`))
 				if err != nil {
-					msgChan <- Message{
+					msgChan <- RawMessage{
 						Error: err,
 					}
 					return
@@ -172,20 +307,20 @@ func (o *Sydney) AskStreamRaw(options AskStreamOptions) <-chan Message {
 					continue
 				}
 				if !gjson.Valid(msg) {
-					msgChan <- Message{
+					msgChan <- RawMessage{
 						Error: errors.New("malformed json"),
 					}
 					return
 				}
 				result := gjson.Parse(msg)
 				if result.Get("type").Int() == 2 && result.Get("item.result.value").String() != "Success" {
-					msgChan <- Message{
+					msgChan <- RawMessage{
 						Error: errors.New(result.Get("item.result.value").Raw + ": " +
 							result.Get("item.result.message").Raw),
 					}
 					return
 				}
-				msgChan <- Message{
+				msgChan <- RawMessage{
 					Data: msg,
 				}
 				if result.Get("type").Int() == 2 {

@@ -1,6 +1,9 @@
 package sydney
 
-import "context"
+import (
+	"context"
+	"errors"
+)
 
 const delimiter = '\x1e'
 
@@ -29,8 +32,29 @@ type CreateConversationResponse struct {
 	SecAccessToken        string                   `json:"secAccessToken"`
 	ConversationSignature string                   `json:"conversationSignature"`
 }
-type Message struct {
+type RawMessage struct {
 	Data  string
+	Error error
+}
+
+const (
+	MessageTypeSearchQuery        = "search_query"
+	MessageTypeSearchResult       = "search_result"
+	MessageTypeLoading            = "loading"
+	MessageTypeGenerativeImage    = "generative_image"
+	MessageTypeMessageText        = "message"
+	MessageTypeSuggestedResponses = "suggested_responses"
+	MessageTypeError              = "error"
+)
+
+var (
+	ErrMessageRevoke   = errors.New("message revoke detected")
+	ErrMessageFiltered = errors.New("message triggered the Bing filter")
+)
+
+type Message struct {
+	Type  string
+	Text  string
 	Error error
 }
 type ChatMessage struct {
