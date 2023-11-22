@@ -8,7 +8,10 @@ import {AskAI, CountToken} from "../../wailsjs/go/main/App"
 import {AskTypeOpenAI, AskTypeSydney} from "../constants"
 import Config = main.Config
 import AskOptions = main.AskOptions
+import Scaffold from "../components/Scaffold.vue"
+import Conversation from "../components/Conversation.vue"
 
+let navDrawer = ref(false)
 let modeList = ['Creative', 'Balanced', 'Precise']
 let backendList = computed(() => {
   return ['Sydney', ...config.value.open_ai_backends.map(v => v.name)]
@@ -203,62 +206,78 @@ function onPresetChange(newValue: string) {
 </script>
 
 <template>
-  <div style="height: 100%" class="d-flex flex-column" v-if="!loading">
-    <div class="d-flex align-center">
-      <p class="mb-5 font-weight-bold">Chat Context:</p>
-      <v-spacer></v-spacer>
-      <div class="d-flex">
-        <v-select v-model="currentWorkspace.backend" :items="backendList" color="primary" label="Backend"
-                  density="compact"
-                  class="mx-2"></v-select>
-        <v-select v-model="currentWorkspace.conversation_style" :items="modeList" color="primary" label="Mode"
-                  density="compact"
-                  class="mx-2"></v-select>
-        <v-select v-model="currentWorkspace.locale" :items="localeList" color="primary" label="Locale" density="compact"
-                  class="mx-2"></v-select>
-        <v-select :model-value="currentWorkspace.preset" @update:model-value="onPresetChange"
-                  :items="config.presets.map(v=>v.name)" color="primary"
-                  label="Preset"
-                  density="compact"
-                  class="mx-2"></v-select>
-      </div>
-      <v-btn color="primary" class="mb-5 ml-2" :disabled="isAsking"
-             @click="currentWorkspace.context=config.presets.find(v=>v.name===currentWorkspace.preset)?.content ?? ''">
-        Reset
+  <scaffold>
+    <template #left-top>
+      <v-btn icon class="mr-1" @click="navDrawer=!navDrawer">
+        <v-icon>mdi-menu</v-icon>
       </v-btn>
-    </div>
-    <div class="flex-grow-1">
-      <textarea id="chat-context" class="input-textarea" v-model="currentWorkspace.context"></textarea>
-    </div>
-    <div class="my-2 d-flex">
-      <p class="font-weight-bold">Follow-up User Input:</p>
-      <v-spacer></v-spacer>
-      <v-btn color="primary" density="compact" class="mx-1" :disabled="isAsking">Image</v-btn>
-      <v-btn color="primary" density="compact" class="mx-1" :disabled="isAsking">Document</v-btn>
-      <v-btn color="primary" density="compact" class="mx-1" :disabled="isAsking">Browse</v-btn>
-      <v-btn color="primary" density="compact" class="mx-1" :disabled="isAsking">Revoke</v-btn>
-      <v-menu>
-        <template #activator="{props}">
-          <v-btn color="primary" density="compact" append-icon="mdi-menu-down" v-bind="props" class="mx-1"
-                 :disabled="isAsking">Quick
-          </v-btn>
-        </template>
-        <v-list density="compact">
-          <v-list-item>test</v-list-item>
+    </template>
+    <template #default>
+      <v-navigation-drawer v-model="navDrawer">
+        <v-list>
+          <v-list-item>
+            <conversation :id="1" title="New Chat" :created-at="new Date()"></conversation>
+          </v-list-item>
         </v-list>
-      </v-menu>
-      <v-btn color="primary" density="compact" class="mx-1" v-if="isAsking" @click="stopAsking">Stop</v-btn>
-      <v-btn color="primary" density="compact" class="mx-1" v-else @click="startAsking">Send</v-btn>
-    </div>
-    <div style="height: 20vh">
-      <textarea id="user-input" class="input-textarea" v-model="currentWorkspace.input"></textarea>
-    </div>
-    <div class="d-flex">
-      <p class="overflow-hidden text-no-wrap">{{ statusBarText }}</p>
-      <v-spacer></v-spacer>
-      <p class="text-no-wrap ml-2">{{ statusTokenCountText }}</p>
-    </div>
-  </div>
+      </v-navigation-drawer>
+      <div style="height: 100%" class="d-flex flex-column" v-if="!loading">
+        <div class="d-flex align-center">
+          <p class="mb-5 font-weight-bold">Chat Context:</p>
+          <v-spacer></v-spacer>
+          <div class="d-flex">
+            <v-select v-model="currentWorkspace.backend" :items="backendList" color="primary" label="Backend"
+                      density="compact"
+                      class="mx-2"></v-select>
+            <v-select v-model="currentWorkspace.conversation_style" :items="modeList" color="primary" label="Mode"
+                      density="compact"
+                      class="mx-2"></v-select>
+            <v-select v-model="currentWorkspace.locale" :items="localeList" color="primary" label="Locale" density="compact"
+                      class="mx-2"></v-select>
+            <v-select :model-value="currentWorkspace.preset" @update:model-value="onPresetChange"
+                      :items="config.presets.map(v=>v.name)" color="primary"
+                      label="Preset"
+                      density="compact"
+                      class="mx-2"></v-select>
+          </div>
+          <v-btn color="primary" class="mb-5 ml-2" :disabled="isAsking"
+                 @click="currentWorkspace.context=config.presets.find(v=>v.name===currentWorkspace.preset)?.content ?? ''">
+            Reset
+          </v-btn>
+        </div>
+        <div class="flex-grow-1">
+          <textarea id="chat-context" class="input-textarea" v-model="currentWorkspace.context"></textarea>
+        </div>
+        <div class="my-2 d-flex">
+          <p class="font-weight-bold">Follow-up User Input:</p>
+          <v-spacer></v-spacer>
+          <v-btn color="primary" density="compact" class="mx-1" :disabled="isAsking">Image</v-btn>
+          <v-btn color="primary" density="compact" class="mx-1" :disabled="isAsking">Document</v-btn>
+          <v-btn color="primary" density="compact" class="mx-1" :disabled="isAsking">Browse</v-btn>
+          <v-btn color="primary" density="compact" class="mx-1" :disabled="isAsking">Revoke</v-btn>
+          <v-menu>
+            <template #activator="{props}">
+              <v-btn color="primary" density="compact" append-icon="mdi-menu-down" v-bind="props" class="mx-1"
+                     :disabled="isAsking">Quick
+              </v-btn>
+            </template>
+            <v-list density="compact">
+              <v-list-item>test</v-list-item>
+            </v-list>
+          </v-menu>
+          <v-btn color="primary" density="compact" class="mx-1" v-if="isAsking" @click="stopAsking">Stop</v-btn>
+          <v-btn color="primary" density="compact" class="mx-1" v-else @click="startAsking">Send</v-btn>
+        </div>
+        <div style="height: 20vh">
+          <textarea id="user-input" class="input-textarea" v-model="currentWorkspace.input"></textarea>
+        </div>
+        <div class="d-flex text-caption">
+          <p class="overflow-hidden text-no-wrap">{{ statusBarText }}</p>
+          <v-spacer></v-spacer>
+          <p class="text-no-wrap ml-2">{{ statusTokenCountText }}</p>
+        </div>
+      </div>
+    </template>
+  </scaffold>
 </template>
 
 <style scoped>
