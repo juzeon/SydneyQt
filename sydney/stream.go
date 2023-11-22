@@ -217,13 +217,14 @@ func (o *Sydney) AskStreamRaw(options AskStreamOptions) <-chan RawMessage {
 			}
 			return
 		}
+		optionsSets := o.optionsSetMap[o.conversationStyle]
 		if o.noSearch {
-			options.Prompt += " #no_search"
+			optionsSets = append(optionsSets, "nosearchall")
 		}
 		chatMessage := ChatMessage{
 			Arguments: []Argument{
 				{
-					OptionsSets:         o.optionsSetMap[o.conversationStyle],
+					OptionsSets:         optionsSets,
 					Source:              "cib",
 					AllowedMessageTypes: o.allowedMessageTypes,
 					SliceIds:            o.sliceIDs,

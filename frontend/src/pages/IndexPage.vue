@@ -109,6 +109,7 @@ let askEventMap = {
   "chat_message_revoke": (replyDeep: number) => {
     if (config.value.revoke_reply_text != '' && replyDeep < config.value.revoke_reply_count) {
       // TODO send continue instruction
+      // should first check the user input, if exist, append to the chat context
     }
   },
   "chat_conversation_created": () => {
