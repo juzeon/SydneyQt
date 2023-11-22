@@ -100,6 +100,9 @@ let askEventMap = {
       // TODO send continue instruction
     }
   },
+  "chat_conversation_created": () => {
+
+  }
 }
 
 function scrollChatContextToBottom() {
@@ -189,7 +192,7 @@ function onPresetChange(newValue: string) {
 <template>
   <div style="height: 100%" class="d-flex flex-column" v-if="!loading">
     <div class="d-flex align-center">
-      <p class="mb-5">Chat Context:</p>
+      <p class="mb-5 font-weight-bold">Chat Context:</p>
       <v-spacer></v-spacer>
       <div class="d-flex">
         <v-select v-model="currentWorkspace.backend" :items="backendList" color="primary" label="Backend"
@@ -207,14 +210,15 @@ function onPresetChange(newValue: string) {
                   class="mx-2"></v-select>
       </div>
       <v-btn color="primary" class="mb-5 ml-2" :disabled="isAsking"
-             @click="currentWorkspace.context=config.presets.find(v=>v.name===currentWorkspace.preset).content">Reset
+             @click="currentWorkspace.context=config.presets.find(v=>v.name===currentWorkspace.preset)?.content ?? ''">
+        Reset
       </v-btn>
     </div>
     <div class="flex-grow-1">
       <textarea id="chat-context" class="input-textarea" v-model="currentWorkspace.context"></textarea>
     </div>
     <div class="my-2 d-flex">
-      <p>Follow-up User Input:</p>
+      <p class="font-weight-bold">Follow-up User Input:</p>
       <v-spacer></v-spacer>
       <v-btn color="primary" density="compact" class="mx-1" :disabled="isAsking">Image</v-btn>
       <v-btn color="primary" density="compact" class="mx-1" :disabled="isAsking">Document</v-btn>
@@ -236,6 +240,9 @@ function onPresetChange(newValue: string) {
     <div style="height: 20vh">
       <textarea id="user-input" class="input-textarea" v-model="currentWorkspace.input"></textarea>
     </div>
+    <div>
+      <p>Status</p>
+    </div>
   </div>
 </template>
 
@@ -243,7 +250,7 @@ function onPresetChange(newValue: string) {
 .input-textarea {
   height: 99%;
   width: 100%;
-  border: grey 1px dashed;
+  border: grey 1px solid;
   resize: none;
   padding: 5px
 }

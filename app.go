@@ -46,6 +46,7 @@ type AskOptions struct {
 }
 
 const (
+	EventConversationCreated    = "chat_conversation_created"
 	EventChatAlert              = "chat_alert"
 	EventChatAppend             = "chat_append"
 	EventChatFinish             = "chat_finish"
@@ -68,6 +69,7 @@ func (a *App) askSydney(options AskOptions) {
 		runtime.EventsEmit(a.ctx, EventChatAlert, err.Error())
 		return
 	}
+	runtime.EventsEmit(a.ctx, EventConversationCreated)
 	stopCtx, cancel := util.CreateCancelContext()
 	defer cancel()
 	go func() {

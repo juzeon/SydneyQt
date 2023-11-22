@@ -1,16 +1,14 @@
 body {
     margin: 0;
-    font-family: "Nunito", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
-    "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
-    sans-serif;
+    font-family: -apple-system, "SF", serif;
 }
 
 @font-face {
-    font-family: "Nunito";
+    font-family: "SF";
     font-style: normal;
     font-weight: 400;
     src: local(""),
-    url("assets/fonts/nunito-v16-latin-regular.woff2") format("woff2");
+    url("assets/fonts/sf.ttf") format("truetype");
 }
 
 #app {
