@@ -1,15 +1,14 @@
 <script setup lang="ts">
 import {computed, onMounted, onUnmounted, ref, watch} from "vue"
-import {GetConfig, SetConfig} from "../../wailsjs/go/main/Settings"
 import {main} from "../../wailsjs/go/models"
 import {EventsEmit, EventsOff, EventsOn} from "../../wailsjs/runtime"
 import {swal} from "../helper"
 import {AskAI, CountToken} from "../../wailsjs/go/main/App"
 import {AskTypeOpenAI, AskTypeSydney} from "../constants"
-import Config = main.Config
-import AskOptions = main.AskOptions
 import Scaffold from "../components/Scaffold.vue"
 import Conversation from "../components/Conversation.vue"
+import {useSettings} from "../composables"
+import AskOptions = main.AskOptions
 
 let navDrawer = ref(false)
 let modeList = ['Creative', 'Balanced', 'Precise']
@@ -17,7 +16,6 @@ let backendList = computed(() => {
   return ['Sydney', ...config.value.open_ai_backends.map(v => v.name)]
 })
 let localeList = ['zh-CN', 'en-US']
-let config = ref<main.Config>(new Config())
 let loading = ref(true)
 let currentWorkspace = ref({
   id: 1,
@@ -31,11 +29,6 @@ let currentWorkspace = ref({
 let chatContextTokenCount = ref(0)
 let userInputTokenCount = ref(0)
 let fetchingTokenCount = ref(0)
-watch(config, value => {
-  console.log('config changed, set config to new value:')
-  console.log(value)
-  SetConfig(config.value)
-}, {deep: true})
 watch(currentWorkspace, async () => {
   chatContextTokenCount.value = await CountToken(currentWorkspace.value.context)
   userInputTokenCount.value = await CountToken(currentWorkspace.value.input)
@@ -44,24 +37,7 @@ let statusTokenCountText = computed(() => {
   return 'Chat Context: ' + chatContextTokenCount.value + ' tokens; User Input: ' + userInputTokenCount.value + ' tokens'
 })
 let statusBarText = ref('Ready.')
-
-async function updateFromSettings() {
-  loading.value = true
-  config.value = await GetConfig()
-  let workspace = config.value.workspaces?.find(v => v.id === config.value.current_workspace_id)
-  if (workspace) {
-    currentWorkspace.value = workspace
-  } else {
-    currentWorkspace.value.context = config.value.presets.find(v => v.name === 'Sydney')?.content ?? ''
-    config.value.workspaces = [currentWorkspace.value]
-    config.value.current_workspace_id = 1
-  }
-  chatContextTokenCount.value = await CountToken(currentWorkspace.value.context)
-  loading.value = false
-  setTimeout(() => {
-    scrollChatContextToBottom()
-  }, 0)
-}
+let {config, fetch: fetchSettings} = useSettings()
 
 let suggestedResponses = ref<string[]>([])
 let isAsking = ref(false)
@@ -188,10 +164,27 @@ function handleKeyPress(event: KeyboardEvent) {
 }
 
 onMounted(() => {
-  updateFromSettings()
+  console.log('IndexPage mounted')
+  loading.value = true
+  fetchSettings().then(async () => {
+    let workspace = config.value.workspaces?.find(v => v.id === config.value.current_workspace_id)
+    if (workspace) {
+      currentWorkspace.value = workspace
+    } else {
+      currentWorkspace.value.context = config.value.presets.find(v => v.name === 'Sydney')?.content ?? ''
+      config.value.workspaces = [currentWorkspace.value]
+      config.value.current_workspace_id = 1
+    }
+    chatContextTokenCount.value = await CountToken(currentWorkspace.value.context)
+    loading.value = false
+    setTimeout(() => {
+      scrollChatContextToBottom()
+    }, 0)
+  })
   window.addEventListener('keypress', handleKeyPress, true)
 })
 onUnmounted(() => {
+  console.log('IndexPage unmounted')
   window.removeEventListener('keypress', handleKeyPress, true)
 })
 
@@ -208,7 +201,7 @@ function onPresetChange(newValue: string) {
 <template>
   <scaffold>
     <template #left-top>
-      <v-btn icon class="mr-1" @click="navDrawer=!navDrawer">
+      <v-btn icon @click="navDrawer=!navDrawer">
         <v-icon>mdi-menu</v-icon>
       </v-btn>
     </template>
@@ -231,7 +224,8 @@ function onPresetChange(newValue: string) {
             <v-select v-model="currentWorkspace.conversation_style" :items="modeList" color="primary" label="Mode"
                       density="compact"
                       class="mx-2"></v-select>
-            <v-select v-model="currentWorkspace.locale" :items="localeList" color="primary" label="Locale" density="compact"
+            <v-select v-model="currentWorkspace.locale" :items="localeList" color="primary" label="Locale"
+                      density="compact"
                       class="mx-2"></v-select>
             <v-select :model-value="currentWorkspace.preset" @update:model-value="onPresetChange"
                       :items="config.presets.map(v=>v.name)" color="primary"
