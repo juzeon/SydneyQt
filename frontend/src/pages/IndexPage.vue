@@ -8,8 +8,10 @@ import {AskTypeOpenAI, AskTypeSydney} from "../constants"
 import Scaffold from "../components/Scaffold.vue"
 import Conversation from "../components/Conversation.vue"
 import {useSettings} from "../composables"
+import {useTheme} from "vuetify"
 import AskOptions = main.AskOptions
 
+let theme = useTheme()
 let navDrawer = ref(false)
 let modeList = ['Creative', 'Balanced', 'Precise']
 let backendList = computed(() => {
@@ -167,6 +169,7 @@ onMounted(() => {
   console.log('IndexPage mounted')
   loading.value = true
   fetchSettings().then(async () => {
+    theme.global.name.value = config.value.dark_mode ? 'dark' : 'light'
     let workspace = config.value.workspaces?.find(v => v.id === config.value.current_workspace_id)
     if (workspace) {
       currentWorkspace.value = workspace

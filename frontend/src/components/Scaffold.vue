@@ -1,16 +1,24 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import {useRouter} from "vue-router"
+
+let router = useRouter()
+</script>
 
 <template>
   <div>
     <v-app>
       <v-main>
         <v-app-bar color="primary">
-          <slot name="left-top"></slot>
+          <div class="mr-1">
+            <slot name="left-top"></slot>
+          </div>
           <p class="text-h5">SydneyQt</p>
           <v-spacer></v-spacer>
-          <v-btn icon>
-            <v-icon>mdi-cog</v-icon>
-          </v-btn>
+          <slot name="right-top">
+            <v-btn icon @click="router.push('/settings')">
+              <v-icon>mdi-cog</v-icon>
+            </v-btn>
+          </slot>
         </v-app-bar>
         <div style="height: 98%" class="ma-2">
           <slot></slot>

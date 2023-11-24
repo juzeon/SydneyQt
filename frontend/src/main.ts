@@ -11,6 +11,7 @@ import * as directives from 'vuetify/directives'
 import {aliases, mdi} from "vuetify/iconsets/mdi"
 import IndexPage from "./pages/IndexPage.vue"
 import * as VueRouter from 'vue-router'
+import SettingsPage from "./pages/SettingsPage.vue"
 
 const vuetify = createVuetify({
     components,
@@ -23,10 +24,23 @@ const vuetify = createVuetify({
         },
     },
     theme: {
+        defaultTheme: 'light',
         themes: {
             light: {
                 colors: {
                     primary: '#FF9800',
+                    secondary: '#FFC107',
+                    accent: '#82B1FF',
+                    error: '#FF5252',
+                    info: '#2196F3',
+                    success: '#4CAF50',
+                    warning: '#FFC107',
+                }
+            },
+            dark: {
+                dark: true,
+                colors: {
+                    primary: '#754600',
                     secondary: '#FFC107',
                     accent: '#82B1FF',
                     error: '#FF5252',
@@ -40,6 +54,7 @@ const vuetify = createVuetify({
 })
 const routes = [
     {path: '/', component: IndexPage},
+    {path: '/settings', component: SettingsPage}
 ]
 const router = VueRouter.createRouter({
     history: VueRouter.createWebHashHistory(),
