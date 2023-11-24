@@ -19,6 +19,7 @@ type Workspace struct {
 	Locale            string `json:"locale"`
 	Preset            string `json:"preset"`
 	ConversationStyle string `json:"conversation_style"`
+	NoSearch          bool   `json:"no_search"`
 }
 type OpenAIBackend struct {
 	Name              string  `json:"name"`
@@ -34,7 +35,6 @@ type Config struct {
 	EnterMode           string          `json:"enter_mode"`
 	Proxy               string          `json:"proxy"`
 	NoSuggestion        bool            `json:"no_suggestion"`
-	NoSearch            bool            `json:"no_search"`
 	FontFamily          string          `json:"font_family"`
 	FontSize            int             `json:"font_size"`
 	StretchFactor       int             `json:"stretch_factor"`

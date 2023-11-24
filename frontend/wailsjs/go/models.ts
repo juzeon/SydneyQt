@@ -54,6 +54,7 @@ export namespace main {
 	    locale: string;
 	    preset: string;
 	    conversation_style: string;
+	    no_search: boolean;
 	
 	    static createFrom(source: any = {}) {
 	        return new Workspace(source);
@@ -68,6 +69,7 @@ export namespace main {
 	        this.locale = source["locale"];
 	        this.preset = source["preset"];
 	        this.conversation_style = source["conversation_style"];
+	        this.no_search = source["no_search"];
 	    }
 	}
 	export class Preset {
@@ -89,7 +91,6 @@ export namespace main {
 	    enter_mode: string;
 	    proxy: string;
 	    no_suggestion: boolean;
-	    no_search: boolean;
 	    font_family: string;
 	    font_size: number;
 	    stretch_factor: number;
@@ -115,7 +116,6 @@ export namespace main {
 	        this.enter_mode = source["enter_mode"];
 	        this.proxy = source["proxy"];
 	        this.no_suggestion = source["no_suggestion"];
-	        this.no_search = source["no_search"];
 	        this.font_family = source["font_family"];
 	        this.font_size = source["font_size"];
 	        this.stretch_factor = source["stretch_factor"];

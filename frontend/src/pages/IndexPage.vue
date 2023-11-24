@@ -10,6 +10,7 @@ import Conversation from "../components/Conversation.vue"
 import {useSettings} from "../composables"
 import {useTheme} from "vuetify"
 import AskOptions = main.AskOptions
+import Workspace = main.Workspace
 
 let theme = useTheme()
 let navDrawer = ref(false)
@@ -19,7 +20,7 @@ let backendList = computed(() => {
 })
 let localeList = ['zh-CN', 'en-US']
 let loading = ref(true)
-let currentWorkspace = ref({
+let currentWorkspace = ref(<Workspace>{
   id: 1,
   context: '',
   input: '',
@@ -27,6 +28,7 @@ let currentWorkspace = ref({
   locale: 'zh-CN',
   preset: 'Sydney',
   conversation_style: 'Creative',
+  no_search: false,
 })
 let chatContextTokenCount = ref(0)
 let userInputTokenCount = ref(0)
@@ -235,6 +237,8 @@ function onPresetChange(newValue: string) {
                       label="Preset"
                       density="compact"
                       class="mx-2"></v-select>
+            <v-switch v-model="currentWorkspace.no_search" label="No Search" density="compact"
+                      color="primary" class="mx-2 mt-1"></v-switch>
           </div>
           <v-btn color="primary" class="mb-5 ml-2" :disabled="isAsking"
                  @click="currentWorkspace.context=config.presets.find(v=>v.name===currentWorkspace.preset)?.content ?? ''">

@@ -63,7 +63,7 @@ func (a *App) askSydney(options AskOptions) {
 	currentWorkspace := a.settings.config.GetCurrentWorkspace()
 	sydneyIns := sydney.NewSydney(a.debug, util.ReadCookiesFile(), a.settings.config.Proxy,
 		currentWorkspace.ConversationStyle, currentWorkspace.Locale, a.settings.config.WssDomain,
-		a.settings.config.NoSearch)
+		currentWorkspace.NoSearch)
 	conversation, err := sydneyIns.CreateConversation()
 	if err != nil {
 		runtime.EventsEmit(a.ctx, EventChatAlert, err.Error())
