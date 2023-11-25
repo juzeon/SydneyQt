@@ -12,6 +12,7 @@ import {useTheme} from "vuetify"
 import UserInputToolButton from "../components/UserInputToolButton.vue"
 import AskOptions = main.AskOptions
 import Workspace = main.Workspace
+import ChatFinishResult = main.ChatFinishResult
 
 let theme = useTheme()
 let navDrawer = ref(false)
@@ -51,6 +52,7 @@ let textareaStyle = computed(() => {
 })
 
 let hiddenPrompt = ref('')
+let replyDeep = ref(0)
 watch(hiddenPrompt, value => {
   console.log('hiddenPrompt changed: ' + value)
 })
@@ -59,14 +61,10 @@ let isAsking = ref(false)
 let replied = ref(false)
 
 let askEventMap = {
-  "chat_alert": (data: string) => {
-    swal.error(data)
-    statusBarText.value = data
-  },
   "chat_append": (data: string) => {
     let scrollBottom = false
     if (!replied.value) {
-      console.log('first reply')
+      console.log('first reply, appending [user](#message)')
       fixContextLineBreak()
       currentWorkspace.value.context += '[user](#message)\n' +
           (hiddenPrompt.value === '' ? currentWorkspace.value.input : hiddenPrompt.value) + "\n\n"
@@ -89,14 +87,40 @@ let askEventMap = {
       }
     }
   },
-  "chat_finish": (success: boolean) => {
+  "chat_finish": (result: ChatFinishResult) => {
     fixContextLineBreak()
     doListeningEvents(true)
     isAsking.value = false
     replied.value = false
     hiddenPrompt.value = ''
-    if (success) {
+    if (result.success) {
       statusBarText.value = 'Ready.'
+    } else {
+      console.log('error type: ' + result.err_type)
+      console.log('error message: ' + result.err_msg)
+      statusBarText.value = result.err_msg
+      switch (result.err_type) {
+        case 'others':
+        case 'message_filtered':
+          // should first check the user input, if existed, append to the chat context
+          swal.error(result.err_msg)
+          statusBarText.value = result.err_msg
+          break
+        case 'message_revoke':
+          console.log('triggered message_revoke, replyDeep: ' + replyDeep.value)
+          console.log('triggered message_revoke, revoke_reply_count: ' + config.value.revoke_reply_count)
+          if (config.value.revoke_reply_text != '' && replyDeep.value < config.value.revoke_reply_count) {
+            statusBarText.value = ''
+            startAsking({
+              prompt: config.value.revoke_reply_text,
+              replyDeep: replyDeep.value + 1,
+              statusBarText: 'Recreating the conversation with Revoke Reply Text automatically...'
+            })
+          } else {
+            swal.error(result.err_msg)
+          }
+          break
+      }
     }
   },
   "chat_suggested_responses": (data: string) => {
@@ -105,12 +129,6 @@ let askEventMap = {
   "chat_token": (data: number) => {
     fetchingTokenCount.value = data
     statusBarText.value = 'Fetching the response, ' + fetchingTokenCount.value + ' tokens received currently.'
-  },
-  "chat_message_revoke": (replyDeep: number) => {
-    if (config.value.revoke_reply_text != '' && replyDeep < config.value.revoke_reply_count) {
-      // TODO send continue instruction
-      // should first check the user input, if exist, append to the chat context
-    }
   },
   "chat_conversation_created": () => {
     statusBarText.value = 'Fetching the response...'
@@ -138,6 +156,7 @@ function fixContextLineBreak() {
 }
 
 function doListeningEvents(isUnregister: boolean = false) {
+  isUnregister ? console.log('unregister chat listener') : console.log('register chat listener')
   for (let [event, func] of Object.entries(askEventMap)) {
     if (isUnregister) {
       EventsOff(event)
@@ -147,25 +166,33 @@ function doListeningEvents(isUnregister: boolean = false) {
   }
 }
 
-async function startAsking(prompt: string = '') {
+interface StartAskingArgs {
+  prompt?: string,
+  replyDeep?: number,
+  statusBarText?: string
+}
+
+async function startAsking(args: StartAskingArgs = {}) {
   if (isAsking.value) {
     swal.error('An active conversation has already launched.')
     return
   }
+  console.log('startAsking is called with: ' + JSON.stringify(args))
   suggestedResponses.value = []
   isAsking.value = true
-  statusBarText.value = 'Creating the conversation...'
+  statusBarText.value = args.statusBarText ? args.statusBarText : 'Creating the conversation...'
   doListeningEvents()
   let askOptions = new AskOptions()
   askOptions.chat_context = currentWorkspace.value.context
   askOptions.type = currentWorkspace.value.backend === 'Sydney' ? AskTypeSydney : AskTypeOpenAI
-  if (prompt === '') {
+  if (!args.prompt) {
     askOptions.prompt = currentWorkspace.value.input
   } else {
-    hiddenPrompt.value = prompt
+    hiddenPrompt.value = args.prompt
     askOptions.prompt = hiddenPrompt.value
   }
-  askOptions.reply_deep = 0
+  replyDeep.value = args.replyDeep ? args.replyDeep : 0
+  console.log('startAsking replyDeep: ' + replyDeep.value)
   askOptions.openai_backend = ''
   askOptions.image_url = ''
   await AskAI(askOptions)
@@ -173,7 +200,6 @@ async function startAsking(prompt: string = '') {
 
 function stopAsking() {
   EventsEmit('chat_stop')
-  isAsking.value = false
 }
 
 function handleKeyPress(event: KeyboardEvent) {
@@ -183,7 +209,6 @@ function handleKeyPress(event: KeyboardEvent) {
   if (isAsking.value) {
     return
   }
-  console.log('handle focused key press for user-input')
   if (config.value.enter_mode === 'Enter' && (event.key == 'Enter' || event.key == 'NumpadEnter')) {
     if (!event.shiftKey) {
       event.preventDefault()
@@ -277,7 +302,7 @@ function onPresetChange(newValue: string) {
         <div class="d-flex" v-if="!config.no_suggestion">
           <div style="font-size: 12px;height: 20px" class="overflow-x-hidden text-no-wrap">
             <v-chip style="cursor: pointer" v-for="item in suggestedResponses" density="compact" color="primary"
-                    variant="outlined" @click="startAsking(item)"
+                    variant="outlined" @click="startAsking({prompt:item})"
                     class="ml-3">{{ item }}
             </v-chip>
           </div>
@@ -308,7 +333,7 @@ function onPresetChange(newValue: string) {
           <v-btn color="primary" density="compact" variant="tonal" class="mx-1" v-if="isAsking" @click="stopAsking"
                  append-icon="mdi-stop">Stop
           </v-btn>
-          <v-btn color="primary" density="compact" variant="tonal" class="mx-1" v-else @click="startAsking"
+          <v-btn color="primary" density="compact" variant="tonal" class="mx-1" v-else @click="startAsking()"
                  append-icon="mdi-send">
             Send
           </v-btn>

@@ -9,3 +9,7 @@ export function AskAI(arg1) {
 export function CountToken(arg1) {
   return window['go']['main']['App']['CountToken'](arg1);
 }
+
+export function Dummy1() {
+  return window['go']['main']['App']['Dummy1']();
+}

@@ -43,31 +43,58 @@ type AskOptions struct {
 	ChatContext   string  `json:"chat_context"`
 	Prompt        string  `json:"prompt"`
 	ImageURL      string  `json:"image_url"`
-	ReplyDeep     int     `json:"reply_deep"`
+}
+
+const (
+	ChatFinishResultErrTypeMessageRevoke   = "message_revoke"
+	ChatFinishResultErrTypeMessageFiltered = "message_filtered"
+	ChatFinishResultErrTypeOthers          = "others"
+)
+
+type ChatFinishResult struct {
+	Success bool   `json:"success"`
+	ErrType string `json:"err_type"`
+	ErrMsg  string `json:"err_msg"`
 }
 
 const (
 	EventConversationCreated    = "chat_conversation_created"
-	EventChatAlert              = "chat_alert"
 	EventChatAppend             = "chat_append"
 	EventChatFinish             = "chat_finish"
 	EventChatSuggestedResponses = "chat_suggested_responses"
 	EventChatToken              = "chat_token"
-	EventChatMessageRevoke      = "chat_message_revoke"
 )
 
 const (
 	EventChatStop = "chat_stop"
 )
 
+func (a *App) Dummy1() ChatFinishResult {
+	return ChatFinishResult{}
+}
+
 func (a *App) askSydney(options AskOptions) {
+	chatFinishResult := ChatFinishResult{
+		Success: true,
+		ErrType: "",
+		ErrMsg:  "",
+	}
+	defer func() {
+		slog.Info("invoke EventChatFinish", "result", chatFinishResult)
+		runtime.EventsEmit(a.ctx, EventChatFinish, chatFinishResult)
+	}()
 	currentWorkspace := a.settings.config.GetCurrentWorkspace()
 	sydneyIns := sydney.NewSydney(a.debug, util.ReadCookiesFile(), a.settings.config.Proxy,
 		currentWorkspace.ConversationStyle, currentWorkspace.Locale, a.settings.config.WssDomain,
 		currentWorkspace.NoSearch)
 	conversation, err := sydneyIns.CreateConversation()
+
 	if err != nil {
-		runtime.EventsEmit(a.ctx, EventChatAlert, err.Error())
+		chatFinishResult = ChatFinishResult{
+			Success: false,
+			ErrType: ChatFinishResultErrTypeOthers,
+			ErrMsg:  err.Error(),
+		}
 		return
 	}
 	runtime.EventsEmit(a.ctx, EventConversationCreated)
@@ -86,10 +113,6 @@ func (a *App) askSydney(options AskOptions) {
 		WebpageContext: options.ChatContext,
 		ImageURL:       options.ImageURL,
 	})
-	success := true
-	defer func() {
-		runtime.EventsEmit(a.ctx, EventChatFinish, success)
-	}()
 	chatAppend := func(text string) {
 		runtime.EventsEmit(a.ctx, EventChatAppend, text)
 	}
@@ -101,14 +124,24 @@ func (a *App) askSydney(options AskOptions) {
 		case sydney.MessageTypeSuggestedResponses:
 			runtime.EventsEmit(a.ctx, EventChatSuggestedResponses, msg.Text)
 		case sydney.MessageTypeError:
-			success = false
 			if errors.Is(msg.Error, sydney.ErrMessageRevoke) {
-				runtime.EventsEmit(a.ctx, EventChatMessageRevoke, options.ReplyDeep)
-				if a.settings.config.RevokeReplyText == "" || options.ReplyDeep >= a.settings.config.RevokeReplyCount {
-					runtime.EventsEmit(a.ctx, EventChatAlert, msg.Text)
+				chatFinishResult = ChatFinishResult{
+					Success: false,
+					ErrType: ChatFinishResultErrTypeMessageRevoke,
+					ErrMsg:  msg.Error.Error(),
+				}
+			} else if errors.Is(msg.Error, sydney.ErrMessageFiltered) {
+				chatFinishResult = ChatFinishResult{
+					Success: false,
+					ErrType: ChatFinishResultErrTypeMessageFiltered,
+					ErrMsg:  msg.Error.Error(),
 				}
 			} else {
-				runtime.EventsEmit(a.ctx, EventChatAlert, msg.Text)
+				chatFinishResult = ChatFinishResult{
+					Success: false,
+					ErrType: ChatFinishResultErrTypeOthers,
+					ErrMsg:  msg.Error.Error(),
+				}
 			}
 			return
 		case sydney.MessageTypeMessageText:
@@ -131,19 +164,25 @@ func (a *App) AskAI(options AskOptions) {
 	if options.Type == AskTypeSydney {
 		a.askSydney(options)
 	} else if options.Type == AskTypeOpenAI {
-		runtime.EventsEmit(a.ctx, EventChatAlert, "not implemented")
+		runtime.EventsEmit(a.ctx, EventChatFinish, ChatFinishResult{
+			Success: false,
+			ErrType: ChatFinishResultErrTypeOthers,
+			ErrMsg:  "not implemented",
+		})
 	}
 }
 
 var tk *tiktoken.Tiktoken
+var initTkFunc = sync.OnceFunc(func() {
+	slog.Info("Init tiktoken")
+	t, err := tiktoken.EncodingForModel("gpt-4")
+	if err != nil {
+		panic(t)
+	}
+	tk = t
+})
 
 func (a *App) CountToken(text string) int {
-	sync.OnceFunc(func() {
-		t, err := tiktoken.EncodingForModel("gpt-4")
-		if err != nil {
-			panic(err)
-		}
-		tk = t
-	})()
+	initTkFunc()
 	return len(tk.Encode(text, nil, nil))
 }

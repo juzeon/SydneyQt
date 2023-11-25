@@ -50,6 +50,6 @@ func (o *Sydney) CreateConversation() (CreateConversationResponse, error) {
 	if o.debug {
 		log.Printf("%#v\n", response)
 	}
-	slog.Info("Created Conversation", "response", response)
+	slog.Info("Created Conversation")
 	return response, nil
 }

@@ -18,8 +18,11 @@ import (
 func (o *Sydney) AskStream(options AskStreamOptions) <-chan Message {
 	out := make(chan Message)
 	ch := o.AskStreamRaw(options)
-	go func() {
-		defer close(out)
+	go func(out chan Message, ch <-chan RawMessage) {
+		defer func() {
+			slog.Info("AskStream is closing out message channel")
+			close(out)
+		}()
 		wrote := 0
 		sendSuggestedResponses := func(message gjson.Result) {
 			if message.Get("suggestedResponses").Exists() {
@@ -147,15 +150,18 @@ func (o *Sydney) AskStream(options AskStreamOptions) <-chan Message {
 				sendSuggestedResponses(message)
 			}
 		}
-	}()
+	}(out, ch)
 	return out
 }
 func (o *Sydney) AskStreamRaw(options AskStreamOptions) <-chan RawMessage {
-	slog.Info("AskStreamRaw called", "options", options)
+	slog.Info("AskStreamRaw called")
 	msgChan := make(chan RawMessage)
-	go func() {
-		defer slog.Info("AskStreamRaw is closing message channel")
-		defer close(msgChan)
+	go func(msgChan chan RawMessage) {
+		slog.Info("AskStreamGoroutine runs")
+		defer func(msgChan chan RawMessage) {
+			slog.Info("AskStreamRaw is closing raw message channel")
+			close(msgChan)
+		}(msgChan)
 		client, err := util.MakeHTTPClient(o.proxy, 0)
 		if err != nil {
 			msgChan <- RawMessage{
@@ -335,6 +341,6 @@ func (o *Sydney) AskStreamRaw(options AskStreamOptions) <-chan RawMessage {
 				}
 			}
 		}
-	}()
+	}(msgChan)
 	return msgChan
 }

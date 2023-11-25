@@ -6,7 +6,6 @@ export namespace main {
 	    chat_context: string;
 	    prompt: string;
 	    image_url: string;
-	    reply_deep: number;
 	
 	    static createFrom(source: any = {}) {
 	        return new AskOptions(source);
@@ -19,7 +18,22 @@ export namespace main {
 	        this.chat_context = source["chat_context"];
 	        this.prompt = source["prompt"];
 	        this.image_url = source["image_url"];
-	        this.reply_deep = source["reply_deep"];
+	    }
+	}
+	export class ChatFinishResult {
+	    success: boolean;
+	    err_type: string;
+	    err_msg: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new ChatFinishResult(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.success = source["success"];
+	        this.err_type = source["err_type"];
+	        this.err_msg = source["err_msg"];
 	    }
 	}
 	export class OpenAIBackend {

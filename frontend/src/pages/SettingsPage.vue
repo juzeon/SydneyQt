@@ -27,6 +27,18 @@ function onDarkModeSwitch() {
   config.value.dark_mode = !config.value.dark_mode
   theme.global.name.value = config.value.dark_mode ? 'dark' : 'light'
 }
+
+function revokeReplyCountInputRule(v: any) {
+  let i = parseInt(v)
+  if (isNaN(i)) return false
+  return i >= 0
+}
+
+function onRevokeReplyCountChanged(v: string) {
+  let i = parseInt(v)
+  if (isNaN(i) || i < 0) return
+  config.value.revoke_reply_count = i
+}
 </script>
 
 <template>
@@ -87,8 +99,40 @@ function onDarkModeSwitch() {
           </v-card>
           <v-card title="Accessibility" class="my-3">
             <v-card-text>
-              <v-select color="primary" label="Enter Mode" v-model="config.enter_mode"
-                        :items="['Enter','Ctrl+Enter']"></v-select>
+              <v-tooltip text="Keyboard shortcut to send the user input." location="bottom">
+                <template #activator="{props}">
+                  <v-select v-bind="props" color="primary" label="Enter Mode" v-model="config.enter_mode"
+                            :items="['Enter','Ctrl+Enter']"></v-select>
+                </template>
+              </v-tooltip>
+              <v-tooltip
+                  text="Send this text automatically when Bing revokes a message
+                  if Revoke Reply Count is larger than zero or set as a suggested response otherwise."
+                  location="bottom">
+                <template #activator="{props}">
+                  <v-text-field v-bind="props" color="primary" label="Revoke Reply Text"
+                                v-model="config.revoke_reply_text"></v-text-field>
+                </template>
+              </v-tooltip>
+              <v-tooltip
+                  text="Maximum count for auto-reply when Bing revokes a message.
+                  Set this to 0 to disable and show a suggestion only."
+                  location="bottom">
+                <template #activator="{props}">
+                  <v-text-field v-bind="props" color="primary" label="Revoke Reply Count"
+                                :model-value="config.revoke_reply_count"
+                                @update:model-value="onRevokeReplyCountChanged"
+                                :rules="[revokeReplyCountInputRule]"></v-text-field>
+                </template>
+              </v-tooltip>
+              <v-tooltip text="Whether to send the selected quick response immediately
+              rather than append it to the user input textarea if it is empty." location="bottom">
+                <template #activator="{props}">
+                  <v-switch v-bind="props" label="Disable Straightforward Quick Response" color="primary"
+                            v-model="config.disable_direct_quick"></v-switch>
+                </template>
+              </v-tooltip>
+              <!-- TODO bing filter bypass text -->
             </v-card-text>
           </v-card>
         </v-container>

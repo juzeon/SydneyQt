@@ -9,18 +9,19 @@ interface UseSettingsResult {
 }
 
 export function useSettings(): UseSettingsResult {
-    console.log('call useSettings')
+    // console.log('call useSettings')
     let config = ref(new Config())
     watch(config, value => {
-        console.log('watcher: config has changed, pushing:')
-        console.log(value)
+        // console.log('watcher: config has changed, pushing:')
+        // console.log(value)
         SetConfig(config.value).then(() => {
-            console.log('watcher: config pushed')
+            // console.log('watcher: config pushed')
         })
     }, {deep: true})
     let fetch = async () => {
         console.log('fetching settings')
         config.value = await GetConfig()
+        console.log(config.value)
     }
     return {
         config, fetch
