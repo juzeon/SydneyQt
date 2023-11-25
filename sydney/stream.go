@@ -157,7 +157,6 @@ func (o *Sydney) AskStreamRaw(options AskStreamOptions) <-chan RawMessage {
 	slog.Info("AskStreamRaw called")
 	msgChan := make(chan RawMessage)
 	go func(msgChan chan RawMessage) {
-		slog.Info("AskStreamGoroutine runs")
 		defer func(msgChan chan RawMessage) {
 			slog.Info("AskStreamRaw is closing raw message channel")
 			close(msgChan)

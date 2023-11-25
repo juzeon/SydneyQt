@@ -74,6 +74,7 @@ func (a *App) Dummy1() ChatFinishResult {
 }
 
 func (a *App) askSydney(options AskOptions) {
+	slog.Info("askSydney called", "options", options)
 	chatFinishResult := ChatFinishResult{
 		Success: true,
 		ErrType: "",
@@ -100,12 +101,10 @@ func (a *App) askSydney(options AskOptions) {
 	runtime.EventsEmit(a.ctx, EventConversationCreated)
 	stopCtx, cancel := util.CreateCancelContext()
 	defer cancel()
-	go func() {
-		runtime.EventsOn(a.ctx, EventChatStop, func(optionalData ...interface{}) {
-			slog.Info("Received EventChatStop")
-			cancel()
-		})
-	}()
+	runtime.EventsOn(a.ctx, EventChatStop, func(optionalData ...interface{}) {
+		slog.Info("Received EventChatStop")
+		cancel()
+	})
 	ch := sydneyIns.AskStream(sydney.AskStreamOptions{
 		StopCtx:        stopCtx,
 		Conversation:   conversation,
