@@ -64,7 +64,6 @@ let askEventMap = {
   "chat_append": (data: string) => {
     let scrollBottom = false
     if (!replied.value) {
-      console.log('first reply, appending [user](#message)')
       fixContextLineBreak()
       currentWorkspace.value.context += '[user](#message)\n' +
           (hiddenPrompt.value === '' ? currentWorkspace.value.input : hiddenPrompt.value) + "\n\n"
@@ -88,7 +87,7 @@ let askEventMap = {
     }
   },
   "chat_finish": (result: ChatFinishResult) => {
-    console.log('receive chat_finish: '+JSON.stringify(result))
+    console.log('receive chat_finish: ' + JSON.stringify(result))
     fixContextLineBreak()
     isAsking.value = false
     replied.value = false
@@ -107,8 +106,6 @@ let askEventMap = {
           statusBarText.value = result.err_msg
           break
         case 'message_revoke':
-          console.log('triggered message_revoke, replyDeep: ' + replyDeep.value)
-          console.log('triggered message_revoke, revoke_reply_count: ' + config.value.revoke_reply_count)
           if (config.value.revoke_reply_text != '' && replyDeep.value < config.value.revoke_reply_count) {
             statusBarText.value = ''
             startAsking({
@@ -191,13 +188,9 @@ async function startAsking(args: StartAskingArgs = {}) {
     askOptions.prompt = hiddenPrompt.value
   }
   replyDeep.value = args.replyDeep !== undefined ? args.replyDeep : 0
-  console.log('startAsking replyDeep: ' + replyDeep.value)
   askOptions.openai_backend = ''
   askOptions.image_url = ''
-  console.log('before call AskAI')
-  AskAI(askOptions).then(() => {
-    console.log('AskAI finished: ' + JSON.stringify(askOptions))
-  })
+  await AskAI(askOptions)
 }
 
 function stopAsking() {
