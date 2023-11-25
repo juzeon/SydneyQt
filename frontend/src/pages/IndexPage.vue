@@ -106,7 +106,7 @@ let askEventMap = {
           statusBarText.value = result.err_msg
           break
         case 'message_revoke':
-          if (config.value.revoke_reply_text != '' && replyDeep.value < config.value.revoke_reply_count) {
+          if (config.value.revoke_reply_text !== '' && replyDeep.value < config.value.revoke_reply_count) {
             statusBarText.value = ''
             startAsking({
               prompt: config.value.revoke_reply_text,
@@ -115,6 +115,9 @@ let askEventMap = {
             })
           } else {
             swal.error(result.err_msg)
+            if (config.value.revoke_reply_text !== '') {
+              suggestedResponses.value = [config.value.revoke_reply_text]
+            }
           }
           break
       }
