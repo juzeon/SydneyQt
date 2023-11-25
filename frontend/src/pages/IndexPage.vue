@@ -50,6 +50,10 @@ let textareaStyle = computed(() => {
   }
 })
 
+let hiddenPrompt = ref('')
+watch(hiddenPrompt, value => {
+  console.log('hiddenPrompt changed: ' + value)
+})
 let suggestedResponses = ref<string[]>([])
 let isAsking = ref(false)
 let replied = ref(false)
@@ -64,9 +68,14 @@ let askEventMap = {
     if (!replied.value) {
       console.log('first reply')
       fixContextLineBreak()
-      currentWorkspace.value.context += '[user](#message)\n' + currentWorkspace.value.input + "\n\n"
+      currentWorkspace.value.context += '[user](#message)\n' +
+          (hiddenPrompt.value === '' ? currentWorkspace.value.input : hiddenPrompt.value) + "\n\n"
       scrollBottom = true
-      currentWorkspace.value.input = ''
+      if (hiddenPrompt.value === '') {
+        currentWorkspace.value.input = ''
+      } else {
+        hiddenPrompt.value = ''
+      }
       replied.value = true
     }
     let chatContextElem = document.getElementById('chat-context')
@@ -85,6 +94,7 @@ let askEventMap = {
     doListeningEvents(true)
     isAsking.value = false
     replied.value = false
+    hiddenPrompt.value = ''
     if (success) {
       statusBarText.value = 'Ready.'
     }
@@ -137,18 +147,24 @@ function doListeningEvents(isUnregister: boolean = false) {
   }
 }
 
-async function startAsking() {
+async function startAsking(prompt: string = '') {
   if (isAsking.value) {
     swal.error('An active conversation has already launched.')
     return
   }
+  suggestedResponses.value = []
   isAsking.value = true
   statusBarText.value = 'Creating the conversation...'
   doListeningEvents()
   let askOptions = new AskOptions()
   askOptions.chat_context = currentWorkspace.value.context
   askOptions.type = currentWorkspace.value.backend === 'Sydney' ? AskTypeSydney : AskTypeOpenAI
-  askOptions.prompt = currentWorkspace.value.input
+  if (prompt === '') {
+    askOptions.prompt = currentWorkspace.value.input
+  } else {
+    hiddenPrompt.value = prompt
+    askOptions.prompt = hiddenPrompt.value
+  }
   askOptions.reply_deep = 0
   askOptions.openai_backend = ''
   askOptions.image_url = ''
@@ -168,7 +184,6 @@ function handleKeyPress(event: KeyboardEvent) {
     return
   }
   console.log('handle focused key press for user-input')
-  console.log(event.ctrlKey)
   if (config.value.enter_mode === 'Enter' && (event.key == 'Enter' || event.key == 'NumpadEnter')) {
     if (!event.shiftKey) {
       event.preventDefault()
@@ -180,7 +195,6 @@ function handleKeyPress(event: KeyboardEvent) {
 }
 
 onMounted(() => {
-  console.log('IndexPage mounted')
   loading.value = true
   fetchSettings().then(async () => {
     theme.global.name.value = config.value.dark_mode ? 'dark' : 'light'
@@ -201,7 +215,6 @@ onMounted(() => {
   window.addEventListener('keypress', handleKeyPress, true)
 })
 onUnmounted(() => {
-  console.log('IndexPage unmounted')
   window.removeEventListener('keypress', handleKeyPress, true)
 })
 
@@ -252,7 +265,7 @@ function onPresetChange(newValue: string) {
             <v-switch v-model="currentWorkspace.no_search" label="No Search" density="compact"
                       color="primary" class="mx-2 mt-1"></v-switch>
           </div>
-          <v-btn color="primary" class="mb-5 ml-2" :disabled="isAsking"
+          <v-btn color="primary" class="mb-5 ml-2" variant="tonal" :disabled="isAsking"
                  @click="currentWorkspace.context=config.presets.find(v=>v.name===currentWorkspace.preset)?.content ?? ''">
             Reset
           </v-btn>
@@ -261,7 +274,15 @@ function onPresetChange(newValue: string) {
           <textarea :style="textareaStyle" id="chat-context" class="input-textarea"
                     v-model="currentWorkspace.context"></textarea>
         </div>
-        <div class="my-2 d-flex">
+        <div class="d-flex" v-if="!config.no_suggestion">
+          <div style="font-size: 12px;height: 20px" class="overflow-x-hidden text-no-wrap">
+            <v-chip style="cursor: pointer" v-for="item in suggestedResponses" density="compact" color="primary"
+                    variant="outlined" @click="startAsking(item)"
+                    class="ml-3">{{ item }}
+            </v-chip>
+          </div>
+        </div>
+        <div class="my-1 d-flex">
           <p class="font-weight-bold">Follow-up User Input:</p>
           <v-spacer></v-spacer>
           <user-input-tool-button tooltip="Upload an image" icon="mdi-file-image"
@@ -274,7 +295,7 @@ function onPresetChange(newValue: string) {
                                   :disabled="isAsking"></user-input-tool-button>
           <v-menu>
             <template #activator="{props}">
-              <v-btn color="primary" density="compact" append-icon="mdi-menu-down"
+              <v-btn color="primary" density="compact" variant="tonal" append-icon="mdi-menu-down"
                      v-bind="props" class="mx-1"
                      :disabled="isAsking">
                 Quick
@@ -284,10 +305,11 @@ function onPresetChange(newValue: string) {
               <v-list-item>test</v-list-item>
             </v-list>
           </v-menu>
-          <v-btn color="primary" density="compact" class="mx-1" v-if="isAsking" @click="stopAsking"
+          <v-btn color="primary" density="compact" variant="tonal" class="mx-1" v-if="isAsking" @click="stopAsking"
                  append-icon="mdi-stop">Stop
           </v-btn>
-          <v-btn color="primary" density="compact" class="mx-1" v-else @click="startAsking" append-icon="mdi-send">
+          <v-btn color="primary" density="compact" variant="tonal" class="mx-1" v-else @click="startAsking"
+                 append-icon="mdi-send">
             Send
           </v-btn>
         </div>
