@@ -5,6 +5,7 @@ import (
 	"errors"
 	"github.com/pkoukk/tiktoken-go"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
+	"log/slog"
 	"sydneyqt/sydney"
 	"sydneyqt/util"
 	"sync"
@@ -74,6 +75,7 @@ func (a *App) askSydney(options AskOptions) {
 	defer cancel()
 	go func() {
 		runtime.EventsOn(a.ctx, EventChatStop, func(optionalData ...interface{}) {
+			slog.Info("Received EventChatStop")
 			cancel()
 		})
 	}()

@@ -9,6 +9,7 @@ import Scaffold from "../components/Scaffold.vue"
 import Conversation from "../components/Conversation.vue"
 import {useSettings} from "../composables"
 import {useTheme} from "vuetify"
+import UserInputToolButton from "../components/UserInputToolButton.vue"
 import AskOptions = main.AskOptions
 import Workspace = main.Workspace
 
@@ -42,6 +43,12 @@ let statusTokenCountText = computed(() => {
 })
 let statusBarText = ref('Ready.')
 let {config, fetch: fetchSettings} = useSettings()
+let textareaStyle = computed(() => {
+  return {
+    'font-family': "'" + config.value.font_family + "'",
+    'font-size': config.value.font_size + 'px',
+  }
+})
 
 let suggestedResponses = ref<string[]>([])
 let isAsking = ref(false)
@@ -131,6 +138,10 @@ function doListeningEvents(isUnregister: boolean = false) {
 }
 
 async function startAsking() {
+  if (isAsking.value) {
+    swal.error('An active conversation has already launched.')
+    return
+  }
   isAsking.value = true
   statusBarText.value = 'Creating the conversation...'
   doListeningEvents()
@@ -157,12 +168,13 @@ function handleKeyPress(event: KeyboardEvent) {
     return
   }
   console.log('handle focused key press for user-input')
+  console.log(event.ctrlKey)
   if (config.value.enter_mode === 'Enter' && (event.key == 'Enter' || event.key == 'NumpadEnter')) {
     if (!event.shiftKey) {
       event.preventDefault()
       startAsking()
     }
-  } else if ((event.key == 'Enter' || event.key == 'NumpadEnter') && (event.ctrlKey && event.metaKey)) {
+  } else if ((event.keyCode == 10 || event.keyCode == 13) && (event.ctrlKey || event.metaKey)) {
     startAsking()
   }
 }
@@ -246,30 +258,42 @@ function onPresetChange(newValue: string) {
           </v-btn>
         </div>
         <div class="flex-grow-1">
-          <textarea id="chat-context" class="input-textarea" v-model="currentWorkspace.context"></textarea>
+          <textarea :style="textareaStyle" id="chat-context" class="input-textarea"
+                    v-model="currentWorkspace.context"></textarea>
         </div>
         <div class="my-2 d-flex">
           <p class="font-weight-bold">Follow-up User Input:</p>
           <v-spacer></v-spacer>
-          <v-btn color="primary" density="compact" class="mx-1" :disabled="isAsking">Image</v-btn>
-          <v-btn color="primary" density="compact" class="mx-1" :disabled="isAsking">Document</v-btn>
-          <v-btn color="primary" density="compact" class="mx-1" :disabled="isAsking">Browse</v-btn>
-          <v-btn color="primary" density="compact" class="mx-1" :disabled="isAsking">Revoke</v-btn>
+          <user-input-tool-button tooltip="Upload an image" icon="mdi-file-image"
+                                  :disabled="isAsking"></user-input-tool-button>
+          <user-input-tool-button tooltip="Upload a document (.pdf/.docx/.pptx)" icon="mdi-file-document"
+                                  :disabled="isAsking"></user-input-tool-button>
+          <user-input-tool-button tooltip="Browse a webpage" icon="mdi-web"
+                                  :disabled="isAsking"></user-input-tool-button>
+          <user-input-tool-button tooltip="Revoke the latest user message" icon="mdi-backspace"
+                                  :disabled="isAsking"></user-input-tool-button>
           <v-menu>
             <template #activator="{props}">
-              <v-btn color="primary" density="compact" append-icon="mdi-menu-down" v-bind="props" class="mx-1"
-                     :disabled="isAsking">Quick
+              <v-btn color="primary" density="compact" append-icon="mdi-menu-down"
+                     v-bind="props" class="mx-1"
+                     :disabled="isAsking">
+                Quick
               </v-btn>
             </template>
             <v-list density="compact">
               <v-list-item>test</v-list-item>
             </v-list>
           </v-menu>
-          <v-btn color="primary" density="compact" class="mx-1" v-if="isAsking" @click="stopAsking">Stop</v-btn>
-          <v-btn color="primary" density="compact" class="mx-1" v-else @click="startAsking">Send</v-btn>
+          <v-btn color="primary" density="compact" class="mx-1" v-if="isAsking" @click="stopAsking"
+                 append-icon="mdi-stop">Stop
+          </v-btn>
+          <v-btn color="primary" density="compact" class="mx-1" v-else @click="startAsking" append-icon="mdi-send">
+            Send
+          </v-btn>
         </div>
-        <div style="height: 20vh">
-          <textarea id="user-input" class="input-textarea" v-model="currentWorkspace.input"></textarea>
+        <div :style="{height:config.stretch_factor+'vh'}">
+          <textarea :style="textareaStyle" id="user-input" class="input-textarea"
+                    v-model="currentWorkspace.input"></textarea>
         </div>
         <div class="d-flex text-caption">
           <p class="overflow-hidden text-no-wrap">{{ statusBarText }}</p>
@@ -287,6 +311,6 @@ function onPresetChange(newValue: string) {
   width: 100%;
   border: grey 1px solid;
   resize: none;
-  padding: 5px
+  padding: 5px;
 }
 </style>

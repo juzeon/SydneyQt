@@ -154,6 +154,7 @@ func (o *Sydney) AskStreamRaw(options AskStreamOptions) <-chan RawMessage {
 	slog.Info("AskStreamRaw called", "options", options)
 	msgChan := make(chan RawMessage)
 	go func() {
+		defer slog.Info("AskStreamRaw is closing message channel")
 		defer close(msgChan)
 		client, err := util.MakeHTTPClient(o.proxy, 0)
 		if err != nil {
@@ -199,6 +200,7 @@ func (o *Sydney) AskStreamRaw(options AskStreamOptions) <-chan RawMessage {
 		defer connRaw.CloseNow()
 		select {
 		case <-options.StopCtx.Done():
+			slog.Info("Exit askStream because of received signal from stopCtx")
 			return
 		default:
 		}
@@ -286,6 +288,7 @@ func (o *Sydney) AskStreamRaw(options AskStreamOptions) <-chan RawMessage {
 		for {
 			select {
 			case <-options.StopCtx.Done():
+				slog.Info("Exit askStream because of received signal from stopCtx")
 				return
 			default:
 			}

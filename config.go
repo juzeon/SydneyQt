@@ -84,9 +84,9 @@ func (o *Config) FillDefault() {
 		}
 	}
 	fillDefault(&o.EnterMode, "Enter")
-	fillDefault(&o.FontFamily, "Microsoft Yahei")
-	fillDefault(&o.FontSize, 11)
-	fillDefault(&o.StretchFactor, 2)
+	fillDefault(&o.FontFamily, "SF")
+	fillDefault(&o.FontSize, 16)
+	fillDefault(&o.StretchFactor, 20)
 	fillDefault(&o.RevokeReplyText, "Continue from where you stopped.")
 	if len(o.Quick) == 0 {
 		o.Quick = []string{"Continue from where you stopped.", "Translate the text above into English.",
