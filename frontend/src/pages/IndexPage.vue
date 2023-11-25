@@ -88,8 +88,8 @@ let askEventMap = {
     }
   },
   "chat_finish": (result: ChatFinishResult) => {
+    console.log('receive chat_finish: '+JSON.stringify(result))
     fixContextLineBreak()
-    doListeningEvents(true)
     isAsking.value = false
     replied.value = false
     hiddenPrompt.value = ''
@@ -181,7 +181,6 @@ async function startAsking(args: StartAskingArgs = {}) {
   suggestedResponses.value = []
   isAsking.value = true
   statusBarText.value = args.statusBarText ? args.statusBarText : 'Creating the conversation...'
-  doListeningEvents()
   let askOptions = new AskOptions()
   askOptions.chat_context = currentWorkspace.value.context
   askOptions.type = currentWorkspace.value.backend === 'Sydney' ? AskTypeSydney : AskTypeOpenAI
@@ -191,11 +190,14 @@ async function startAsking(args: StartAskingArgs = {}) {
     hiddenPrompt.value = args.prompt
     askOptions.prompt = hiddenPrompt.value
   }
-  replyDeep.value = args.replyDeep ? args.replyDeep : 0
+  replyDeep.value = args.replyDeep !== undefined ? args.replyDeep : 0
   console.log('startAsking replyDeep: ' + replyDeep.value)
   askOptions.openai_backend = ''
   askOptions.image_url = ''
-  await AskAI(askOptions)
+  console.log('before call AskAI')
+  AskAI(askOptions).then(() => {
+    console.log('AskAI finished: ' + JSON.stringify(askOptions))
+  })
 }
 
 function stopAsking() {
@@ -221,6 +223,7 @@ function handleKeyPress(event: KeyboardEvent) {
 
 onMounted(() => {
   loading.value = true
+  doListeningEvents()
   fetchSettings().then(async () => {
     theme.global.name.value = config.value.dark_mode ? 'dark' : 'light'
     let workspace = config.value.workspaces?.find(v => v.id === config.value.current_workspace_id)
@@ -240,6 +243,7 @@ onMounted(() => {
   window.addEventListener('keypress', handleKeyPress, true)
 })
 onUnmounted(() => {
+  doListeningEvents(true)
   window.removeEventListener('keypress', handleKeyPress, true)
 })
 
