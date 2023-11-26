@@ -196,6 +196,17 @@ async function startAsking(args: StartAskingArgs = {}) {
   await AskAI(askOptions)
 }
 
+function applyQuickResponse(text: string) {
+  if (currentWorkspace.value.input.trim() === '' && !config.value.disable_direct_quick) {
+    startAsking({prompt: text, statusBarText: 'Creating the conversation with: ' + text})
+    return
+  }
+  if (!currentWorkspace.value.input.endsWith('\n') && currentWorkspace.value.input.trim() !== '') {
+    currentWorkspace.value.input += '\n'
+  }
+  currentWorkspace.value.input += text
+}
+
 function stopAsking() {
   EventsEmit('chat_stop')
 }
@@ -327,7 +338,10 @@ function onPresetChange(newValue: string) {
               </v-btn>
             </template>
             <v-list density="compact">
-              <v-list-item>test</v-list-item>
+              <v-list-item density="compact" @click="applyQuickResponse(item)" v-for="item in config.quick">{{
+                  item
+                }}
+              </v-list-item>
             </v-list>
           </v-menu>
           <v-btn color="primary" density="compact" variant="tonal" class="mx-1" v-if="isAsking" @click="stopAsking"
