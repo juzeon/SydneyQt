@@ -57,7 +57,7 @@ function onRevokeReplyCountChanged(v: string) {
           <p class="text-h4 mb-3">Settings</p>
           <v-card title="Network" class="my-3">
             <v-card-text>
-              <v-tooltip text="Enter a HTTP proxy (e.g. http://127.0.0.1:7890). Leave blank to disable proxy."
+              <v-tooltip text="Enter a proxy URL in http, https or socks5 (e.g. http://127.0.0.1:7890). Leave blank to disable proxy."
                          location="bottom">
                 <template #activator="{props}">
                   <v-text-field color="primary" label="Proxy" v-model="config.proxy" v-bind="props"></v-text-field>
@@ -68,7 +68,7 @@ function onRevokeReplyCountChanged(v: string) {
                   location="bottom">
                 <template #activator="{props}">
                   <v-text-field color="primary" label="Wss Domain" v-model="config.wss_domain"
-                                v-bind="props"></v-text-field>
+                                v-bind="props" hint="Default: sydney.bing.com"></v-text-field>
                 </template>
               </v-tooltip>
             </v-card-text>
@@ -81,18 +81,17 @@ function onRevokeReplyCountChanged(v: string) {
               <v-tooltip text="Default: SF" location="bottom">
                 <template #activator="{props}">
                   <v-text-field color="primary" v-bind="props" label="Font Family"
-                                v-model="config.font_family"></v-text-field>
+                                v-model="config.font_family" hint="Default: SF"></v-text-field>
                 </template>
               </v-tooltip>
               <v-slider color="primary" min="10" max="30" step="1" thumb-label="always" v-model="config.font_size"
-                        label="Font Size"></v-slider>
+                        label="Font Size" hint="Default: 16"></v-slider>
               <div class="text-center mb-3" :style="fontStyle">Font Example</div>
-              <!-- TODO v-slider tooltip -->
               <v-tooltip text="Height of the textarea of user input, in vh." location="bottom">
                 <template #activator="{props}">
                   <v-slider color="primary" v-bind="props" step="1" min="10" max="60" label="User Input Textarea Height"
                             v-model="config.stretch_factor"
-                            thumb-label="always"></v-slider>
+                            thumb-label="always" hint="Default: 20"></v-slider>
                 </template>
               </v-tooltip>
             </v-card-text>
