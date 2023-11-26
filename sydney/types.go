@@ -111,3 +111,24 @@ type AskStreamOptions struct {
 	WebpageContext string
 	ImageURL       string
 }
+type UploadImagePayload struct {
+	ImageInfo        map[string]any   `json:"imageInfo"`
+	KnowledgeRequest KnowledgeRequest `json:"knowledgeRequest"`
+}
+type InvokedSkillsRequestData struct {
+	EnableFaceBlur bool `json:"enableFaceBlur"`
+}
+type ConvoData struct {
+	Convoid   string `json:"convoid"`
+	Convotone string `json:"convotone"`
+}
+type KnowledgeRequest struct {
+	InvokedSkills            []string                 `json:"invokedSkills"`
+	SubscriptionId           string                   `json:"subscriptionId"`
+	InvokedSkillsRequestData InvokedSkillsRequestData `json:"invokedSkillsRequestData"`
+	ConvoData                ConvoData                `json:"convoData"`
+}
+type UploadImageResponse struct {
+	BlobId          string `json:"blobId"`
+	ProcessedBlobId string `json:"processedBlobId"`
+}

@@ -1,9 +1,15 @@
 package util
 
 import (
+	"bytes"
 	"context"
 	"encoding/hex"
 	"encoding/json"
+	"image"
+	_ "image/gif"
+	"image/jpeg"
+	_ "image/jpeg"
+	_ "image/png"
 	"math/rand"
 	"net/http"
 	"net/url"
@@ -113,4 +119,20 @@ func FindFirst[T any](arr []T, function func(value T) bool) (T, bool) {
 		}
 	}
 	return empty, false
+}
+func ConvertImageToJpg(img []byte) ([]byte, error) {
+	// Decode the image from the []byte
+	src, _, err := image.Decode(bytes.NewReader(img))
+	if err != nil {
+		return nil, err
+	}
+	// Create a buffer to store the converted image
+	var buf bytes.Buffer
+	// Encode the image as jpg with quality 80
+	err = jpeg.Encode(&buf, src, &jpeg.Options{Quality: 80})
+	if err != nil {
+		return nil, err
+	}
+	// Return the buffer as a []byte
+	return buf.Bytes(), nil
 }
