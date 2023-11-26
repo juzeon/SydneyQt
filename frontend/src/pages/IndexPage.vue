@@ -155,6 +155,27 @@ function fixContextLineBreak() {
   }
 }
 
+interface ChatMessage {
+  role: string
+  type: string
+  message: string
+}
+
+function getChatMessages(): ChatMessage[] {
+  let ctx = currentWorkspace.value.context
+  ctx += '\n\n[system](#sydney__placeholder)'
+  let matches = ctx.matchAll(/\[(system|user|assistant)]\(#(.*?)\)([\s\S]*?)(?=\n.*?(^\[(system|user|assistant)]\(#.*?\)))/gm)
+  return Array.from(matches).filter(v => v[2] !== 'sydney__placeholder').map(v => <ChatMessage>{
+    role: v[1],
+    type: v[2],
+    message: v[3].trim(),
+  })
+}
+
+function setChatMessages(arr: ChatMessage[]) {
+  currentWorkspace.value.context = arr.map(v => `[${v.role}](#${v.type})\n${v.message}`).join('\n\n') + '\n\n'
+}
+
 function doListeningEvents(isUnregister: boolean = false) {
   isUnregister ? console.log('unregister chat listener') : console.log('register chat listener')
   for (let [event, func] of Object.entries(askEventMap)) {
@@ -205,6 +226,19 @@ function applyQuickResponse(text: string) {
     currentWorkspace.value.input += '\n'
   }
   currentWorkspace.value.input += text
+}
+
+function handleRevoke() {
+  let arr = getChatMessages()
+  console.log(arr)
+  let usersArr = arr.filter(v => v.role === 'user' && v.type === 'message')
+  if (usersArr.length < 1) {
+    swal.error('Nothing to revoke')
+    return
+  }
+  currentWorkspace.value.input = usersArr[usersArr.length - 1].message
+  // @ts-ignore
+  setChatMessages(arr.slice(0, arr.findLastIndex(v => v === usersArr[usersArr.length - 1])))
 }
 
 function stopAsking() {
@@ -327,7 +361,7 @@ function onPresetChange(newValue: string) {
                                   :disabled="isAsking"></user-input-tool-button>
           <user-input-tool-button tooltip="Browse a webpage" icon="mdi-web"
                                   :disabled="isAsking"></user-input-tool-button>
-          <user-input-tool-button tooltip="Revoke the latest user message" icon="mdi-backspace"
+          <user-input-tool-button tooltip="Revoke the latest user message" icon="mdi-backspace" @click="handleRevoke"
                                   :disabled="isAsking"></user-input-tool-button>
           <v-menu>
             <template #activator="{props}">
