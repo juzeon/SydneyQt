@@ -5,6 +5,8 @@ import (
 	"github.com/pkg/errors"
 	"os"
 	"sydneyqt/util"
+	"sync"
+	"time"
 )
 
 type Preset struct {
@@ -112,7 +114,9 @@ func (o *Config) FillDefault() {
 }
 
 type Settings struct {
-	config Config
+	version int
+	mu      sync.RWMutex
+	config  Config
 }
 
 func NewSettings() *Settings {
@@ -136,19 +140,37 @@ func NewSettings() *Settings {
 		}
 	}
 	config.FillDefault()
-	return &Settings{config: config}
+	settings := &Settings{config: config}
+	go settings.writer()
+	return settings
 }
 func (o *Settings) GetConfig() Config {
+	o.mu.RLock()
+	defer o.mu.RUnlock()
 	return o.config
 }
 func (o *Settings) SetConfig(config Config) {
+	o.mu.Lock()
+	defer o.mu.Unlock()
 	o.config = config
-	v, err := json.MarshalIndent(&o.config, "", "  ")
-	if err != nil {
-		panic(err)
-	}
-	err = os.WriteFile("config.json", v, 0644)
-	if err != nil {
-		panic(err)
+	o.version++
+}
+func (o *Settings) writer() {
+	localVersion := 0
+	for {
+		o.mu.RLock()
+		if o.version > localVersion {
+			v, err := json.MarshalIndent(&o.config, "", "  ")
+			if err != nil {
+				panic(err)
+			}
+			err = os.WriteFile("config.json", v, 0644)
+			if err != nil {
+				panic(err)
+			}
+			localVersion = o.version
+		}
+		o.mu.RUnlock()
+		time.Sleep(1 * time.Second)
 	}
 }
