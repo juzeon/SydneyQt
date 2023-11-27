@@ -14,6 +14,13 @@ import (
 	"time"
 )
 
+type DocumentReader interface {
+	Read(filePath string) (string, error)
+}
+
+type PDFDocumentReader struct {
+}
+
 var pdfInstance pdfium.Pdfium
 var initPDFInstance = sync.OnceFunc(func() {
 	pool, err := webassembly.Init(webassembly.Config{
@@ -30,12 +37,6 @@ var initPDFInstance = sync.OnceFunc(func() {
 	}
 	pdfInstance = instance
 })
-
-type DocumentReader interface {
-	Read(filePath string) (string, error)
-}
-type PDFDocumentReader struct {
-}
 
 func (P PDFDocumentReader) Read(filePath string) (string, error) {
 	initPDFInstance()
