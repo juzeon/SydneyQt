@@ -3,7 +3,7 @@ import {computed, onMounted, onUnmounted, ref, watch} from "vue"
 import {main} from "../../wailsjs/go/models"
 import {EventsEmit, EventsOff, EventsOn} from "../../wailsjs/runtime"
 import {swal} from "../helper"
-import {AskAI, CountToken} from "../../wailsjs/go/main/App"
+import {AskAI, CountToken, UploadSydneyImage} from "../../wailsjs/go/main/App"
 import {AskTypeOpenAI, AskTypeSydney} from "../constants"
 import Scaffold from "../components/Scaffold.vue"
 import Conversation from "../components/Conversation.vue"
@@ -13,6 +13,7 @@ import UserInputToolButton from "../components/UserInputToolButton.vue"
 import AskOptions = main.AskOptions
 import Workspace = main.Workspace
 import ChatFinishResult = main.ChatFinishResult
+import UploadSydneyImageResult = main.UploadSydneyImageResult
 
 let theme = useTheme()
 let navDrawer = ref(false)
@@ -94,6 +95,7 @@ let askEventMap = {
     hiddenPrompt.value = ''
     if (result.success) {
       statusBarText.value = 'Ready.'
+      uploadedImage.value = undefined
     } else {
       console.log('error type: ' + result.err_type)
       console.log('error message: ' + result.err_msg)
@@ -213,7 +215,7 @@ async function startAsking(args: StartAskingArgs = {}) {
   }
   replyDeep.value = args.replyDeep !== undefined ? args.replyDeep : 0
   askOptions.openai_backend = ''
-  askOptions.image_url = ''
+  askOptions.image_url = uploadedImage.value?.bing_url ?? ''
   await AskAI(askOptions)
 }
 
@@ -243,6 +245,25 @@ function handleRevoke() {
 
 function stopAsking() {
   EventsEmit('chat_stop')
+}
+
+let uploadedImage = ref<UploadSydneyImageResult | undefined>()
+let uploadingImage = ref(false)
+
+function uploadImage() {
+  uploadedImage.value = undefined
+  uploadingImage.value = true
+  UploadSydneyImage().then(res => {
+    if (res.canceled) {
+      statusBarText.value = 'Image uploading canceled.'
+      return
+    }
+    uploadedImage.value = res
+  }).catch(err => {
+    swal.error(err)
+  }).finally(() => {
+    uploadingImage.value = false
+  })
 }
 
 function handleKeyPress(event: KeyboardEvent) {
@@ -337,6 +358,7 @@ function onPresetChange(newValue: string) {
           </div>
           <v-btn color="primary" class="mb-5 ml-2" variant="tonal" :disabled="isAsking"
                  @click="currentWorkspace.context=config.presets.find(v=>v.name===currentWorkspace.preset)?.content ?? ''">
+            <v-icon>mdi-reload</v-icon>
             Reset
           </v-btn>
         </div>
@@ -355,8 +377,36 @@ function onPresetChange(newValue: string) {
         <div class="my-1 d-flex">
           <p class="font-weight-bold">Follow-up User Input:</p>
           <v-spacer></v-spacer>
-          <user-input-tool-button tooltip="Upload an image" icon="mdi-file-image"
-                                  :disabled="isAsking"></user-input-tool-button>
+          <div style="position: relative">
+            <v-hover v-slot="{ isHovering, props }">
+              <v-hover v-slot="{isHovering:subHovering,props:subProps}">
+                <v-fade-transition>
+                  <v-card v-show="isHovering || subHovering" v-bind="subProps"
+                          style="position: absolute;bottom: 24px;right: 32px;">
+                    <v-card-text>
+                      <img v-if="uploadedImage" style="max-width: 200px;max-height: 400px"
+                           :src="uploadedImage.base64_url" alt="img"/>
+                    </v-card-text>
+                    <v-card-actions>
+                      <v-spacer></v-spacer>
+                      <v-btn variant="text" color="primary" @click="uploadImage">
+                        <v-icon>mdi-file-replace</v-icon>
+                        Replace
+                      </v-btn>
+                      <v-btn variant="text" color="red" @click="uploadedImage=undefined">
+                        <v-icon>mdi-close</v-icon>
+                        Remove
+                      </v-btn>
+                    </v-card-actions>
+                  </v-card>
+                </v-fade-transition>
+              </v-hover>
+              <user-input-tool-button @click="uploadImage" :bindings="uploadedImage?props:undefined"
+                                      tooltip="Upload an image"
+                                      icon="mdi-file-image" :color="uploadedImage?'green':undefined"
+                                      :disabled="isAsking" :loading="uploadingImage"></user-input-tool-button>
+            </v-hover>
+          </div>
           <user-input-tool-button tooltip="Upload a document (.pdf/.docx/.pptx)" icon="mdi-file-document"
                                   :disabled="isAsking"></user-input-tool-button>
           <user-input-tool-button tooltip="Browse a webpage" icon="mdi-web"

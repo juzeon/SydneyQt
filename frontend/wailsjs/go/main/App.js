@@ -13,3 +13,7 @@ export function CountToken(arg1) {
 export function Dummy1() {
   return window['go']['main']['App']['Dummy1']();
 }
+
+export function UploadSydneyImage() {
+  return window['go']['main']['App']['UploadSydneyImage']();
+}

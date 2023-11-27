@@ -2,10 +2,12 @@ package main
 
 import (
 	"context"
+	"encoding/base64"
 	"errors"
 	"github.com/pkoukk/tiktoken-go"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"log/slog"
+	"os"
 	"sydneyqt/sydney"
 	"sydneyqt/util"
 	"sync"
@@ -72,6 +74,12 @@ const (
 func (a *App) Dummy1() ChatFinishResult {
 	return ChatFinishResult{}
 }
+func (a *App) createSydney() *sydney.Sydney {
+	currentWorkspace := a.settings.config.GetCurrentWorkspace()
+	return sydney.NewSydney(a.debug, util.ReadCookiesFile(), a.settings.config.Proxy,
+		currentWorkspace.ConversationStyle, currentWorkspace.Locale, a.settings.config.WssDomain,
+		currentWorkspace.NoSearch)
+}
 
 func (a *App) askSydney(options AskOptions) {
 	slog.Info("askSydney called", "options", options)
@@ -84,12 +92,8 @@ func (a *App) askSydney(options AskOptions) {
 		slog.Info("invoke EventChatFinish", "result", chatFinishResult)
 		runtime.EventsEmit(a.ctx, EventChatFinish, chatFinishResult)
 	}()
-	currentWorkspace := a.settings.config.GetCurrentWorkspace()
-	sydneyIns := sydney.NewSydney(a.debug, util.ReadCookiesFile(), a.settings.config.Proxy,
-		currentWorkspace.ConversationStyle, currentWorkspace.Locale, a.settings.config.WssDomain,
-		currentWorkspace.NoSearch)
+	sydneyIns := a.createSydney()
 	conversation, err := sydneyIns.CreateConversation()
-
 	if err != nil {
 		chatFinishResult = ChatFinishResult{
 			Success: false,
@@ -184,4 +188,43 @@ var initTkFunc = sync.OnceFunc(func() {
 func (a *App) CountToken(text string) int {
 	initTkFunc()
 	return len(tk.Encode(text, nil, nil))
+}
+
+type UploadSydneyImageResult struct {
+	Base64URL string `json:"base64_url"`
+	BingURL   string `json:"bing_url"`
+	Canceled  bool   `json:"canceled"`
+}
+
+func (a *App) UploadSydneyImage() (UploadSydneyImageResult, error) {
+	file, err := runtime.OpenFileDialog(a.ctx, runtime.OpenDialogOptions{
+		Title: "Open an image to upload",
+		Filters: []runtime.FileFilter{{
+			DisplayName: "Image Files (*.jpg; *.jpeg; *.png; *.gif)",
+			Pattern:     "*.jpg;*.jpeg;*.png;*.gif",
+		}},
+	})
+	if err != nil {
+		return UploadSydneyImageResult{}, err
+	}
+	if file == "" {
+		return UploadSydneyImageResult{Canceled: true}, nil
+	}
+	sydneyIns := a.createSydney()
+	v, err := os.ReadFile(file)
+	if err != nil {
+		return UploadSydneyImageResult{}, err
+	}
+	jpgData, err := util.ConvertImageToJpg(v)
+	if err != nil {
+		return UploadSydneyImageResult{}, err
+	}
+	url, err := sydneyIns.UploadImage(jpgData)
+	if err != nil {
+		return UploadSydneyImageResult{}, err
+	}
+	return UploadSydneyImageResult{
+		Base64URL: "data:image/jpeg;base64," + base64.StdEncoding.EncodeToString(jpgData),
+		BingURL:   url,
+	}, err
 }

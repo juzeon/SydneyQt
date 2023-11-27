@@ -7,3 +7,5 @@ export function AskAI(arg1:main.AskOptions):Promise<void>;
 export function CountToken(arg1:string):Promise<number>;
 
 export function Dummy1():Promise<main.ChatFinishResult>;
+
+export function UploadSydneyImage():Promise<main.UploadSydneyImageResult>;

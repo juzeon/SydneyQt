@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-func (o *Sydney) UploadImage(data []byte) (string, error) {
+func (o *Sydney) UploadImage(jpgImgData []byte) (string, error) {
 	httpClient, err := util.MakeHTTPClient(o.proxy, 0)
 	if err != nil {
 		return "", err
@@ -20,11 +20,7 @@ func (o *Sydney) UploadImage(data []byte) (string, error) {
 		SetTransport(httpClient.Transport).
 		SetTimeout(60*time.Second).
 		SetHeader("Referer", "https://www.bing.com/search?q=Bing+AI&showconv=1&FORM=hpcodx")
-	jpgData, err := util.ConvertImageToJpg(data)
-	if err != nil {
-		return "", err
-	}
-	imageBase64 := base64.StdEncoding.EncodeToString(jpgData)
+	imageBase64 := base64.StdEncoding.EncodeToString(jpgImgData)
 	uploadImagePayload := UploadImagePayload{
 		ImageInfo: map[string]any{},
 		KnowledgeRequest: KnowledgeRequest{
