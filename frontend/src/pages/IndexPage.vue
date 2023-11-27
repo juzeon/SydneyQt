@@ -427,7 +427,7 @@ function onReset() {
                                   :disabled="isAsking"></user-input-tool-button>
           <user-input-tool-button tooltip="Browse a webpage" icon="mdi-web"
                                   :disabled="isAsking"></user-input-tool-button>
-          <user-input-tool-button tooltip="Revoke the latest user message" icon="mdi-backspace" @click="handleRevoke"
+          <user-input-tool-button tooltip="Revoke the latest user message" icon="mdi-undo" @click="handleRevoke"
                                   :disabled="isAsking"></user-input-tool-button>
           <v-menu>
             <template #activator="{props}">
