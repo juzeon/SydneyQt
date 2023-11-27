@@ -1,11 +1,15 @@
 package util
 
 import (
+	"archive/zip"
 	"bytes"
 	"github.com/klippa-app/go-pdfium"
 	"github.com/klippa-app/go-pdfium/requests"
 	"github.com/klippa-app/go-pdfium/webassembly"
+	"github.com/microcosm-cc/bluemonday"
+	"io"
 	"os"
+	"strings"
 	"sync"
 	"time"
 )
@@ -27,10 +31,16 @@ var initPDFInstance = sync.OnceFunc(func() {
 	pdfInstance = instance
 })
 
-func ReadPDF(pdfFilePath string) (string, error) {
+type DocumentReader interface {
+	Read(filePath string) (string, error)
+}
+type PDFDocumentReader struct {
+}
+
+func (P PDFDocumentReader) Read(filePath string) (string, error) {
 	initPDFInstance()
 	// Load the PDF file into a byte array.
-	pdfBytes, err := os.ReadFile(pdfFilePath)
+	pdfBytes, err := os.ReadFile(filePath)
 	if err != nil {
 		return "", err
 	}
@@ -68,4 +78,27 @@ func ReadPDF(pdfFilePath string) (string, error) {
 		}
 	}
 	return buf.String(), nil
+}
+
+type DocxDocumentReader struct {
+}
+
+func (d DocxDocumentReader) Read(filePath string) (string, error) {
+	reader, err := zip.OpenReader(filePath)
+	if err != nil {
+		return "", err
+	}
+	defer reader.Close()
+	docFile, err := reader.Open("word/document.xml")
+	if err != nil {
+		return "", err
+	}
+	defer docFile.Close()
+	v, err := io.ReadAll(docFile)
+	if err != nil {
+		return "", err
+	}
+	text := string(v)
+	text = strings.ReplaceAll(text, "<w:p>", "\n<w:p>")
+	return bluemonday.StripTagsPolicy().Sanitize(text), nil
 }

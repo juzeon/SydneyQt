@@ -240,12 +240,6 @@ type UploadSydneyDocumentResult struct {
 }
 
 func (a *App) UploadDocument() (UploadSydneyDocumentResult, error) {
-	postprocessText := func(text string) string {
-		text = strings.ReplaceAll(text, "\r", "")
-		text = regexp.MustCompile("(?m)^\r+").ReplaceAllString(text, "")
-		text = regexp.MustCompile("\n+").ReplaceAllString(text, "\n")
-		return text
-	}
 	file, err := runtime.OpenFileDialog(a.ctx, runtime.OpenDialogOptions{
 		Title: "Open a document to upload",
 		Filters: []runtime.FileFilter{{
@@ -260,22 +254,28 @@ func (a *App) UploadDocument() (UploadSydneyDocumentResult, error) {
 		return UploadSydneyDocumentResult{Canceled: true}, nil
 	}
 	ext := filepath.Ext(file)
+	var docReader util.DocumentReader
 	switch ext {
 	case ".pdf":
-		s, err := util.ReadPDF(file)
-		if err != nil {
-			return UploadSydneyDocumentResult{}, err
-		}
-		s = postprocessText(s)
-		v, err := json.Marshal(&s)
-		if err != nil {
-			return UploadSydneyDocumentResult{}, err
-		}
-		return UploadSydneyDocumentResult{
-			Text: string(v),
-			Ext:  ext,
-		}, nil
+		docReader = util.PDFDocumentReader{}
+	case ".docx":
+		docReader = util.DocxDocumentReader{}
 	default:
 		return UploadSydneyDocumentResult{}, errors.New("file type " + ext + " not implemented")
 	}
+	s, err := docReader.Read(file)
+	if err != nil {
+		return UploadSydneyDocumentResult{}, err
+	}
+	text := strings.ReplaceAll(s, "\r", "")
+	text = regexp.MustCompile("(?m)^\r+").ReplaceAllString(text, "")
+	text = regexp.MustCompile("\n+").ReplaceAllString(text, "\n")
+	v, err := json.Marshal(&text)
+	if err != nil {
+		return UploadSydneyDocumentResult{}, err
+	}
+	return UploadSydneyDocumentResult{
+		Text: string(v),
+		Ext:  ext,
+	}, nil
 }
