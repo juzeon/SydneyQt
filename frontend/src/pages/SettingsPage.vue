@@ -57,8 +57,9 @@ function onRevokeReplyCountChanged(v: string) {
           <p class="text-h4 mb-3">Settings</p>
           <v-card title="Network" class="my-3">
             <v-card-text>
-              <v-tooltip text="Enter a proxy URL in http, https or socks5 (e.g. http://127.0.0.1:7890). Leave blank to disable proxy."
-                         location="bottom">
+              <v-tooltip
+                  text="Enter a proxy URL in http, https or socks5 (e.g. http://127.0.0.1:7890). Leave blank to disable proxy."
+                  location="bottom">
                 <template #activator="{props}">
                   <v-text-field color="primary" label="Proxy" v-model="config.proxy" v-bind="props"></v-text-field>
                 </template>
@@ -124,6 +125,7 @@ function onRevokeReplyCountChanged(v: string) {
                                 :rules="[revokeReplyCountInputRule]"></v-text-field>
                 </template>
               </v-tooltip>
+              <!-- TODO bing filter bypass text -->
               <v-tooltip text="Whether to send the selected quick response immediately
               rather than append it to the user input textarea if it is empty." location="bottom">
                 <template #activator="{props}">
@@ -131,7 +133,13 @@ function onRevokeReplyCountChanged(v: string) {
                             v-model="config.disable_direct_quick"></v-switch>
                 </template>
               </v-tooltip>
-              <!-- TODO bing filter bypass text -->
+              <v-tooltip text="Whether to remove the uploaded image after successfully receiving Bing's response."
+                         location="bottom">
+                <template #activator="{props}">
+                  <v-switch v-bind="props" label="No Image Removal After Chat" color="primary"
+                            v-model="config.no_image_removal_after_chat"></v-switch>
+                </template>
+              </v-tooltip>
             </v-card-text>
           </v-card>
         </v-container>

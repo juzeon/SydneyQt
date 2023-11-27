@@ -118,7 +118,7 @@ export namespace main {
 	    clear_image_after_send: boolean;
 	    wss_domain: string;
 	    dark_mode: boolean;
-	    disable_confirm_reset: boolean;
+	    no_image_removal_after_chat: boolean;
 	
 	    static createFrom(source: any = {}) {
 	        return new Config(source);
@@ -143,7 +143,7 @@ export namespace main {
 	        this.clear_image_after_send = source["clear_image_after_send"];
 	        this.wss_domain = source["wss_domain"];
 	        this.dark_mode = source["dark_mode"];
-	        this.disable_confirm_reset = source["disable_confirm_reset"];
+	        this.no_image_removal_after_chat = source["no_image_removal_after_chat"];
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {

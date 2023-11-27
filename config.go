@@ -33,24 +33,24 @@ type OpenAIBackend struct {
 	OpenaiTemperature float64 `json:"openai_temperature"`
 }
 type Config struct {
-	Presets             []Preset        `json:"presets"`
-	EnterMode           string          `json:"enter_mode"`
-	Proxy               string          `json:"proxy"`
-	NoSuggestion        bool            `json:"no_suggestion"`
-	FontFamily          string          `json:"font_family"`
-	FontSize            int             `json:"font_size"`
-	StretchFactor       int             `json:"stretch_factor"`
-	RevokeReplyText     string          `json:"revoke_reply_text"`
-	RevokeReplyCount    int             `json:"revoke_reply_count"`
-	Workspaces          []Workspace     `json:"workspaces"`
-	CurrentWorkspaceID  int             `json:"current_workspace_id"`
-	Quick               []string        `json:"quick"`
-	DisableDirectQuick  bool            `json:"disable_direct_quick"`
-	OpenAIBackends      []OpenAIBackend `json:"open_ai_backends"`
-	ClearImageAfterSend bool            `json:"clear_image_after_send"`
-	WssDomain           string          `json:"wss_domain"`
-	DarkMode            bool            `json:"dark_mode"`
-	DisableConfirmReset bool            `json:"disable_confirm_reset"`
+	Presets                 []Preset        `json:"presets"`
+	EnterMode               string          `json:"enter_mode"`
+	Proxy                   string          `json:"proxy"`
+	NoSuggestion            bool            `json:"no_suggestion"`
+	FontFamily              string          `json:"font_family"`
+	FontSize                int             `json:"font_size"`
+	StretchFactor           int             `json:"stretch_factor"`
+	RevokeReplyText         string          `json:"revoke_reply_text"`
+	RevokeReplyCount        int             `json:"revoke_reply_count"`
+	Workspaces              []Workspace     `json:"workspaces"`
+	CurrentWorkspaceID      int             `json:"current_workspace_id"`
+	Quick                   []string        `json:"quick"`
+	DisableDirectQuick      bool            `json:"disable_direct_quick"`
+	OpenAIBackends          []OpenAIBackend `json:"open_ai_backends"`
+	ClearImageAfterSend     bool            `json:"clear_image_after_send"`
+	WssDomain               string          `json:"wss_domain"`
+	DarkMode                bool            `json:"dark_mode"`
+	NoImageRemovalAfterChat bool            `json:"no_image_removal_after_chat"`
 }
 
 func fillDefault[T comparable](pointer *T, defaultValue T) {

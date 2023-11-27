@@ -95,7 +95,9 @@ let askEventMap = {
     hiddenPrompt.value = ''
     if (result.success) {
       statusBarText.value = 'Ready.'
-      uploadedImage.value = undefined
+      if (!config.value.no_image_removal_after_chat) {
+        uploadedImage.value = undefined
+      }
     } else {
       console.log('error type: ' + result.err_type)
       console.log('error message: ' + result.err_msg)
@@ -251,7 +253,6 @@ let uploadedImage = ref<UploadSydneyImageResult | undefined>()
 let uploadingImage = ref(false)
 
 function uploadImage() {
-  uploadedImage.value = undefined
   uploadingImage.value = true
   UploadSydneyImage().then(res => {
     if (res.canceled) {
@@ -381,7 +382,7 @@ function onPresetChange(newValue: string) {
             <v-hover v-slot="{ isHovering, props }">
               <v-hover v-slot="{isHovering:subHovering,props:subProps}">
                 <v-fade-transition>
-                  <v-card v-show="isHovering || subHovering" v-bind="subProps"
+                  <v-card v-show="(isHovering || subHovering) && uploadedImage" v-bind="subProps"
                           style="position: absolute;bottom: 24px;right: 32px;">
                     <v-card-text>
                       <img v-if="uploadedImage" style="max-width: 200px;max-height: 400px"
