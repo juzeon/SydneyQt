@@ -4,3 +4,4 @@ frontend/dist
 .idea
 config.json
 cookies.json
+/test

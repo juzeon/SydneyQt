@@ -3,11 +3,15 @@ package main
 import (
 	"context"
 	"encoding/base64"
+	"encoding/json"
 	"errors"
 	"github.com/pkoukk/tiktoken-go"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"log/slog"
 	"os"
+	"path/filepath"
+	"regexp"
+	"strings"
 	"sydneyqt/sydney"
 	"sydneyqt/util"
 	"sync"
@@ -227,4 +231,51 @@ func (a *App) UploadSydneyImage() (UploadSydneyImageResult, error) {
 		Base64URL: "data:image/jpeg;base64," + base64.StdEncoding.EncodeToString(jpgData),
 		BingURL:   url,
 	}, err
+}
+
+type UploadSydneyDocumentResult struct {
+	Canceled bool   `json:"canceled,omitempty"`
+	Text     string `json:"text,omitempty"`
+	Ext      string `json:"ext,omitempty"`
+}
+
+func (a *App) UploadDocument() (UploadSydneyDocumentResult, error) {
+	postprocessText := func(text string) string {
+		text = strings.ReplaceAll(text, "\r", "")
+		text = regexp.MustCompile("(?m)^\r+").ReplaceAllString(text, "")
+		text = regexp.MustCompile("\n+").ReplaceAllString(text, "\n")
+		return text
+	}
+	file, err := runtime.OpenFileDialog(a.ctx, runtime.OpenDialogOptions{
+		Title: "Open a document to upload",
+		Filters: []runtime.FileFilter{{
+			DisplayName: "Document Files (*.pdf; *.pptx; *.docx)",
+			Pattern:     "*.pdf;*.pptx;*.docx",
+		}},
+	})
+	if err != nil {
+		return UploadSydneyDocumentResult{}, err
+	}
+	if file == "" {
+		return UploadSydneyDocumentResult{Canceled: true}, nil
+	}
+	ext := filepath.Ext(file)
+	switch ext {
+	case ".pdf":
+		s, err := util.ReadPDF(file)
+		if err != nil {
+			return UploadSydneyDocumentResult{}, err
+		}
+		s = postprocessText(s)
+		v, err := json.Marshal(&s)
+		if err != nil {
+			return UploadSydneyDocumentResult{}, err
+		}
+		return UploadSydneyDocumentResult{
+			Text: string(v),
+			Ext:  ext,
+		}, nil
+	default:
+		return UploadSydneyDocumentResult{}, errors.New("file type " + ext + " not implemented")
+	}
 }

@@ -3,7 +3,7 @@ import {computed, onMounted, onUnmounted, ref, watch} from "vue"
 import {main} from "../../wailsjs/go/models"
 import {EventsEmit, EventsOff, EventsOn} from "../../wailsjs/runtime"
 import {swal} from "../helper"
-import {AskAI, CountToken, UploadSydneyImage} from "../../wailsjs/go/main/App"
+import {AskAI, CountToken, UploadDocument, UploadSydneyImage} from "../../wailsjs/go/main/App"
 import {AskTypeOpenAI, AskTypeSydney} from "../constants"
 import Scaffold from "../components/Scaffold.vue"
 import Conversation from "../components/Conversation.vue"
@@ -63,12 +63,10 @@ let replied = ref(false)
 
 let askEventMap = {
   "chat_append": (data: string) => {
-    let scrollBottom = false
     if (!replied.value) {
       fixContextLineBreak()
       currentWorkspace.value.context += '[user](#message)\n' +
           (hiddenPrompt.value === '' ? currentWorkspace.value.input : hiddenPrompt.value) + "\n\n"
-      scrollBottom = true
       if (hiddenPrompt.value === '') {
         currentWorkspace.value.input = ''
       } else {
@@ -76,16 +74,8 @@ let askEventMap = {
       }
       replied.value = true
     }
-    let chatContextElem = document.getElementById('chat-context')
-    if (chatContextElem) {
-      // if (Math.abs(chatContextElem.scrollTop - chatContextElem.scrollHeight) < 500) {
-      scrollBottom = true
-      // }
-      currentWorkspace.value.context += data
-      if (scrollBottom) {
-        chatContextElem.scrollTop = chatContextElem.scrollHeight
-      }
-    }
+    currentWorkspace.value.context += data
+    scrollChatContextToBottom()
   },
   "chat_finish": (result: ChatFinishResult) => {
     console.log('receive chat_finish: ' + JSON.stringify(result))
@@ -140,10 +130,10 @@ let askEventMap = {
 }
 
 function scrollChatContextToBottom() {
-  let element = document.getElementById('chat-context')
-  if (element) {
+  setTimeout(() => {
+    let element = document.getElementById('chat-context')!
     element.scrollTop = element.scrollHeight
-  }
+  }, 0)
 }
 
 function fixContextLineBreak() {
@@ -256,7 +246,6 @@ function uploadImage() {
   uploadingImage.value = true
   UploadSydneyImage().then(res => {
     if (res.canceled) {
-      statusBarText.value = 'Image uploading canceled.'
       return
     }
     uploadedImage.value = res
@@ -264,6 +253,24 @@ function uploadImage() {
     swal.error(err)
   }).finally(() => {
     uploadingImage.value = false
+  })
+}
+
+let uploadingDocument = ref(false)
+
+function uploadDocument() {
+  uploadingDocument.value = true
+  UploadDocument().then(res => {
+    if (res.canceled) {
+      return
+    }
+    fixContextLineBreak()
+    currentWorkspace.value.context += '[user](#filetype:' + res.ext?.substring(1) + ')\n' + res.text
+    scrollChatContextToBottom()
+  }).catch(err => {
+    swal.error(err)
+  }).finally(() => {
+    uploadingDocument.value = false
   })
 }
 
@@ -316,6 +323,12 @@ function onPresetChange(newValue: string) {
     currentWorkspace.value.context = config.value.presets.find(v => v.name === newValue)?.content ?? ''
   }
   currentWorkspace.value.preset = newValue
+  suggestedResponses.value = []
+}
+
+function onReset() {
+  currentWorkspace.value.context = config.value.presets.find(v => v.name === currentWorkspace.value.preset)?.content ?? ''
+  suggestedResponses.value = []
 }
 
 </script>
@@ -358,7 +371,7 @@ function onPresetChange(newValue: string) {
                       color="primary" class="mx-2 mt-1"></v-switch>
           </div>
           <v-btn color="primary" class="mb-5 ml-2" variant="tonal" :disabled="isAsking"
-                 @click="currentWorkspace.context=config.presets.find(v=>v.name===currentWorkspace.preset)?.content ?? ''">
+                 @click="onReset">
             <v-icon>mdi-reload</v-icon>
             Reset
           </v-btn>
@@ -408,7 +421,9 @@ function onPresetChange(newValue: string) {
                                       :disabled="isAsking" :loading="uploadingImage"></user-input-tool-button>
             </v-hover>
           </div>
-          <user-input-tool-button tooltip="Upload a document (.pdf/.docx/.pptx)" icon="mdi-file-document"
+          <user-input-tool-button @click="uploadDocument" tooltip="Upload a document (.pdf/.docx/.pptx)"
+                                  icon="mdi-file-document"
+                                  :loading="uploadingDocument"
                                   :disabled="isAsking"></user-input-tool-button>
           <user-input-tool-button tooltip="Browse a webpage" icon="mdi-web"
                                   :disabled="isAsking"></user-input-tool-button>

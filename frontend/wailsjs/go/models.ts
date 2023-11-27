@@ -166,6 +166,22 @@ export namespace main {
 	}
 	
 	
+	export class UploadSydneyDocumentResult {
+	    canceled?: boolean;
+	    text?: string;
+	    ext?: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new UploadSydneyDocumentResult(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.canceled = source["canceled"];
+	        this.text = source["text"];
+	        this.ext = source["ext"];
+	    }
+	}
 	export class UploadSydneyImageResult {
 	    base64_url: string;
 	    bing_url: string;

@@ -8,4 +8,6 @@ export function CountToken(arg1:string):Promise<number>;
 
 export function Dummy1():Promise<main.ChatFinishResult>;
 
+export function UploadDocument():Promise<main.UploadSydneyDocumentResult>;
+
 export function UploadSydneyImage():Promise<main.UploadSydneyImageResult>;

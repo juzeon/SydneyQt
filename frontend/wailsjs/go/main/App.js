@@ -14,6 +14,10 @@ export function Dummy1() {
   return window['go']['main']['App']['Dummy1']();
 }
 
+export function UploadDocument() {
+  return window['go']['main']['App']['UploadDocument']();
+}
+
 export function UploadSydneyImage() {
   return window['go']['main']['App']['UploadSydneyImage']();
 }
