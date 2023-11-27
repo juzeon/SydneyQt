@@ -5,3 +5,4 @@ frontend/dist
 config.json
 cookies.json
 /test
+debug.bat

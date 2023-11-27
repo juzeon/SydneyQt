@@ -265,7 +265,7 @@ function uploadDocument() {
       return
     }
     fixContextLineBreak()
-    currentWorkspace.value.context += '[user](#filetype:' + res.ext?.substring(1) + ')\n' + res.text
+    currentWorkspace.value.context += '[user](#document_context_' + res.ext?.substring(1) + '_file)\n' + res.text
     scrollChatContextToBottom()
   }).catch(err => {
     swal.error(err)

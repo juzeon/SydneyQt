@@ -260,6 +260,8 @@ func (a *App) UploadDocument() (UploadSydneyDocumentResult, error) {
 		docReader = util.PDFDocumentReader{}
 	case ".docx":
 		docReader = util.DocxDocumentReader{}
+	case ".pptx":
+		docReader = util.PptxDocumentReader{}
 	default:
 		return UploadSydneyDocumentResult{}, errors.New("file type " + ext + " not implemented")
 	}
@@ -267,15 +269,19 @@ func (a *App) UploadDocument() (UploadSydneyDocumentResult, error) {
 	if err != nil {
 		return UploadSydneyDocumentResult{}, err
 	}
-	text := strings.ReplaceAll(s, "\r", "")
-	text = regexp.MustCompile("(?m)^\r+").ReplaceAllString(text, "")
-	text = regexp.MustCompile("\n+").ReplaceAllString(text, "\n")
-	v, err := json.Marshal(&text)
-	if err != nil {
-		return UploadSydneyDocumentResult{}, err
+	text := s
+	if !docReader.WillSkipPostprocess() {
+		text = strings.ReplaceAll(text, "\r", "")
+		text = regexp.MustCompile("(?m)^\r+").ReplaceAllString(text, "")
+		text = regexp.MustCompile("\n+").ReplaceAllString(text, "\n")
+		v, err := json.Marshal(&text)
+		if err != nil {
+			return UploadSydneyDocumentResult{}, err
+		}
+		text = string(v)
 	}
 	return UploadSydneyDocumentResult{
-		Text: string(v),
+		Text: text,
 		Ext:  ext,
 	}, nil
 }
