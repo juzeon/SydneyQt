@@ -5,16 +5,21 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"errors"
+	"github.com/PuerkitoBio/goquery"
+	"github.com/go-resty/resty/v2"
+	"github.com/microcosm-cc/bluemonday"
 	"github.com/pkoukk/tiktoken-go"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"log/slog"
 	"os"
 	"path/filepath"
 	"regexp"
+	"slices"
 	"strings"
 	"sydneyqt/sydney"
 	"sydneyqt/util"
 	"sync"
+	"time"
 )
 
 const (
@@ -283,5 +288,40 @@ func (a *App) UploadDocument() (UploadSydneyDocumentResult, error) {
 	return UploadSydneyDocumentResult{
 		Text: text,
 		Ext:  ext,
+	}, nil
+}
+
+type FetchWebpageResult struct {
+	Title   string `json:"title"`
+	Content string `json:"content"`
+}
+
+func (a *App) FetchWebpage(url string) (FetchWebpageResult, error) {
+	empty := FetchWebpageResult{}
+	rawClient, err := util.MakeHTTPClient(a.settings.config.Proxy, 0)
+	if err != nil {
+		return empty, err
+	}
+	client := resty.New().SetTransport(rawClient.Transport).SetTimeout(15 * time.Second)
+	resp, err := client.R().Get(url)
+	if err != nil {
+		return empty, err
+	}
+	content := string(resp.Body())
+	title := ""
+	if doc, err := goquery.NewDocumentFromReader(strings.NewReader(content)); err == nil {
+		title = doc.Find("title").Text()
+		doc.Find("script").Remove()
+		doc.Find("style").Remove()
+		text := bluemonday.StripTagsPolicy().Sanitize(doc.Text())
+		text = regexp.MustCompile(" {2,}").ReplaceAllString(text, "  ")
+		lines := slices.DeleteFunc(strings.Split(text, "\n"), func(s string) bool {
+			return strings.TrimSpace(s) == ""
+		})
+		content = strings.Join(lines, "\n")
+	}
+	return FetchWebpageResult{
+		Title:   title,
+		Content: content,
 	}, nil
 }

@@ -3,7 +3,7 @@ import {computed, onMounted, onUnmounted, ref, watch} from "vue"
 import {main} from "../../wailsjs/go/models"
 import {EventsEmit, EventsOff, EventsOn} from "../../wailsjs/runtime"
 import {swal} from "../helper"
-import {AskAI, CountToken, UploadDocument, UploadSydneyImage} from "../../wailsjs/go/main/App"
+import {AskAI, CountToken, FetchWebpage, UploadDocument, UploadSydneyImage} from "../../wailsjs/go/main/App"
 import {AskTypeOpenAI, AskTypeSydney} from "../constants"
 import Scaffold from "../components/Scaffold.vue"
 import Conversation from "../components/Conversation.vue"
@@ -274,6 +274,35 @@ function uploadDocument() {
   })
 }
 
+let webpageFetchDialog = ref(false)
+let webpageFetchURL = ref('')
+let webpageFetching = ref(false)
+let webpageFetchError = ref('')
+
+function fetchWebpage() {
+  webpageFetching.value = true
+  webpageFetchError.value = ''
+  FetchWebpage(webpageFetchURL.value).then(res => {
+    let text = '[user](#webpage_context)\n'
+    if (res.title === '') {
+      text += JSON.stringify(res.content)
+    } else {
+      text += JSON.stringify(res)
+    }
+    text += '\n\n'
+    fixContextLineBreak()
+    currentWorkspace.value.context += text
+    scrollChatContextToBottom()
+    webpageFetching.value = false
+    webpageFetchDialog.value = false
+    webpageFetchURL.value = ''
+  }).catch(err => {
+    webpageFetchError.value = err.toString()
+  }).finally(() => {
+    webpageFetching.value = false
+  })
+}
+
 function handleKeyPress(event: KeyboardEvent) {
   if (document.getElementById('user-input') !== document.activeElement) {
     return
@@ -425,8 +454,24 @@ function onReset() {
                                   icon="mdi-file-document"
                                   :loading="uploadingDocument"
                                   :disabled="isAsking"></user-input-tool-button>
-          <user-input-tool-button tooltip="Browse a webpage" icon="mdi-web"
-                                  :disabled="isAsking"></user-input-tool-button>
+          <user-input-tool-button tooltip="Fetch a webpage" icon="mdi-web" @click="webpageFetchDialog=true"
+                                  :disabled="isAsking" :loading="webpageFetching"></user-input-tool-button>
+          <v-dialog v-model="webpageFetchDialog" max-width="500">
+            <v-card>
+              <v-card-title>Enter a URL to fetch</v-card-title>
+              <v-card-text>
+                <v-text-field :error-messages="webpageFetchError" label="URL" v-model="webpageFetchURL"
+                              color="primary"></v-text-field>
+              </v-card-text>
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn variant="text" color="primary" :disabled="webpageFetching" @click="webpageFetchDialog=false">
+                  Cancel
+                </v-btn>
+                <v-btn variant="text" color="primary" :loading="webpageFetching" @click="fetchWebpage">Fetch</v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
           <user-input-tool-button tooltip="Revoke the latest user message" icon="mdi-undo" @click="handleRevoke"
                                   :disabled="isAsking"></user-input-tool-button>
           <v-menu>

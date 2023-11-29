@@ -164,6 +164,20 @@ export namespace main {
 		    return a;
 		}
 	}
+	export class FetchWebpageResult {
+	    title: string;
+	    content: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new FetchWebpageResult(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.title = source["title"];
+	        this.content = source["content"];
+	    }
+	}
 	
 	
 	export class UploadSydneyDocumentResult {
