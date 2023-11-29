@@ -379,7 +379,7 @@ function onDeleteWorkspace(workspace: Workspace) {
   }
   config.value.workspaces = config.value.workspaces.filter(v => v.id !== workspace.id)
   if (workspace.id === currentWorkspace.value.id) {
-    currentWorkspace.value = sortedWorkspaces.value[0]
+    switchWorkspace(sortedWorkspaces.value[0])
   }
 }
 
@@ -418,7 +418,12 @@ function addWorkspace() {
     preset: currentWorkspace.value.preset,
   }
   config.value.workspaces.push(workspace)
+  switchWorkspace(workspace)
+}
+
+function switchWorkspace(workspace: Workspace) {
   currentWorkspace.value = workspace
+  suggestedResponses.value = []
 }
 
 </script>
@@ -438,7 +443,7 @@ function addWorkspace() {
               <conversation :title="workspace.title" :created-at="workspace.created_at"
                             :active="workspace.id===currentWorkspace.id" :disabled="isAsking"
                             @delete="onDeleteWorkspace(workspace)" @edit="onEditWorkspace(workspace)"
-                            @click="currentWorkspace=workspace"></conversation>
+                            @click="switchWorkspace(workspace)"></conversation>
             </v-list-item>
           </v-list>
           <div class="d-flex ma-3">
