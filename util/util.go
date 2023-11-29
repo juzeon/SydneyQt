@@ -28,7 +28,7 @@ func Ternary[T any](expression bool, trueResult T, falseResult T) T {
 	}
 }
 func MakeHTTPClient(proxy string, timeout time.Duration) (*http.Client, error) {
-	transport := http.DefaultTransport.(*http.Transport)
+	transport := http.DefaultTransport.(*http.Transport).Clone()
 	if proxy != "" {
 		proxyURL, err := url.Parse(proxy)
 		if err != nil {
@@ -37,7 +37,7 @@ func MakeHTTPClient(proxy string, timeout time.Duration) (*http.Client, error) {
 		proxy := http.ProxyURL(proxyURL)
 		transport.Proxy = proxy
 	}
-	client := http.DefaultClient
+	client := &http.Client{}
 	client.Transport = transport
 	if timeout != time.Duration(0) {
 		client.Timeout = timeout
