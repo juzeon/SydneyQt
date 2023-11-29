@@ -548,11 +548,12 @@ function addWorkspace() {
               <v-card-title>Enter a URL to fetch</v-card-title>
               <v-card-text>
                 <v-text-field :error-messages="webpageFetchError" label="URL" v-model="webpageFetchURL"
-                              color="primary"></v-text-field>
+                              color="primary" @keydown.enter="fetchWebpage"></v-text-field>
               </v-card-text>
               <v-card-actions>
                 <v-spacer></v-spacer>
-                <v-btn variant="text" color="primary" :disabled="webpageFetching" @click="webpageFetchDialog=false">
+                <v-btn variant="text" color="primary" :disabled="webpageFetching"
+                       @click="webpageFetchURL='';webpageFetchDialog=false">
                   Cancel
                 </v-btn>
                 <v-btn variant="text" color="primary" :loading="webpageFetching" @click="fetchWebpage">Fetch</v-btn>
