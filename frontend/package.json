@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@mdi/font": "^7.3.67",
+    "dayjs": "^1.11.10",
     "sweetalert2": "^11.7.32",
     "vue": "^3.2.37",
     "vue-router": "^4.2.5",
