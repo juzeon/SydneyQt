@@ -456,7 +456,7 @@ function onReset() {
                                   :disabled="isAsking"></user-input-tool-button>
           <user-input-tool-button tooltip="Fetch a webpage" icon="mdi-web" @click="webpageFetchDialog=true"
                                   :disabled="isAsking" :loading="webpageFetching"></user-input-tool-button>
-          <v-dialog v-model="webpageFetchDialog" max-width="500">
+          <v-dialog v-model="webpageFetchDialog" max-width="500" :persistent="true">
             <v-card>
               <v-card-title>Enter a URL to fetch</v-card-title>
               <v-card-text>
