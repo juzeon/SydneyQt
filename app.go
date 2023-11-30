@@ -7,6 +7,7 @@ import (
 	"errors"
 	"github.com/PuerkitoBio/goquery"
 	"github.com/go-resty/resty/v2"
+	"github.com/life4/genesis/slices"
 	"github.com/microcosm-cc/bluemonday"
 	"github.com/pkoukk/tiktoken-go"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
@@ -329,8 +330,8 @@ func (a *App) FetchWebpage(url string) (FetchWebpageResult, error) {
 		doc.Find("style").Remove()
 		text := bluemonday.StripTagsPolicy().Sanitize(doc.Text())
 		text = regexp.MustCompile(" {2,}").ReplaceAllString(text, "  ")
-		lines := slices.DeleteFunc(strings.Split(text, "\n"), func(s string) bool {
-			return strings.TrimSpace(s) == ""
+		lines := slices.Filter(strings.Split(text, "\n"), func(s string) bool {
+			return strings.TrimSpace(s) != ""
 		})
 		content = strings.Join(lines, "\n")
 	}
