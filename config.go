@@ -66,9 +66,9 @@ func (o *Config) GetCurrentWorkspace() (Workspace, error) {
 		return value.ID == o.CurrentWorkspaceID
 	})
 	if !exist {
-		panic("error finding current workspace")
+		return Workspace{}, errors.New("error finding current workspace")
 	}
-	return workspace
+	return workspace, nil
 }
 func (o *Config) FillDefault() {
 	if len(o.Presets) == 0 {
