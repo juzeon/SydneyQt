@@ -83,11 +83,14 @@ const (
 func (a *App) Dummy1() ChatFinishResult {
 	return ChatFinishResult{}
 }
-func (a *App) createSydney() *sydney.Sydney {
-	currentWorkspace := a.settings.config.GetCurrentWorkspace()
+func (a *App) createSydney() (*sydney.Sydney, error) {
+	currentWorkspace, err := a.settings.config.GetCurrentWorkspace()
+	if err != nil {
+		return nil, err
+	}
 	return sydney.NewSydney(a.debug, util.ReadCookiesFile(), a.settings.config.Proxy,
 		currentWorkspace.ConversationStyle, currentWorkspace.Locale, a.settings.config.WssDomain,
-		currentWorkspace.NoSearch)
+		currentWorkspace.NoSearch), nil
 }
 
 func (a *App) askSydney(options AskOptions) {
@@ -101,7 +104,15 @@ func (a *App) askSydney(options AskOptions) {
 		slog.Info("invoke EventChatFinish", "result", chatFinishResult)
 		runtime.EventsEmit(a.ctx, EventChatFinish, chatFinishResult)
 	}()
-	sydneyIns := a.createSydney()
+	sydneyIns, err := a.createSydney()
+	if err != nil {
+		chatFinishResult = ChatFinishResult{
+			Success: false,
+			ErrType: ChatFinishResultErrTypeOthers,
+			ErrMsg:  err.Error(),
+		}
+		return
+	}
 	conversation, err := sydneyIns.CreateConversation()
 	if err != nil {
 		chatFinishResult = ChatFinishResult{
@@ -219,7 +230,10 @@ func (a *App) UploadSydneyImage() (UploadSydneyImageResult, error) {
 	if file == "" {
 		return UploadSydneyImageResult{Canceled: true}, nil
 	}
-	sydneyIns := a.createSydney()
+	sydneyIns, err := a.createSydney()
+	if err != nil {
+		return UploadSydneyImageResult{}, err
+	}
 	v, err := os.ReadFile(file)
 	if err != nil {
 		return UploadSydneyImageResult{}, err

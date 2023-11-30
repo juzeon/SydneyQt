@@ -61,7 +61,7 @@ func fillDefault[T comparable](pointer *T, defaultValue T) {
 		*pointer = defaultValue
 	}
 }
-func (o *Config) GetCurrentWorkspace() Workspace {
+func (o *Config) GetCurrentWorkspace() (Workspace, error) {
 	workspace, exist := util.FindFirst(o.Workspaces, func(value Workspace) bool {
 		return value.ID == o.CurrentWorkspaceID
 	})
