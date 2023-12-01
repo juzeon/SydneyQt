@@ -165,7 +165,7 @@ function confirmRenamePreset() {
               </v-tooltip>
               <v-tooltip
                   text="FQDN for the websocket endpoint of Sydney, without any prefixes (protocol names) or suffixes (slashes)."
-                  location="bottom">
+                  location="top">
                 <template #activator="{props}">
                   <v-text-field color="primary" label="Wss Domain" v-model="config.wss_domain"
                                 v-bind="props" hint="Default: sydney.bing.com"></v-text-field>
