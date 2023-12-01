@@ -99,10 +99,12 @@ function confirmQuickResponse() {
 let activePreset = ref<Preset>()
 
 function addPreset() {
-  config.value.presets.push(<Preset>{
+  let preset = <Preset>{
     name: 'New Preset ' + uuidV4(),
     content: '[system](#additional_instructions)\n',
-  })
+  }
+  config.value.presets.push(preset)
+  activePreset.value = preset
 }
 
 function deletePreset(preset: Preset) {
