@@ -10,7 +10,9 @@ import (
 	"github.com/life4/genesis/slices"
 	"github.com/microcosm-cc/bluemonday"
 	"github.com/pkoukk/tiktoken-go"
+	"github.com/sashabaranov/go-openai"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
+	"io"
 	"log/slog"
 	"os"
 	"path/filepath"
@@ -183,15 +185,80 @@ func (a *App) askSydney(options AskOptions) {
 		lastMessageType = msg.Type
 	}
 }
+func (a *App) askOpenAI(options AskOptions) {
+	chatFinishResult := ChatFinishResult{
+		Success: true,
+		ErrType: "",
+		ErrMsg:  "",
+	}
+	handleErr := func(err error) {
+		chatFinishResult = ChatFinishResult{
+			Success: false,
+			ErrType: ChatFinishResultErrTypeOthers,
+			ErrMsg:  err.Error(),
+		}
+	}
+	defer func() {
+		slog.Info("invoke EventChatFinish", "result", chatFinishResult)
+		runtime.EventsEmit(a.ctx, EventChatFinish, chatFinishResult)
+	}()
+	backend, err := slices.Find(a.settings.config.OpenAIBackends, func(el OpenAIBackend) bool {
+		return el.Name == options.OpenAIBackend
+	})
+	if err != nil {
+		handleErr(err)
+		return
+	}
+	hClient, err := util.MakeHTTPClient(a.settings.config.Proxy, 0)
+	if err != nil {
+		handleErr(err)
+		return
+	}
+	config := openai.DefaultConfig(backend.OpenaiKey)
+	config.BaseURL = backend.OpenaiEndpoint
+	config.HTTPClient = hClient
+	client := openai.NewClientWithConfig(config)
+	messages := util.GetOpenAIChatMessages(options.ChatContext)
+	messages = append(messages, openai.ChatCompletionMessage{
+		Role:    "user",
+		Content: options.Prompt,
+	})
+	stream, err := client.CreateChatCompletionStream(context.Background(), openai.ChatCompletionRequest{
+		Model:       backend.OpenaiShortModel,
+		Messages:    messages,
+		Temperature: backend.OpenaiTemperature,
+	})
+	if err != nil {
+		handleErr(err)
+		return
+	}
+	runtime.EventsEmit(a.ctx, EventConversationCreated)
+	defer stream.Close()
+	fullMessage := ""
+	for {
+		response, err := stream.Recv()
+		if errors.Is(err, io.EOF) {
+			slog.Info("openai chat completed")
+			return
+		}
+		if err != nil {
+			handleErr(err)
+			return
+		}
+		fullMessage += response.Choices[0].Delta.Content
+		runtime.EventsEmit(a.ctx, EventChatToken, a.CountToken(fullMessage))
+		runtime.EventsEmit(a.ctx, EventChatAppend,
+			util.Ternary(fullMessage == response.Choices[0].Delta.Content,
+				"[assistant](#message)\n"+response.Choices[0].Delta.Content,
+				response.Choices[0].Delta.Content),
+		)
+	}
+}
 func (a *App) AskAI(options AskOptions) {
 	if options.Type == AskTypeSydney {
 		a.askSydney(options)
 	} else if options.Type == AskTypeOpenAI {
-		runtime.EventsEmit(a.ctx, EventChatFinish, ChatFinishResult{
-			Success: false,
-			ErrType: ChatFinishResultErrTypeOthers,
-			ErrMsg:  "not implemented",
-		})
+		a.askOpenAI(options)
 	}
 }
 
