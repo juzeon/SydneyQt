@@ -25,7 +25,7 @@ let emit = defineEmits<{
     </div>
     <v-card-actions>
       <v-spacer></v-spacer>
-      <v-btn @click="emit('edit')" color="primary" density="compact" icon="mdi-pen"></v-btn>
+      <v-btn @click="emit('edit')" color="primary" density="compact" icon="mdi-pencil"></v-btn>
       <v-btn @click="emit('delete')" color="primary" :disabled="disabled ?? false" density="compact"
              icon="mdi-delete"></v-btn>
     </v-card-actions>

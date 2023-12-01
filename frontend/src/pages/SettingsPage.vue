@@ -322,7 +322,7 @@ function checkOpenaiEndpoint(val: string) {
                         </v-btn>
                         <v-btn variant="text" icon density="compact" class="mx-1" color="primary"
                                @click="editQuickResponse(ix)">
-                          <v-icon>mdi-pen</v-icon>
+                          <v-icon>mdi-pencil</v-icon>
                         </v-btn>
                         <v-btn variant="text" icon density="compact" class="mx-1" color="primary"
                                @click="moveQuickResponse(item,true)">
@@ -373,7 +373,7 @@ function checkOpenaiEndpoint(val: string) {
                               <v-icon>mdi-delete</v-icon>
                             </v-btn>
                             <v-btn icon color="primary" variant="text" density="compact" @click="renamePreset(preset)">
-                              <v-icon>mdi-pen</v-icon>
+                              <v-icon>mdi-pencil</v-icon>
                             </v-btn>
                           </template>
                         </v-list-item>
@@ -433,7 +433,7 @@ function checkOpenaiEndpoint(val: string) {
                             </v-btn>
                           </div>
                           <v-btn v-else icon color="primary" variant="text" class="mx-3 mb-3" @click="onRenameBackend">
-                            <v-icon>mdi-pen</v-icon>
+                            <v-icon>mdi-pencil</v-icon>
                           </v-btn>
                         </div>
                         <v-text-field label="Endpoint" :rules="[checkOpenaiEndpoint]" v-model="backend.openai_endpoint"
