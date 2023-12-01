@@ -225,6 +225,16 @@ function checkOpenaiEndpoint(val: string) {
                                 v-bind="props" hint="Default: sydney.bing.com"></v-text-field>
                 </template>
               </v-tooltip>
+              <v-tooltip text="URL for creating the Bing conversation and gaining the conversation id."
+                         location="bottom">
+                <template #activator="{props}">
+                  <v-autocomplete color="primary" label="Create Conversation URL" v-bind="props"
+                                  :items="['https://edgeservices.bing.com/edgesvc/turing/conversation/create',
+                        'https://www.bing.com/turing/conversation/create',
+                        'https://copilot.microsoft.com/turing/conversation/create']"
+                                  v-model="config.create_conversation_url"></v-autocomplete>
+                </template>
+              </v-tooltip>
             </v-card-text>
           </v-card>
           <v-card title="Display" class="my-3">

@@ -142,6 +142,7 @@ export namespace main {
 	    wss_domain: string;
 	    dark_mode: boolean;
 	    no_image_removal_after_chat: boolean;
+	    create_conversation_url: string;
 	
 	    static createFrom(source: any = {}) {
 	        return new Config(source);
@@ -167,6 +168,7 @@ export namespace main {
 	        this.wss_domain = source["wss_domain"];
 	        this.dark_mode = source["dark_mode"];
 	        this.no_image_removal_after_chat = source["no_image_removal_after_chat"];
+	        this.create_conversation_url = source["create_conversation_url"];
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {

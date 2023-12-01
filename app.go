@@ -92,6 +92,7 @@ func (a *App) createSydney() (*sydney.Sydney, error) {
 	}
 	return sydney.NewSydney(a.debug, util.ReadCookiesFile(), a.settings.config.Proxy,
 		currentWorkspace.ConversationStyle, currentWorkspace.Locale, a.settings.config.WssDomain,
+		a.settings.config.CreateConversationURL,
 		currentWorkspace.NoSearch), nil
 }
 

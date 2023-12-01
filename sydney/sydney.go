@@ -8,13 +8,14 @@ import (
 )
 
 type Sydney struct {
-	debug             bool
-	cookies           map[string]string
-	proxy             string
-	conversationStyle string
-	locale            string
-	wssURL            string
-	noSearch          bool
+	debug                 bool
+	cookies               map[string]string
+	proxy                 string
+	conversationStyle     string
+	locale                string
+	wssURL                string
+	createConversationURL string
+	noSearch              bool
 
 	basicOptionsSet           []string
 	optionsSetMap             map[string][]string
@@ -26,7 +27,7 @@ type Sydney struct {
 }
 
 func NewSydney(debug bool, cookies map[string]string, proxy string,
-	conversationStyle string, locale string, wssDomain string, noSearch bool) *Sydney {
+	conversationStyle string, locale string, wssDomain string, createConversationURL string, noSearch bool) *Sydney {
 	slog.Info("New Sydney", "proxy", proxy, "conversationStyle",
 		conversationStyle, "locale", locale, "wssDomain", wssDomain, "noSearch", noSearch)
 	basicOptionsSet := []string{
@@ -56,7 +57,9 @@ func NewSydney(debug bool, cookies map[string]string, proxy string,
 		locale:            locale,
 		wssURL: util.Ternary(wssDomain == "", "wss://sydney.bing.com/sydney/ChatHub",
 			"wss://"+wssDomain+"/sydney/ChatHub"),
-		noSearch:        noSearch,
+		noSearch: noSearch,
+		createConversationURL: util.Ternary(createConversationURL == "",
+			"https://edgeservices.bing.com/edgesvc/turing/conversation/create", createConversationURL),
 		basicOptionsSet: basicOptionsSet,
 		optionsSetMap: map[string][]string{
 			"Creative": append(basicOptionsSet, "h3imaginative"),

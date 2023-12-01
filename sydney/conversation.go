@@ -16,7 +16,7 @@ func (o *Sydney) CreateConversation() (CreateConversationResponse, error) {
 	if err != nil {
 		return CreateConversationResponse{}, err
 	}
-	req, err := http.NewRequest("GET", "https://edgeservices.bing.com/edgesvc/turing/conversation/create", nil)
+	req, err := http.NewRequest("GET", o.createConversationURL, nil)
 	if err != nil {
 		return CreateConversationResponse{}, err
 	}
