@@ -148,7 +148,7 @@ function confirmRenamePreset() {
       <div></div>
     </template>
     <template #default>
-      <div class="overflow-auto" v-if="!loading">
+      <div v-if="!loading">
         <v-container class="d-flex flex-column">
           <p class="text-h4 mb-3">Settings</p>
           <v-card title="Network" class="my-3">
@@ -293,7 +293,7 @@ function confirmRenamePreset() {
               <v-card class="my-3">
                 <v-card-title>Presets</v-card-title>
                 <v-card-text>
-                  <div class="d-flex">
+                  <div class="d-flex" style="max-height: 400px">
                     <div class="d-flex flex-column">
                       <v-list density="compact" width="200" class="flex-grow-1 overflow-y-auto">
                         <v-list-item :active="preset===activePreset" v-for="preset in config.presets">
