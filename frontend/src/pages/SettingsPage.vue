@@ -287,8 +287,8 @@ function confirmRenamePreset() {
                     </v-card-text>
                     <v-card-actions>
                       <v-spacer></v-spacer>
-                      <v-btn variant="text" @click="quickRespEditDialog=false">Cancel</v-btn>
-                      <v-btn variant="text" @click="confirmQuickResponse">Confirm</v-btn>
+                      <v-btn variant="text" color="primary" @click="quickRespEditDialog=false">Cancel</v-btn>
+                      <v-btn variant="text" color="primary" @click="confirmQuickResponse">Confirm</v-btn>
                     </v-card-actions>
                   </v-card>
                 </v-dialog>
@@ -331,8 +331,8 @@ function confirmRenamePreset() {
                     </v-card-text>
                     <v-card-actions>
                       <v-spacer></v-spacer>
-                      <v-btn variant="text" @click="renamePresetDialog=false">Cancel</v-btn>
-                      <v-btn variant="text" @click="confirmRenamePreset">Confirm</v-btn>
+                      <v-btn variant="text" color="primary" @click="renamePresetDialog=false">Cancel</v-btn>
+                      <v-btn variant="text" color="primary" @click="confirmRenamePreset">Confirm</v-btn>
                     </v-card-actions>
                   </v-card>
                 </v-dialog>
