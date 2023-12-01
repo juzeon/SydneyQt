@@ -1,26 +1,36 @@
 package util
 
 import (
+	"github.com/dlclark/regexp2"
 	"github.com/sashabaranov/go-openai"
-	"regexp"
 	"strings"
 )
 
 func GetOpenAIChatMessages(chatContext string) []openai.ChatCompletionMessage {
 	ctx := chatContext + "\n\n[system](#sydney__placeholder)"
-	re := regexp.MustCompile(`(?m)\[(system|user|assistant)]\(#(.*?)\)([\s\S]*?)(?=\n.*?(^\[(system|user|assistant)]\(#.*?\)))`)
-	matches := re.FindAllStringSubmatch(ctx, -1)
+	re := regexp2.MustCompile(`\[(system|user|assistant)]\(#(.*?)\)([\s\S]*?)(?=\n.*?(^\[(system|user|assistant)]\(#.*?\)))`,
+		regexp2.IgnoreCase|regexp2.Multiline)
 	var result []openai.ChatCompletionMessage
-	for _, v := range matches {
-		if v[2] != "sydney__placeholder" {
-			content := strings.TrimSpace(v[3])
-			if v[2] != "message" && v[2] != "additional_instructions" {
-				content = v[2] + "\n" + content
-			}
-			result = append(result, openai.ChatCompletionMessage{
-				Role:    v[1],
-				Content: content,
-			})
+	match, err := re.FindStringMatch(ctx)
+	if err != nil {
+		panic(err)
+	}
+	for match != nil {
+		groups := match.Groups()
+		if groups[2].String() == "sydney__placeholder" {
+			continue
+		}
+		content := strings.TrimSpace(groups[3].String())
+		if groups[2].String() != "message" && groups[2].String() != "additional_instructions" {
+			content = groups[2].String() + "\n" + content
+		}
+		result = append(result, openai.ChatCompletionMessage{
+			Role:    groups[1].String(),
+			Content: content,
+		})
+		match, err = re.FindNextMatch(match)
+		if err != nil {
+			panic(err)
 		}
 	}
 	return result

@@ -219,6 +219,7 @@ func (a *App) askOpenAI(options AskOptions) {
 	config.HTTPClient = hClient
 	client := openai.NewClientWithConfig(config)
 	messages := util.GetOpenAIChatMessages(options.ChatContext)
+	slog.Info("Get chat messages", "messages", messages)
 	messages = append(messages, openai.ChatCompletionMessage{
 		Role:    "user",
 		Content: options.Prompt,
@@ -235,6 +236,7 @@ func (a *App) askOpenAI(options AskOptions) {
 	runtime.EventsEmit(a.ctx, EventConversationCreated)
 	defer stream.Close()
 	fullMessage := ""
+	replied := false
 	for {
 		response, err := stream.Recv()
 		if errors.Is(err, io.EOF) {
@@ -245,13 +247,14 @@ func (a *App) askOpenAI(options AskOptions) {
 			handleErr(err)
 			return
 		}
-		fullMessage += response.Choices[0].Delta.Content
+		textToAppend := response.Choices[0].Delta.Content
+		fullMessage += textToAppend
 		runtime.EventsEmit(a.ctx, EventChatToken, a.CountToken(fullMessage))
-		runtime.EventsEmit(a.ctx, EventChatAppend,
-			util.Ternary(fullMessage == response.Choices[0].Delta.Content,
-				"[assistant](#message)\n"+response.Choices[0].Delta.Content,
-				response.Choices[0].Delta.Content),
-		)
+		if !replied {
+			textToAppend = "[assistant](#message)\n" + textToAppend
+			replied = true
+		}
+		runtime.EventsEmit(a.ctx, EventChatAppend, textToAppend)
 	}
 }
 func (a *App) AskAI(options AskOptions) {

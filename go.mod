@@ -6,6 +6,7 @@ toolchain go1.21.1
 
 require (
 	github.com/PuerkitoBio/goquery v1.8.1
+	github.com/dlclark/regexp2 v1.10.0
 	github.com/go-resty/resty/v2 v2.10.0
 	github.com/google/uuid v1.3.1
 	github.com/klippa-app/go-pdfium v1.8.2
@@ -25,7 +26,6 @@ require (
 	github.com/aymerick/douceur v0.2.0 // indirect
 	github.com/bep/debounce v1.2.1 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/dlclark/regexp2 v1.10.0 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
 	github.com/gorilla/css v1.0.0 // indirect
 	github.com/jchv/go-winloader v0.0.0-20210711035445-715c2860da7e // indirect

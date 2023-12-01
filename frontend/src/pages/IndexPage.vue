@@ -215,7 +215,7 @@ async function startAsking(args: StartAskingArgs = {}) {
     askOptions.prompt = hiddenPrompt.value
   }
   replyDeep.value = args.replyDeep !== undefined ? args.replyDeep : 0
-  askOptions.openai_backend = ''
+  askOptions.openai_backend = currentWorkspace.value.backend
   askOptions.image_url = uploadedImage.value?.bing_url ?? ''
   await AskAI(askOptions)
 }
@@ -477,10 +477,12 @@ function switchWorkspace(workspace: Workspace) {
             <v-select v-model="currentWorkspace.backend" :items="backendList" color="primary" label="Backend"
                       density="compact"
                       class="mx-2"></v-select>
-            <v-select v-model="currentWorkspace.conversation_style" :items="modeList" color="primary" label="Mode"
+            <v-select v-model="currentWorkspace.conversation_style" :disabled="currentWorkspace.backend!=='Sydney'"
+                      :items="modeList" color="primary" label="Mode"
                       density="compact"
                       class="mx-2"></v-select>
-            <v-select v-model="currentWorkspace.locale" :items="localeList" color="primary" label="Locale"
+            <v-select v-model="currentWorkspace.locale" :disabled="currentWorkspace.backend!=='Sydney'"
+                      :items="localeList" color="primary" label="Locale"
                       density="compact"
                       class="mx-2"></v-select>
             <v-select :model-value="currentWorkspace.preset" @update:model-value="onPresetChange"
