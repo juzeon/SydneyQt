@@ -110,6 +110,9 @@ function deletePreset(preset: Preset) {
     return
   }
   config.value.presets = config.value.presets.filter(v => v.name !== preset.name)
+  if (preset === activePreset.value) {
+    activePreset.value = config.value.presets[0]
+  }
 }
 
 let renamePresetName = ref('')
