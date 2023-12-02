@@ -141,8 +141,10 @@ let askEventMap = {
 
 function scrollChatContextToBottom() {
   setTimeout(() => {
-    let element = document.getElementById('chat-context')!
-    element.scrollTop = element.scrollHeight
+    let element = document.getElementById('chat-context')
+    if (element) {
+      element.scrollTop = element.scrollHeight
+    }
   }, 0)
 }
 
