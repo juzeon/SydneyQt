@@ -11,6 +11,7 @@ import {useSettings} from "../composables"
 import {useTheme} from "vuetify"
 import UserInputToolButton from "../components/UserInputToolButton.vue"
 import dayjs from "dayjs"
+import SearchWorkspaceButton from "../components/SearchWorkspaceButton.vue"
 import AskOptions = main.AskOptions
 import Workspace = main.Workspace
 import ChatFinishResult = main.ChatFinishResult
@@ -451,9 +452,8 @@ function switchWorkspace(workspace: Workspace) {
                    prepend-icon="mdi-plus">
               Add
             </v-btn>
-            <v-btn :disabled="isAsking" variant="text" class="flex-grow-1" color="primary" prepend-icon="mdi-magnify">
-              Search
-            </v-btn>
+            <search-workspace-button @switch-workspace="switchWorkspace" :is-asking="isAsking"
+                                     :workspaces="sortedWorkspaces"></search-workspace-button>
           </div>
         </div>
       </v-navigation-drawer>
