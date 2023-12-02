@@ -22,3 +22,7 @@ body::-webkit-scrollbar {
 * {
     text-transform: none !important;
 }
+
+.top-action-bar .v-input__details {
+    display: none !important;
+}

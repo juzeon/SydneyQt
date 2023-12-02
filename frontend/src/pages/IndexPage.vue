@@ -2,7 +2,7 @@
 import {computed, onMounted, onUnmounted, ref, watch} from "vue"
 import {main} from "../../wailsjs/go/models"
 import {EventsEmit, EventsOff, EventsOn} from "../../wailsjs/runtime"
-import {swal} from "../helper"
+import {ChatMessage, swal, toChatMessages} from "../helper"
 import {AskAI, CountToken, FetchWebpage, UploadDocument, UploadSydneyImage} from "../../wailsjs/go/main/App"
 import {AskTypeOpenAI, AskTypeSydney} from "../constants"
 import Scaffold from "../components/Scaffold.vue"
@@ -12,6 +12,7 @@ import {useTheme} from "vuetify"
 import UserInputToolButton from "../components/UserInputToolButton.vue"
 import dayjs from "dayjs"
 import SearchWorkspaceButton from "../components/SearchWorkspaceButton.vue"
+import RichChatContext from "../components/RichChatContext.vue"
 import AskOptions = main.AskOptions
 import Workspace = main.Workspace
 import ChatFinishResult = main.ChatFinishResult
@@ -161,21 +162,9 @@ function fixContextLineBreak() {
   }
 }
 
-interface ChatMessage {
-  role: string
-  type: string
-  message: string
-}
-
 function getChatMessages(): ChatMessage[] {
   let ctx = currentWorkspace.value.context
-  ctx += '\n\n[system](#sydney__placeholder)'
-  let matches = ctx.matchAll(/\[(system|user|assistant)]\(#(.*?)\)([\s\S]*?)(?=\n.*?(^\[(system|user|assistant)]\(#.*?\)))/gm)
-  return Array.from(matches).filter(v => v[2] !== 'sydney__placeholder').map(v => <ChatMessage>{
-    role: v[1],
-    type: v[2],
-    message: v[3].trim(),
-  })
+  return toChatMessages(ctx)
 }
 
 function setChatMessages(arr: ChatMessage[]) {
@@ -429,6 +418,7 @@ function switchWorkspace(workspace: Workspace) {
   suggestedResponses.value = []
 }
 
+let chatContextTabIndex = ref(0)
 </script>
 
 <template>
@@ -472,8 +462,8 @@ function switchWorkspace(workspace: Workspace) {
         </v-card>
       </v-dialog>
       <div style="height: 100%" class="d-flex flex-column" v-if="!loading">
-        <div class="d-flex align-center">
-          <p class="mb-5 font-weight-bold">Chat Context:</p>
+        <div class="d-flex align-center top-action-bar mx-2">
+          <p class="font-weight-bold">Chat Context:</p>
           <v-spacer></v-spacer>
           <div class="d-flex">
             <v-select v-model="currentWorkspace.backend" :items="backendList" color="primary" label="Backend"
@@ -495,15 +485,26 @@ function switchWorkspace(workspace: Workspace) {
             <v-switch v-model="currentWorkspace.no_search" label="No Search" density="compact"
                       color="primary" class="mx-2 mt-1"></v-switch>
           </div>
-          <v-btn color="primary" class="mb-5 ml-2" variant="tonal" :disabled="isAsking"
+          <v-btn color="primary" class="ml-2" variant="tonal" :disabled="isAsking"
                  @click="onReset">
             <v-icon>mdi-reload</v-icon>
             Reset
           </v-btn>
         </div>
+        <v-tabs v-model="chatContextTabIndex" density="compact" color="primary" class="mb-1">
+          <v-tab :value="0">Plain</v-tab>
+          <v-tab :value="1">Rich</v-tab>
+        </v-tabs>
         <div class="flex-grow-1">
-          <textarea :style="textareaStyle" id="chat-context" class="input-textarea"
-                    v-model="currentWorkspace.context"></textarea>
+          <v-window v-model="chatContextTabIndex" style="height: 100%">
+            <v-window-item :value="0" style="height: 100%">
+              <textarea :style="textareaStyle" id="chat-context" class="input-textarea"
+                        v-model="currentWorkspace.context"></textarea>
+            </v-window-item>
+            <v-window-item :value="1" style="height: 100%">
+              <rich-chat-context :context="currentWorkspace.context"></rich-chat-context>
+            </v-window-item>
+          </v-window>
         </div>
         <div class="d-flex" v-if="!config.no_suggestion">
           <div style="font-size: 12px;height: 20px" class="overflow-x-hidden text-no-wrap">
