@@ -28,7 +28,8 @@ onMounted(() => {
 
 <template>
   <div>
-    <v-tooltip :text="loading?'Loading...':('User: '+currentUser || 'Error: '+currentError)" location="bottom">
+    <v-tooltip :text="loading?'Loading...':(currentUser?'User: '+currentUser : 'Error: '+currentError)"
+               location="bottom">
       <template #activator="{props}">
         <v-btn icon v-bind="props" :loading="loading" @click="refresh">
           <v-icon v-if="currentUser" color="green">mdi-account</v-icon>
