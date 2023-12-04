@@ -8,9 +8,9 @@ jobs:
       fail-fast: false
       matrix:
         build: [
-          {platform: linux/amd64, os: ubuntu-latest},
-          {platform: windows/amd64, os: windows-latest},
-          {platform: darwin/universal, os: macos-latest}
+          {name: SydneyQt-linux-amd64, platform: linux/amd64, os: ubuntu-latest},
+          {name: SydneyQt-windows-amd64.exe, platform: windows/amd64, os: windows-latest},
+          {name: SydneyQt-darwin-universal, platform: darwin/universal, os: macos-latest}
         ]
     runs-on: ${{ matrix.build.os }}
     steps:
@@ -19,7 +19,7 @@ jobs:
           submodules: recursive
       - uses: dAppServer/wails-build-action@v2.2
         with:
-          build-name: SydneyQt
+          build-name: ${{ matrix.build.name }}
           build-platform: ${{ matrix.build.platform }}
           nsis: false
           wails-build-webview2: embed
