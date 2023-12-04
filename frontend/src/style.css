@@ -26,3 +26,7 @@ body::-webkit-scrollbar {
 .top-action-bar .v-input__details {
     display: none !important;
 }
+
+.katex-html[aria-hidden="true"] {
+    display: none;
+}

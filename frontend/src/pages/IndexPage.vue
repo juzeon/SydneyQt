@@ -56,7 +56,7 @@ let statusTokenCountText = computed(() => {
 })
 let statusBarText = ref('Ready.')
 let {config, fetch: fetchSettings} = useSettings()
-let textareaStyle = computed(() => {
+let customFontStyle = computed(() => {
   return {
     'font-family': "'" + config.value.font_family + "'",
     'font-size': config.value.font_size + 'px',
@@ -71,6 +71,7 @@ watch(hiddenPrompt, value => {
 let suggestedResponses = ref<string[]>([])
 let isAsking = ref(false)
 let replied = ref(false)
+let lockScroll = ref(false)
 
 let askEventMap = {
   "chat_append": (data: string) => {
@@ -99,6 +100,7 @@ let askEventMap = {
       if (!config.value.no_image_removal_after_chat) {
         uploadedImage.value = undefined
       }
+      lockScroll.value = false
     } else {
       console.log('error type: ' + result.err_type)
       console.log('error message: ' + result.err_msg)
@@ -141,6 +143,9 @@ let askEventMap = {
 }
 
 function scrollChatContextToBottom() {
+  if (lockScroll.value) {
+    return
+  }
   setTimeout(() => {
     let element = document.getElementById('chat-context')
     if (element) {
@@ -495,19 +500,32 @@ let chatContextTabIndex = ref(0)
           <v-tab :value="0">Plain</v-tab>
           <v-tab :value="1">Rich</v-tab>
         </v-tabs>
-        <div class="flex-grow-1" style="min-height: 0;"><!-- This is to enable the scroll bar -->
+        <div class="flex-grow-1" style="min-height: 0;position: relative"><!-- This is to enable the scroll bar -->
           <v-window v-model="chatContextTabIndex" class="fill-height">
             <v-window-item :value="0" class="fill-height">
-              <textarea :style="textareaStyle" id="chat-context" class="input-textarea"
+              <textarea :style="customFontStyle" id="chat-context" class="input-textarea"
                         v-model="currentWorkspace.context"></textarea>
             </v-window-item>
             <v-window-item :value="1" class="fill-height">
-              <rich-chat-context :context="currentWorkspace.context"></rich-chat-context>
+              <rich-chat-context :lock-scroll="lockScroll" :custom-font-style="customFontStyle"
+                                 :context="currentWorkspace.context"></rich-chat-context>
             </v-window-item>
           </v-window>
+          <v-tooltip :text="lockScroll?'Enable Auto Scrolling':'Disable Auto Scrolling'" location="top">
+            <template #activator="{props}">
+              <v-scale-transition>
+                <v-btn v-bind="props" icon style="position:absolute;right: 25px;bottom: 25px;"
+                       v-if="isAsking" @click="lockScroll=!lockScroll"
+                       color="primary">
+                  <v-icon v-if="lockScroll">mdi-transfer-down</v-icon>
+                  <v-icon v-else>mdi-arrow-vertical-lock</v-icon>
+                </v-btn>
+              </v-scale-transition>
+            </template>
+          </v-tooltip>
         </div>
         <div class="d-flex" v-if="!config.no_suggestion">
-          <div style="font-size: 12px;height: 20px" class="overflow-x-hidden text-no-wrap">
+          <div style="font-size: 12px;height: 20px;margin-top: 2px" class="overflow-x-hidden text-no-wrap">
             <v-chip style="cursor: pointer" v-for="item in suggestedResponses" density="compact" color="primary"
                     variant="outlined" @click="startAsking({prompt:item})"
                     class="ml-3">{{ item }}
@@ -596,7 +614,7 @@ let chatContextTabIndex = ref(0)
           </v-btn>
         </div>
         <div :style="{height:config.stretch_factor+'vh'}" class="flex-shrink-0">
-          <textarea :style="textareaStyle" id="user-input" class="input-textarea"
+          <textarea :style="customFontStyle" id="user-input" class="input-textarea"
                     v-model="currentWorkspace.input"></textarea>
         </div>
         <div class="d-flex text-caption">
