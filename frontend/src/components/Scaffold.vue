@@ -20,7 +20,7 @@ let router = useRouter()
             </v-btn>
           </slot>
         </v-app-bar>
-        <div style="height: 98%" class="ma-2">
+        <div style="height: calc(100vh - 64px)" class="pa-2">
           <slot></slot>
         </div>
       </v-main>

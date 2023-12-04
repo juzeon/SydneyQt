@@ -461,7 +461,7 @@ let chatContextTabIndex = ref(0)
           </v-card-actions>
         </v-card>
       </v-dialog>
-      <div style="height: 100%" class="d-flex flex-column" v-if="!loading">
+      <div class="d-flex flex-column fill-height" v-if="!loading">
         <div class="d-flex align-center top-action-bar mx-2">
           <p class="font-weight-bold">Chat Context:</p>
           <v-spacer></v-spacer>
@@ -491,17 +491,17 @@ let chatContextTabIndex = ref(0)
             Reset
           </v-btn>
         </div>
-        <v-tabs v-model="chatContextTabIndex" density="compact" color="primary" class="mb-1">
+        <v-tabs v-model="chatContextTabIndex" density="compact" color="primary" class="mb-1 flex-shrink-0">
           <v-tab :value="0">Plain</v-tab>
           <v-tab :value="1">Rich</v-tab>
         </v-tabs>
-        <div class="flex-grow-1">
-          <v-window v-model="chatContextTabIndex" style="height: 100%">
-            <v-window-item :value="0" style="height: 100%">
+        <div class="flex-grow-1" style="min-height: 0;"><!-- This is to enable the scroll bar -->
+          <v-window v-model="chatContextTabIndex" class="fill-height">
+            <v-window-item :value="0" class="fill-height">
               <textarea :style="textareaStyle" id="chat-context" class="input-textarea"
                         v-model="currentWorkspace.context"></textarea>
             </v-window-item>
-            <v-window-item :value="1" style="height: 100%">
+            <v-window-item :value="1" class="fill-height">
               <rich-chat-context :context="currentWorkspace.context"></rich-chat-context>
             </v-window-item>
           </v-window>
@@ -595,7 +595,7 @@ let chatContextTabIndex = ref(0)
             Send
           </v-btn>
         </div>
-        <div :style="{height:config.stretch_factor+'vh'}">
+        <div :style="{height:config.stretch_factor+'vh'}" class="flex-shrink-0">
           <textarea :style="textareaStyle" id="user-input" class="input-textarea"
                     v-model="currentWorkspace.input"></textarea>
         </div>

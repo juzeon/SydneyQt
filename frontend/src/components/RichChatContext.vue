@@ -8,11 +8,19 @@ let props = defineProps<{
 let chatMessages = computed(() => {
   return toChatMessages(props.context)
 })
+let iconMap = {
+  'assistant': 'mdi-account-tie-woman',
+  'user': 'mdi-account',
+  'system': 'mdi-laptop'
+}
 </script>
 
 <template>
-  <div style="height: 99%">
-
+  <div class="fill-height overflow-y-auto">
+    <div v-for="message in chatMessages">
+      <v-icon>{{ iconMap?.[message.role] ?? 'mdi-account-multiple' }}</v-icon>
+      <div>{{ message.message }}</div>
+    </div>
   </div>
 </template>
 

@@ -10,7 +10,10 @@
   },
   "dependencies": {
     "@mdi/font": "^7.3.67",
+    "@types/katex": "^0.16.7",
     "dayjs": "^1.11.10",
+    "katex": "^0.16.9",
+    "marked": "^11.0.0",
     "sweetalert2": "^11.7.32",
     "uuid": "^9.0.1",
     "vue": "^3.2.37",
