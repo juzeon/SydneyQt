@@ -205,7 +205,7 @@ function checkOpenaiEndpoint(val: string) {
       <div></div>
     </template>
     <template #default>
-      <div v-if="!loading">
+      <div v-if="!loading" class="fill-height overflow-y-auto">
         <v-container class="d-flex flex-column">
           <p class="text-h4 mb-3">Settings</p>
           <v-card title="Network" class="my-3">
