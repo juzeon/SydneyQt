@@ -1,0 +1,27 @@
+name: Wails build
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        build: [
+          {platform: linux/amd64, os: ubuntu-latest},
+          {platform: windows/amd64, os: windows-latest},
+          {platform: darwin/universal, os: macos-latest}
+        ]
+    runs-on: ${{ matrix.build.os }}
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - uses: dAppServer/wails-build-action@v2.2
+        with:
+          build-name: SydneyQt
+          build-platform: ${{ matrix.build.platform }}
+          nsis: false
+          wails-build-webview2: embed
+          go-version: 1.21
+          node-version: 18.x
