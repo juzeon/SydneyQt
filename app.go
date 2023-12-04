@@ -90,7 +90,11 @@ func (a *App) createSydney() (*sydney.Sydney, error) {
 	if err != nil {
 		return nil, err
 	}
-	return sydney.NewSydney(a.debug, util.ReadCookiesFile(), a.settings.config.Proxy,
+	cookies, err := util.ReadCookiesFile()
+	if err != nil {
+		return nil, err
+	}
+	return sydney.NewSydney(a.debug, cookies, a.settings.config.Proxy,
 		currentWorkspace.ConversationStyle, currentWorkspace.Locale, a.settings.config.WssDomain,
 		a.settings.config.CreateConversationURL,
 		currentWorkspace.NoSearch), nil
@@ -409,4 +413,12 @@ func (a *App) FetchWebpage(url string) (FetchWebpageResult, error) {
 		Title:   title,
 		Content: content,
 	}, nil
+}
+
+func (a *App) GetUser() (string, error) {
+	sydneyIns, err := a.createSydney()
+	if err != nil {
+		return "", err
+	}
+	return sydneyIns.GetUser()
 }

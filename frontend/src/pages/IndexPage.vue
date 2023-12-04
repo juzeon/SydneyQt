@@ -17,6 +17,7 @@ import AskOptions = main.AskOptions
 import Workspace = main.Workspace
 import ChatFinishResult = main.ChatFinishResult
 import UploadSydneyImageResult = main.UploadSydneyImageResult
+import UserStatusButton from "../components/UserStatusButton.vue"
 
 let theme = useTheme()
 let navDrawer = ref(true)
@@ -432,6 +433,9 @@ let chatContextTabIndex = ref(0)
       <v-btn icon @click="navDrawer=!navDrawer">
         <v-icon>mdi-menu</v-icon>
       </v-btn>
+    </template>
+    <template #right-top-prepend>
+      <user-status-button></user-status-button>
     </template>
     <template #default>
       <v-navigation-drawer v-model="navDrawer" :permanent="true">

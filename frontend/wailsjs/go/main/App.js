@@ -18,6 +18,10 @@ export function FetchWebpage(arg1) {
   return window['go']['main']['App']['FetchWebpage'](arg1);
 }
 
+export function GetUser() {
+  return window['go']['main']['App']['GetUser']();
+}
+
 export function UploadDocument() {
   return window['go']['main']['App']['UploadDocument']();
 }

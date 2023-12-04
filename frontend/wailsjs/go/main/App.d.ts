@@ -10,6 +10,8 @@ export function Dummy1():Promise<main.ChatFinishResult>;
 
 export function FetchWebpage(arg1:string):Promise<main.FetchWebpageResult>;
 
+export function GetUser():Promise<string>;
+
 export function UploadDocument():Promise<main.UploadSydneyDocumentResult>;
 
 export function UploadSydneyImage():Promise<main.UploadSydneyImageResult>;

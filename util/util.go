@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"image"
 	_ "image/gif"
 	"image/jpeg"
@@ -88,21 +89,21 @@ type FileCookie struct {
 	Value          string      `json:"value"`
 }
 
-func ReadCookiesFile() map[string]string {
+func ReadCookiesFile() (map[string]string, error) {
 	res := map[string]string{}
 	v, err := os.ReadFile("cookies.json")
 	if err != nil {
-		return res
+		return res, nil
 	}
 	var cookies []FileCookie
 	err = json.Unmarshal(v, &cookies)
 	if err != nil {
-		panic(err)
+		return res, errors.New("failed to json.Unmarshal content of cookie file")
 	}
 	for _, cookie := range cookies {
 		res[cookie.Name] = cookie.Value
 	}
-	return res
+	return res, nil
 }
 func Map[T any, E any](arr []T, function func(value T) E) []E {
 	var result []E

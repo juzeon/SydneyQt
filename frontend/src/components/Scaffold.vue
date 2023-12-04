@@ -14,6 +14,7 @@ let router = useRouter()
           </div>
           <p class="text-h5">SydneyQt</p>
           <v-spacer></v-spacer>
+          <slot name="right-top-prepend"></slot>
           <slot name="right-top">
             <v-btn icon @click="router.push('/settings')">
               <v-icon>mdi-cog</v-icon>

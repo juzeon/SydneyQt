@@ -10,7 +10,9 @@ import (
 
 func TestSydney(t *testing.T) {
 	a := assert.New(t)
-	sydney := NewSydney(true, util.ReadCookiesFile(),
+	cookies, err := util.ReadCookiesFile()
+	a.Nil(err)
+	sydney := NewSydney(true, cookies,
 		"", "Creative", "zh-CN", "", "", false)
 	log.Println("Stage 1")
 	conversation, err := sydney.CreateConversation()
