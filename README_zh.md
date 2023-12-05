@@ -2,7 +2,7 @@
 
 ![SydneyQt](https://socialify.git.ci/juzeon/SydneyQt/image?font=Inter&forks=1&logo=https%3A%2F%2Fupload.wikimedia.org%2Fwikipedia%2Fcommons%2F9%2F9c%2FBing_Fluent_Logo.svg&name=1&owner=1&pattern=Signal&stargazers=1&theme=Light)
 
-一个使用Go和[Wails](https://github.com/wailsapp/wails)构建的跨平台桌面客户端（之前基于Python和Qt），用于越狱新版Bing AI（Sydney版）。
+一个使用Go和[Wails](https://github.com/wailsapp/wails)构建的跨平台桌面客户端（[之前](https://github.com/juzeon/SydneyQt/tree/v1)基于Python和Qt），用于越狱新版Bing AI（Sydney版）。
 
 ## 特点
 
