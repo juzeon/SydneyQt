@@ -273,7 +273,8 @@ function checkThemeColor(val: string): boolean {
                 </template>
               </v-tooltip>
               <v-text-field label="Theme Color" color="primary" :model-value="config.theme_color"
-                            @update:model-value="onChangeThemeColor" hint="Must be a valid hex color"></v-text-field>
+                            @update:model-value="onChangeThemeColor"
+                            hint="Must be a valid hex color; default value: #FF9800"></v-text-field>
             </v-card-text>
           </v-card>
           <v-card title="Accessibility" class="my-3">
