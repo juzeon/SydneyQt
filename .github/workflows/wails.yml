@@ -1,6 +1,9 @@
 name: Wails build
 
-on: [push, pull_request]
+on:
+  push:
+    tags:
+      - '*'
 
 jobs:
   build:
@@ -10,7 +13,7 @@ jobs:
         build: [
           {name: SydneyQt-linux-amd64, platform: linux/amd64, os: ubuntu-latest},
           {name: SydneyQt-windows-amd64.exe, platform: windows/amd64, os: windows-latest},
-          {name: SydneyQt-darwin-universal, platform: darwin/universal, os: macos-latest}
+          {name: SydneyQt, platform: darwin/universal, os: macos-latest}
         ]
     runs-on: ${{ matrix.build.os }}
     steps:
