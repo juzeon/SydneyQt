@@ -9,6 +9,7 @@ require (
 	github.com/dlclark/regexp2 v1.10.0
 	github.com/go-resty/resty/v2 v2.10.0
 	github.com/google/uuid v1.3.1
+	github.com/hashicorp/go-version v1.6.0
 	github.com/klippa-app/go-pdfium v1.8.2
 	github.com/life4/genesis v1.10.2
 	github.com/microcosm-cc/bluemonday v1.0.26

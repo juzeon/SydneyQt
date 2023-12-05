@@ -36,6 +36,26 @@ export namespace main {
 	        this.err_msg = source["err_msg"];
 	    }
 	}
+	export class CheckUpdateResult {
+	    need_update: boolean;
+	    current_version: string;
+	    latest_version: string;
+	    release_url: string;
+	    release_note: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new CheckUpdateResult(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.need_update = source["need_update"];
+	        this.current_version = source["current_version"];
+	        this.latest_version = source["latest_version"];
+	        this.release_url = source["release_url"];
+	        this.release_note = source["release_note"];
+	    }
+	}
 	export class OpenAIBackend {
 	    name: string;
 	    openai_key: string;

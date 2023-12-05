@@ -6,6 +6,10 @@ export function AskAI(arg1) {
   return window['go']['main']['App']['AskAI'](arg1);
 }
 
+export function CheckUpdate() {
+  return window['go']['main']['App']['CheckUpdate']();
+}
+
 export function CountToken(arg1) {
   return window['go']['main']['App']['CountToken'](arg1);
 }
