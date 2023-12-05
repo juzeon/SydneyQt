@@ -2,7 +2,7 @@
 import {computed, onMounted, onUnmounted, ref, watch} from "vue"
 import {main} from "../../wailsjs/go/models"
 import {EventsEmit, EventsOff, EventsOn} from "../../wailsjs/runtime"
-import {ChatMessage, swal, toChatMessages} from "../helper"
+import {ChatMessage, shadeColor, swal, toChatMessages} from "../helper"
 import {AskAI, CountToken, FetchWebpage, UploadDocument, UploadSydneyImage} from "../../wailsjs/go/main/App"
 import {AskTypeOpenAI, AskTypeSydney} from "../constants"
 import Scaffold from "../components/Scaffold.vue"
@@ -13,11 +13,11 @@ import UserInputToolButton from "../components/UserInputToolButton.vue"
 import dayjs from "dayjs"
 import SearchWorkspaceButton from "../components/SearchWorkspaceButton.vue"
 import RichChatContext from "../components/RichChatContext.vue"
+import UserStatusButton from "../components/UserStatusButton.vue"
 import AskOptions = main.AskOptions
 import Workspace = main.Workspace
 import ChatFinishResult = main.ChatFinishResult
 import UploadSydneyImageResult = main.UploadSydneyImageResult
-import UserStatusButton from "../components/UserStatusButton.vue"
 
 let theme = useTheme()
 let navDrawer = ref(true)
@@ -331,6 +331,8 @@ onMounted(() => {
   loading.value = true
   doListeningEvents()
   fetchSettings().then(async () => {
+    theme.themes.value.light.colors.primary = config.value.theme_color
+    theme.themes.value.dark.colors.primary = shadeColor(config.value.theme_color, -40)
     theme.global.name.value = config.value.dark_mode ? 'dark' : 'light'
     let workspace = config.value.workspaces?.find(v => v.id === config.value.current_workspace_id)
     if (workspace) {
@@ -494,7 +496,7 @@ let chatContextTabIndex = ref(0)
             <v-switch v-model="currentWorkspace.no_search" label="No Search" density="compact"
                       color="primary" class="mx-2 mt-1"></v-switch>
           </div>
-          <v-btn color="primary" class="ml-2" variant="tonal" :disabled="isAsking"
+          <v-btn class="ml-2" variant="tonal" :disabled="isAsking"
                  @click="onReset">
             <v-icon>mdi-reload</v-icon>
             Reset

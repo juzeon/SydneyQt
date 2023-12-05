@@ -143,6 +143,7 @@ export namespace main {
 	    dark_mode: boolean;
 	    no_image_removal_after_chat: boolean;
 	    create_conversation_url: string;
+	    theme_color: string;
 	
 	    static createFrom(source: any = {}) {
 	        return new Config(source);
@@ -169,6 +170,7 @@ export namespace main {
 	        this.dark_mode = source["dark_mode"];
 	        this.no_image_removal_after_chat = source["no_image_removal_after_chat"];
 	        this.create_conversation_url = source["create_conversation_url"];
+	        this.theme_color = source["theme_color"];
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {

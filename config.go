@@ -54,6 +54,7 @@ type Config struct {
 	DarkMode                bool            `json:"dark_mode"`
 	NoImageRemovalAfterChat bool            `json:"no_image_removal_after_chat"`
 	CreateConversationURL   string          `json:"create_conversation_url"`
+	ThemeColor              string          `json:"theme_color"`
 }
 
 func fillDefault[T comparable](pointer *T, defaultValue T) {
@@ -115,6 +116,7 @@ func (o *Config) FillDefault() {
 	}
 	fillDefault(&o.WssDomain, "sydney.bing.com")
 	fillDefault(&o.CreateConversationURL, "https://edgeservices.bing.com/edgesvc/turing/conversation/create")
+	fillDefault(&o.ThemeColor, "#FF9800")
 }
 
 type Settings struct {

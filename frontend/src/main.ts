@@ -29,24 +29,12 @@ const vuetify = createVuetify({
             light: {
                 colors: {
                     primary: '#FF9800',
-                    secondary: '#FFC107',
-                    accent: '#82B1FF',
-                    error: '#FF5252',
-                    info: '#2196F3',
-                    success: '#4CAF50',
-                    warning: '#FFC107',
                 }
             },
             dark: {
                 dark: true,
                 colors: {
                     primary: '#754600',
-                    secondary: '#FFC107',
-                    accent: '#82B1FF',
-                    error: '#FF5252',
-                    info: '#2196F3',
-                    success: '#4CAF50',
-                    warning: '#FFC107',
                 }
             }
         }

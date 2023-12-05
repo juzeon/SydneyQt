@@ -7,6 +7,7 @@ import {useSettings} from "../composables"
 import {computed, onMounted, ref} from "vue"
 import {useTheme} from "vuetify"
 import {main} from "../../wailsjs/go/models"
+import {shadeColor} from "../helper"
 import Preset = main.Preset
 import OpenAIBackend = main.OpenAIBackend
 
@@ -192,6 +193,19 @@ function checkOpenaiEndpoint(val: string) {
   }
   return true
 }
+
+function onChangeThemeColor(val: string) {
+  if (!checkThemeColor(val)) {
+    return
+  }
+  config.value.theme_color = val
+  theme.themes.value.light.colors.primary = val
+  theme.themes.value.dark.colors.primary = shadeColor(val, -40)
+}
+
+function checkThemeColor(val: string): boolean {
+  return /^#[0-9A-Fa-f]{6}$/i.test(val)
+}
 </script>
 
 <template>
@@ -258,6 +272,8 @@ function checkOpenaiEndpoint(val: string) {
                             thumb-label="always" hint="Default: 20"></v-slider>
                 </template>
               </v-tooltip>
+              <v-text-field label="Theme Color" color="primary" :model-value="config.theme_color"
+                            @update:model-value="onChangeThemeColor" hint="Must be a valid hex color"></v-text-field>
             </v-card-text>
           </v-card>
           <v-card title="Accessibility" class="my-3">
