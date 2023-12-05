@@ -24,7 +24,13 @@
 
 ## 下载
 
-你可以从[发布页面](https://github.com/juzeon/SydneyQt/releases)下载Windows、Linux和macOS的二进制文件，或者根据开发部分自己构建。
+你可以从[发布页面](https://github.com/juzeon/SydneyQt/releases)下载Windows、Linux和macOS的二进制文件，或者根据构建部分自己构建。
+
+平台信息：
+
+- Windows:  SydneyQt-windows-amd64.exe
+- Linux:  SydneyQt-linux-amd64
+- macOS: SydneyQt.app.zip, SydneyQt.pkg（未签名）
 
 ## 使用
 
@@ -94,11 +100,18 @@ Bing禁止特定国家访问Bing AI（具体来说，是sydney.bing.com），所
 
 **确保你的代理IP不会改变。**如果你使用Clash，请禁用负载均衡或轮询模式，只使用一个节点。否则你将需要在你的浏览器中频繁地手动解决验证码。
 
-## 开发
+## 构建
 
-环境：Go 1.21+
+环境：Go 1.21+，Node.js 16+
 
-遵循[Wails](https://wails.io/docs/gettingstarted/installation/)的开发指南。
+你可以按照 [Wails](https://wails.io/docs/gettingstarted/installation/) 的开发指南进行操作。
+
+这里是简要版：
+
+1. 安装 Go 和 Node.js。
+2. 安装 Wails: `go install github.com/wailsapp/wails/v2/cmd/wails@latest`。
+3. 克隆项目: `git clone https://github.com/juzeon/SydneyQt`。
+4. 运行构建命令: `wails build`。
 
 ## 截图
 

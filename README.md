@@ -26,7 +26,13 @@ A cross-platform desktop client for the jailbroken New Bing AI (Sydney ver.) bui
 
 ## Download
 
-You can download binaries from the [release page](https://github.com/juzeon/SydneyQt/releases) for Windows, Linux and macOS, or build it yourself according to the Development section.
+You can download binaries from the [release page](https://github.com/juzeon/SydneyQt/releases) for Windows, Linux and macOS, or build it yourself according to the Build section.
+
+Platform information:
+
+- Windows:  SydneyQt-windows-amd64.exe
+- Linux:  SydneyQt-linux-amd64
+- macOS: SydneyQt.app.zip, SydneyQt.pkg (unsigned)
 
 ## Usage
 
@@ -96,11 +102,18 @@ If you experience **infinite CAPTCHA loops**, you can try the following steps:
 
 **Make sure your proxy IP does not change.** If you use Clash, disable load-balancing or round-robin modes and stick to one node only. Otherwise you will need to manually solve the CAPTCHA in your browser frequently.
 
-## Development
+## Build
 
-Environment: Go 1.21+
+Environment: Go 1.21+, Node.js 16+
 
-Follow the development guidelines from [Wails](https://wails.io/docs/gettingstarted/installation/).
+You can follow the development guidelines from [Wails](https://wails.io/docs/gettingstarted/installation/).
+
+Here's the TL;DR version:
+
+1. Install Go and Node.js.
+2. Install Wails: `go install github.com/wailsapp/wails/v2/cmd/wails@latest`.
+3. Clone the project: `git clone https://github.com/juzeon/SydneyQt`.
+4. Run the building command: `wails build`.
 
 ## Screenshots
 
