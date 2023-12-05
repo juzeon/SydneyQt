@@ -496,7 +496,7 @@ let chatContextTabIndex = ref(0)
             <v-switch v-model="currentWorkspace.no_search" label="No Search" density="compact"
                       color="primary" class="mx-2 mt-1"></v-switch>
           </div>
-          <v-btn class="ml-2" variant="tonal" :disabled="isAsking"
+          <v-btn class="ml-2" variant="tonal" :disabled="isAsking" color="primary"
                  @click="onReset">
             <v-icon>mdi-reload</v-icon>
             Reset
