@@ -117,6 +117,8 @@ Bing禁止特定国家访问Bing AI（具体来说，是sydney.bing.com），所
 
 ![](https://public.ptree.top/ShareX/2023/12/04/1701694976/1qwHCtSW7D.png)
 
+![](https://public.ptree.top/ShareX/2023/12/05/1701779864/syd-color.jpg)
+
 ![](https://public.ptree.top/ShareX/2023/12/04/1701694905/sGRMfoZDFY.png)
 
 ![](https://public.ptree.top/ShareX/2023/12/04/1701694936/KwoV5xRVCj.png)
