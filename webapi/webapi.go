@@ -149,8 +149,8 @@ func main() {
 
 		// write response
 		for message := range messageCh {
-			fmt.Fprintf(w, "event: %s\n", message.Type)
-			fmt.Fprintf(w, "data: %s\n\n", message.Text)
+			encoded, _ := json.Marshal(message.Text)
+			fmt.Fprintf(w, "event: %s\ndata: %s\n\n", message.Type, encoded)
 			if f, ok := w.(http.Flusher); ok {
 				f.Flush()
 			}
