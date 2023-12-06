@@ -52,7 +52,7 @@ Start a chat stream.
 - **Request**:
   - Content-Type: `application/json`
   - Body:
-    - `conversation`
+    - `conversation`: `CreateConversationResponse`
     - `prompt`: `string`
     - `context`: `string`
     - `cookies`: `string` (Optional)
@@ -70,3 +70,17 @@ Start a chat stream.
 ### POST /v1/chat/completions
 
 This endpoint is compatible with the OpenAI API. You can check the API reference [here](https://platform.openai.com/docs/api-reference/chat).
+
+Due to differences between the OpenAI API and the Sydney API, only the following parameters are supported:
+
+- `messages`: The same as OpenAI's, and can contain image url (only valid in the last message).
+- `model`: `GPT-3.5-Turbo` series will be mapped to `Balance`, others will be mapped to `Creative`.
+- `stream`: The same as OpenAI's.
+
+There is an extra field or reusing conversation, if your SDK supports such customization:
+
+- `conversation`: `CreateConversationResponse`
+
+The `Cookie` header is also supported to provide custom cookies.
+
+The response is full of dummy values, and only the `choices` field is valid. The stop reason is `length` if any error occurs, and `stop` otherwise.
