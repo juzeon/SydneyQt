@@ -216,6 +216,34 @@ func main() {
 			ImageURL:       parsedMessages.ImageURL,
 		})
 
+		// handle non-stream
+		if !request.Stream {
+			// set headers
+			w.Header().Set("Content-Type", "application/json")
+
+			// write response
+			var replyBuilder strings.Builder
+			errored := false
+
+			for message := range messageCh {
+				switch message.Type {
+				case sydney.MessageTypeMessageText:
+					replyBuilder.WriteString(message.Text)
+				case sydney.MessageTypeError:
+					replyBuilder.WriteString("Error: " + message.Text)
+					errored = true
+				}
+			}
+
+			json.NewEncoder(w).Encode(NewOpenAIChatCompletion(
+				request.Model,
+				replyBuilder.String(),
+				util.Ternary(errored, FinishReasonLength, FinishReasonStop),
+			))
+
+			return
+		}
+
 		// set headers
 		w.Header().Set("Content-Type", "text/event-stream")
 		w.Header().Set("Cache-Control", "no-cache")

@@ -3,10 +3,13 @@ package main
 import (
 	"errors"
 	"strings"
+	"time"
 )
 
 var (
-	ErrMissingPrompt = errors.New("user prompt is missing (last message is not sent by user)")
+	ErrMissingPrompt   = errors.New("user prompt is missing (last message is not sent by user)")
+	FinishReasonStop   = "stop"
+	FinishReasonLength = "length"
 )
 
 func ParseOpenAIMessages(messages []OpenAIMessage) (OpenAIMessagesParseResult, error) {
@@ -85,4 +88,29 @@ func ParseOpenAIMessageContent(content interface{}) (text, imageUrl string) {
 	}
 
 	return
+}
+
+func NewOpenAIChatCompletion(model, content, finishReason string) *OpenAIChatCompletion {
+	return &OpenAIChatCompletion{
+		ID:                "chatcmpl-123",
+		Object:            "chat.completion",
+		Created:           time.Now().Unix(),
+		Model:             model,
+		SystemFingerprint: "fp_44709d6fcb",
+		Choices: []ChatCompletionChoice{
+			{
+				Index: 0,
+				Message: ChoiceMessage{
+					Role:    "assistant",
+					Content: content,
+				},
+				FinishReason: finishReason,
+			},
+		},
+		Usage: UsageStats{
+			PromptTokens:     1024,
+			CompletionTokens: 1024,
+			TotalTokens:      2048,
+		},
+	}
 }

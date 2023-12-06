@@ -61,39 +61,49 @@ type OpenAIChatCompletionRequest struct {
 	Conversation sydney.CreateConversationResponse `json:"conversation,omitempty"`
 }
 
-type OpenAIChatCompletionChunk []struct {
-	ID                string `json:"id"`
-	Object            string `json:"object"`
-	Created           int    `json:"created"`
-	Model             string `json:"model"`
-	SystemFingerprint string `json:"system_fingerprint"`
-	Choices           []struct {
-		Index int `json:"index"`
-		Delta struct {
-			Role    string `json:"role"`
-			Content string `json:"content"`
-		} `json:"delta"`
-		FinishReason *string `json:"finish_reason"`
-	} `json:"choices"`
+type ChoiceDelta struct {
+	Role    string `json:"role"`
+	Content string `json:"content"`
 }
 
-type OpenAIChatCompletion []struct {
-	ID                string `json:"id"`
-	Object            string `json:"object"`
-	Created           int    `json:"created"`
-	Model             string `json:"model"`
-	SystemFingerprint string `json:"system_fingerprint"`
-	Choices           []struct {
-		Index int `json:"index"`
-		Delta struct {
-			Role    string `json:"role"`
-			Content string `json:"content"`
-		} `json:"delta"`
-		FinishReason *string `json:"finish_reason"`
-	} `json:"choices"`
-	Usage struct {
-		PromptTokens     int `json:"prompt_tokens"`
-		CompletionTokens int `json:"completion_tokens"`
-		TotalTokens      int `json:"total_tokens"`
-	} `json:"usage"`
+type ChatCompletionChunkChoice struct {
+	Index        int         `json:"index"`
+	Delta        ChoiceDelta `json:"delta"`
+	FinishReason string      `json:"finish_reason"`
+}
+
+type OpenAIChatCompletionChunk struct {
+	ID                string                      `json:"id"`
+	Object            string                      `json:"object"`
+	Created           int64                       `json:"created"`
+	Model             string                      `json:"model"`
+	SystemFingerprint string                      `json:"system_fingerprint"`
+	Choices           []ChatCompletionChunkChoice `json:"choices"`
+}
+
+type ChoiceMessage struct {
+	Content string `json:"content"`
+	Role    string `json:"role"`
+}
+
+type UsageStats struct {
+	PromptTokens     int `json:"prompt_tokens"`
+	CompletionTokens int `json:"completion_tokens"`
+	TotalTokens      int `json:"total_tokens"`
+}
+
+type ChatCompletionChoice struct {
+	Index        int           `json:"index"`
+	Message      ChoiceMessage `json:"message"`
+	FinishReason string        `json:"finish_reason"`
+}
+
+type OpenAIChatCompletion struct {
+	ID                string                 `json:"id"`
+	Object            string                 `json:"object"`
+	Created           int64                  `json:"created"`
+	Model             string                 `json:"model"`
+	SystemFingerprint string                 `json:"system_fingerprint"`
+	Choices           []ChatCompletionChoice `json:"choices"`
+	Usage             UsageStats             `json:"usage"`
 }

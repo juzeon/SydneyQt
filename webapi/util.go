@@ -1,6 +1,8 @@
 package main
 
-import "strings"
+import (
+	"strings"
+)
 
 func ParseCookies(cookiesStr string) map[string]string {
 	cookies := map[string]string{}
