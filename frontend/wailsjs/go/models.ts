@@ -64,6 +64,9 @@ export namespace main {
 	    openai_long_model: string;
 	    openai_threshold: number;
 	    openai_temperature: number;
+	    frequency_penalty: number;
+	    presence_penalty: number;
+	    max_tokens: number;
 	
 	    static createFrom(source: any = {}) {
 	        return new OpenAIBackend(source);
@@ -78,6 +81,9 @@ export namespace main {
 	        this.openai_long_model = source["openai_long_model"];
 	        this.openai_threshold = source["openai_threshold"];
 	        this.openai_temperature = source["openai_temperature"];
+	        this.frequency_penalty = source["frequency_penalty"];
+	        this.presence_penalty = source["presence_penalty"];
+	        this.max_tokens = source["max_tokens"];
 	    }
 	}
 	export class Workspace {

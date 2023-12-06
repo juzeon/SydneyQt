@@ -184,6 +184,7 @@ func (a *App) askOpenAI(options AskOptions) {
 		handleErr(err)
 		return
 	}
+	slog.Info("Ask OpenAI with backend: ", "data", backend)
 	hClient, err := util.MakeHTTPClient(a.settings.config.Proxy, 0)
 	if err != nil {
 		handleErr(err)
@@ -200,9 +201,12 @@ func (a *App) askOpenAI(options AskOptions) {
 		Content: options.Prompt,
 	})
 	stream, err := client.CreateChatCompletionStream(context.Background(), openai.ChatCompletionRequest{
-		Model:       backend.OpenaiShortModel,
-		Messages:    messages,
-		Temperature: backend.OpenaiTemperature,
+		Model:            backend.OpenaiShortModel,
+		Messages:         messages,
+		Temperature:      backend.OpenaiTemperature,
+		FrequencyPenalty: backend.FrequencyPenalty,
+		PresencePenalty:  backend.PresencePenalty,
+		MaxTokens:        backend.MaxTokens,
 	})
 	if err != nil {
 		handleErr(err)

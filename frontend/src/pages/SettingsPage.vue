@@ -232,6 +232,21 @@ function checkUpdate() {
     versionLoading.value = false
   })
 }
+
+function onChangeOpenAIMaxTokens(val: string) {
+  let i = parseInt(val)
+  if (isNaN(i)) {
+    return
+  }
+  if (i < 0) {
+    return
+  }
+  let backend = config.value.open_ai_backends.find(v => v.name === activeOpenaiBackendName.value)
+  if (!backend) {
+    return
+  }
+  backend.max_tokens = i
+}
 </script>
 
 <template>
@@ -521,6 +536,12 @@ function checkUpdate() {
                         <v-text-field label="Model" v-model="backend.openai_short_model" color="primary"></v-text-field>
                         <v-slider label="Temperature" v-model="backend.openai_temperature" min="0" max="2"
                                   step="0.1" color="primary" thumb-label="always"></v-slider>
+                        <v-slider label="Frequency Penalty" v-model="backend.frequency_penalty"
+                                  color="primary" min="-2" max="2" step="0.1" thumb-label="always"></v-slider>
+                        <v-slider label="Presence Penalty" v-model="backend.presence_penalty"
+                                  color="primary" min="-2" max="2" step="0.1" thumb-label="always"></v-slider>
+                        <v-text-field label="Max Tokens" color="primary" :model-value="backend.max_tokens"
+                                      @update:model-value="onChangeOpenAIMaxTokens" hint="No limitation on purpose: 0"></v-text-field>
                         <div class="d-flex my-3">
                           <v-spacer></v-spacer>
                           <v-btn icon color="red" variant="text" :disabled="isRenamingBackend"

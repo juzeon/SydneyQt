@@ -33,6 +33,9 @@ type OpenAIBackend struct {
 	OpenaiLongModel   string  `json:"openai_long_model"`
 	OpenaiThreshold   int     `json:"openai_threshold"`
 	OpenaiTemperature float32 `json:"openai_temperature"`
+	FrequencyPenalty  float32 `json:"frequency_penalty"`
+	PresencePenalty   float32 `json:"presence_penalty"`
+	MaxTokens         int     `json:"max_tokens"`
 }
 type Config struct {
 	Presets                 []Preset        `json:"presets"`
