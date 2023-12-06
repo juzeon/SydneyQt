@@ -230,13 +230,15 @@ func main() {
 				case sydney.MessageTypeMessageText:
 					replyBuilder.WriteString(message.Text)
 				case sydney.MessageTypeError:
-					replyBuilder.WriteString("Error: " + message.Text)
 					errored = true
+					replyBuilder.WriteString("`Error: ")
+					replyBuilder.WriteString(message.Text)
+					replyBuilder.WriteString("`")
 				}
 			}
 
 			json.NewEncoder(w).Encode(NewOpenAIChatCompletion(
-				request.Model,
+				conversationStyle,
 				replyBuilder.String(),
 				util.Ternary(errored, FinishReasonLength, FinishReasonStop),
 			))
@@ -250,13 +252,37 @@ func main() {
 		w.Header().Set("Connection", "keep-alive")
 
 		// write response
+		errored := false
+
 		for message := range messageCh {
-			encoded, _ := json.Marshal(message.Text)
-			fmt.Fprintf(w, "event: %s\ndata: %s\n\n", message.Type, encoded)
+			var delta string
+
+			switch message.Type {
+			case sydney.MessageTypeMessageText:
+				delta = message.Text
+			case sydney.MessageTypeError:
+				errored = true
+				delta = fmt.Sprintf("`Error: %s`", message.Text)
+			default:
+				continue
+			}
+
+			chunk := NewOpenAIChatCompletionChunk(conversationStyle, delta, nil)
+			encoded, err := json.Marshal(chunk)
+			if err != nil {
+				continue
+			}
+
+			fmt.Fprintf(w, "data: %s\n\n", encoded)
 			if f, ok := w.(http.Flusher); ok {
 				f.Flush()
 			}
 		}
+
+		// write final chunk
+		chunk := NewOpenAIChatCompletionChunk(conversationStyle, "", util.Ternary(errored, &FinishReasonLength, &FinishReasonStop))
+		encoded, _ := json.Marshal(chunk)
+		fmt.Fprintf(w, "data: %s\n\ndata: [DONE]\n", encoded)
 	})
 
 	// serve the router

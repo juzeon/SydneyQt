@@ -114,3 +114,23 @@ func NewOpenAIChatCompletion(model, content, finishReason string) *OpenAIChatCom
 		},
 	}
 }
+
+func NewOpenAIChatCompletionChunk(model, delta string, finishReason *string) *OpenAIChatCompletionChunk {
+	return &OpenAIChatCompletionChunk{
+		ID:                "chatcmpl-123",
+		Object:            "chat.completion",
+		Created:           time.Now().Unix(),
+		Model:             model,
+		SystemFingerprint: "fp_44709d6fcb",
+		Choices: []ChatCompletionChunkChoice{
+			{
+				Index: 0,
+				Delta: ChoiceDelta{
+					Role:    "assistant",
+					Content: delta,
+				},
+				FinishReason: finishReason,
+			},
+		},
+	}
+}

@@ -69,7 +69,7 @@ type ChoiceDelta struct {
 type ChatCompletionChunkChoice struct {
 	Index        int         `json:"index"`
 	Delta        ChoiceDelta `json:"delta"`
-	FinishReason string      `json:"finish_reason"`
+	FinishReason *string      `json:"finish_reason"`
 }
 
 type OpenAIChatCompletionChunk struct {
