@@ -108,9 +108,20 @@ func (o *Sydney) AskStream(options AskStreamOptions) <-chan Message {
 					if message.Get("contentType").String() != "IMAGE" {
 						continue
 					}
+					generativeImage := GenerativeImage{
+						Text: messageText,
+						URL: "https://www.bing.com/images/create?" +
+							"partner=sydney&re=1&showselective=1&sude=1&kseed=8500&SFX=4" +
+							"&q=" + url.QueryEscape(messageText) + "&iframeid=" +
+							message.Get("messageId").String(),
+					}
+					v, err := json.Marshal(&generativeImage)
+					if err != nil {
+						panic(err)
+					}
 					out <- Message{
 						Type: MessageTypeGenerativeImage,
-						Text: messageText,
+						Text: string(v),
 					}
 				case "":
 					if data.Get("arguments.0.cursor").Exists() {

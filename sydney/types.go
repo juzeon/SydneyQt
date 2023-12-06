@@ -3,6 +3,7 @@ package sydney
 import (
 	"context"
 	"errors"
+	"time"
 )
 
 const delimiter = '\x1e'
@@ -131,4 +132,12 @@ type KnowledgeRequest struct {
 type UploadImageResponse struct {
 	BlobId          string `json:"blobId"`
 	ProcessedBlobId string `json:"processedBlobId"`
+}
+type GenerativeImage struct {
+	Text string `json:"text"`
+	URL  string `json:"url"`
+}
+type GenerateImageResult struct {
+	ImageURLs []string      `json:"image_urls"`
+	Duration  time.Duration `json:"duration"`
 }
