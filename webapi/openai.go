@@ -25,6 +25,7 @@ func ParseOpenAIMessages(messages []OpenAIMessage) (OpenAIMessagesParseResult, e
 
 	// construct context
 	var contextBuilder strings.Builder
+	contextBuilder.WriteString("\n\n")
 
 	for i, message := range messages[:len(messages)-1] {
 		// assert types
@@ -59,11 +60,9 @@ func ParseOpenAIMessages(messages []OpenAIMessage) (OpenAIMessagesParseResult, e
 }
 
 func parseOpenAIMessage(message OpenAIMessage) (role, text, imageUrl string) {
-	if msgRole, ok := message["role"].(string); ok {
-		role = msgRole
-	}
+	role = message.Role
 
-	switch content := message["content"].(type) {
+	switch content := message.Content.(type) {
 	case string:
 		// content is string, and it automatically becomes prompt
 		text = content

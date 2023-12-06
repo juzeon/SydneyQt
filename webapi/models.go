@@ -18,7 +18,6 @@ type ChatStreamRequest struct {
 }
 
 // The `content` field can have different types
-// So we use a map instead of a struct
 // Example:
 //
 //	{
@@ -43,7 +42,10 @@ type ChatStreamRequest struct {
 //			}
 //		]
 //	}
-type OpenAIMessage map[string]interface{}
+type OpenAIMessage struct {
+	Role    string      `json:"role"`
+	Content interface{} `json:"content"`
+}
 
 type OpenAIMessagesParseResult struct {
 	WebpageContext string

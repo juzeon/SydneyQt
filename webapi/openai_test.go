@@ -10,26 +10,20 @@ func TestParseOpenAIMessages(t *testing.T) {
 	t.Run("valid with image", func(t *testing.T) {
 		messages := []OpenAIMessage{
 			{
-				"role": "user",
-				"content": []map[string]interface{}{
-					{
-						"type": "text",
-						"text": "Hello!",
-					},
-				},
+				Role:    "system",
+				Content: "You are Sydney.",
 			},
 			{
-				"role": "assistant",
-				"content": []map[string]interface{}{
-					{
-						"type": "text",
-						"text": "Hi!",
-					},
-				},
+				Role:    "user",
+				Content: "Hello!",
 			},
 			{
-				"role": "user",
-				"content": []map[string]interface{}{
+				Role:    "assistant",
+				Content: "Hi!",
+			},
+			{
+				Role: "user",
+				Content: []map[string]interface{}{
 					{
 						"type": "text",
 						"text": "How are you?",
@@ -47,7 +41,7 @@ func TestParseOpenAIMessages(t *testing.T) {
 		assert.Nil(t, err)
 		assert.Equal(t, OpenAIMessagesParseResult{
 			Prompt:         "How are you?",
-			WebpageContext: "[user](#message)\nHello!\n\n[assistant](#message)\nHi!",
+			WebpageContext: "\n\n[system](#additional_instructions)\nYou are Sydney.\n\n[user](#message)\nHello!\n\n[assistant](#message)\nHi!",
 			ImageURL:       "https://example.com/image.jpg",
 		}, result)
 	})
