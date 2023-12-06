@@ -22,6 +22,13 @@ func ParseOpenAIMessages(messages []OpenAIMessage) (OpenAIMessagesParseResult, e
 		return OpenAIMessagesParseResult{}, ErrMissingPrompt
 	}
 
+	if len(messages) == 1 {
+		return OpenAIMessagesParseResult{
+			Prompt:   prompt,
+			ImageURL: imageUrl,
+		}, nil
+	}
+
 	// construct context
 	var contextBuilder strings.Builder
 	contextBuilder.WriteString("\n\n")

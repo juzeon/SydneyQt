@@ -7,6 +7,24 @@ import (
 )
 
 func TestParseOpenAIMessages(t *testing.T) {
+	t.Run("empty", func(t *testing.T) {
+		result, err := ParseOpenAIMessages([]OpenAIMessage{})
+		assert.Nil(t, err)
+		assert.Equal(t, OpenAIMessagesParseResult{}, result)
+	})
+	t.Run("single message", func(t *testing.T) {
+		messages := []OpenAIMessage{
+			{
+				Role:    "user",
+				Content: "Hello!",
+			},
+		}
+		result, err := ParseOpenAIMessages(messages)
+		assert.Nil(t, err)
+		assert.Equal(t, OpenAIMessagesParseResult{
+			Prompt: "Hello!",
+		}, result)
+	})
 	t.Run("valid with image", func(t *testing.T) {
 		messages := []OpenAIMessage{
 			{
