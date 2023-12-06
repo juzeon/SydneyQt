@@ -17,9 +17,9 @@ func ParseOpenAIMessages(messages []OpenAIMessage) (OpenAIMessagesParseResult, e
 
 	// last message must be user prompt
 	lastMessage := messages[len(messages)-1]
-	role, prompt, imageUrl := parseOpenAIMessage(lastMessage)
+	prompt, imageUrl := ParseOpenAIMessageContent(lastMessage.Content)
 
-	if role != "user" || prompt == "" {
+	if lastMessage.Role != "user" || prompt == "" {
 		return OpenAIMessagesParseResult{}, ErrUnknownPrompt
 	}
 
@@ -29,20 +29,18 @@ func ParseOpenAIMessages(messages []OpenAIMessage) (OpenAIMessagesParseResult, e
 
 	for i, message := range messages[:len(messages)-1] {
 		// assert types
-		role, text, _ := parseOpenAIMessage(message)
-
-		if role == "" || text == "" {
-			return OpenAIMessagesParseResult{}, ErrInvalidOpenAIMessage
-		}
+		text, _ := ParseOpenAIMessageContent(message.Content)
 
 		// append role to context
-		switch role {
+		switch message.Role {
 		case "user":
 			contextBuilder.WriteString("[user](#message)\n")
 		case "assistant":
 			contextBuilder.WriteString("[assistant](#message)\n")
 		case "system":
 			contextBuilder.WriteString("[system](#additional_instructions)\n")
+		default:
+			continue // skip unknown roles
 		}
 
 		// append content to context
@@ -59,10 +57,8 @@ func ParseOpenAIMessages(messages []OpenAIMessage) (OpenAIMessagesParseResult, e
 	}, nil
 }
 
-func parseOpenAIMessage(message OpenAIMessage) (role, text, imageUrl string) {
-	role = message.Role
-
-	switch content := message.Content.(type) {
+func ParseOpenAIMessageContent(content interface{}) (text, imageUrl string) {
+	switch content := content.(type) {
 	case string:
 		// content is string, and it automatically becomes prompt
 		text = content
