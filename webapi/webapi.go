@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 	"sydneyqt/sydney"
 	"sydneyqt/util"
 
@@ -35,6 +36,8 @@ func main() {
 
 	defaultCookies := ParseCookies(os.Getenv("DEFAULT_COOKIES"))
 
+	authToken := os.Getenv("AUTH_TOKEN")
+
 	// create router
 	r := chi.NewRouter()
 
@@ -45,6 +48,20 @@ func main() {
 		r.Use(middleware.Logger)
 	}
 	r.Use(middleware.SetHeader("Access-Control-Allow-Origin", allowedOrigins))
+	// auth middleware
+	r.Use(func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if authToken == "" {
+				next.ServeHTTP(w, r)
+				return
+			}
+			if r.Header.Get("Authorization") != "Bearer "+authToken {
+				http.Error(w, "Unauthorized", http.StatusUnauthorized)
+				return
+			}
+			next.ServeHTTP(w, r)
+		})
+	})
 
 	// add handlers
 	r.Post("/conversation/new", func(w http.ResponseWriter, r *http.Request) {
@@ -127,6 +144,7 @@ func main() {
 
 		cookies := util.Ternary(request.Cookies == "", defaultCookies, ParseCookies(request.Cookies))
 
+		// avoid panic caused by invalid locale
 		if len(request.Locale) != 5 {
 			request.Locale = "en-US"
 		}
@@ -141,6 +159,62 @@ func main() {
 				WebpageContext: request.WebpageContext,
 				ImageURL:       request.ImageURL,
 			})
+
+		// set headers
+		w.Header().Set("Content-Type", "text/event-stream")
+		w.Header().Set("Cache-Control", "no-cache")
+		w.Header().Set("Connection", "keep-alive")
+
+		// write response
+		for message := range messageCh {
+			encoded, _ := json.Marshal(message.Text)
+			fmt.Fprintf(w, "event: %s\ndata: %s\n\n", message.Type, encoded)
+			if f, ok := w.(http.Flusher); ok {
+				f.Flush()
+			}
+		}
+	})
+
+	r.Post("/v1/chat/completions", func(w http.ResponseWriter, r *http.Request) {
+		// parse request
+		var request OpenAIChatCompletionRequest
+
+		err := json.NewDecoder(r.Body).Decode(&request)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		parsedMessages, err := ParseOpenAIMessages(request.Messages)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		cookiesStr := r.Header.Get("Cookie")
+		cookies := util.Ternary(cookiesStr == "", defaultCookies, ParseCookies(cookiesStr))
+
+		conversationStyle := util.Ternary(
+			strings.HasPrefix(request.Model, "gpt-3.5-turbo"), "Balanced", "Creative")
+
+		sydneyAPI := sydney.NewSydney(false, cookies, proxy, conversationStyle, "en-US", "", "", false)
+
+		// create new conversation if not provided
+		if request.Conversation.ConversationId == "" {
+			request.Conversation, err = sydneyAPI.CreateConversation()
+			if err != nil {
+				http.Error(w, "error creating conversation: "+err.Error(), http.StatusInternalServerError)
+				return
+			}
+		}
+
+		messageCh := sydneyAPI.AskStream(sydney.AskStreamOptions{
+			StopCtx:        r.Context(),
+			Conversation:   request.Conversation,
+			Prompt:         parsedMessages.Prompt,
+			WebpageContext: parsedMessages.WebpageContext,
+			ImageURL:       parsedMessages.ImageURL,
+		})
 
 		// set headers
 		w.Header().Set("Content-Type", "text/event-stream")

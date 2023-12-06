@@ -55,9 +55,10 @@ type OpenAIMessagesParseResult struct {
 
 // Most fields are omitted due to limitations of the Bing API
 type OpenAIChatCompletionRequest struct {
-	Model    string          `json:"model"`
-	Messages []OpenAIMessage `json:"messages"`
-	Stream   bool            `json:"stream"`
+	Model        string                            `json:"model"`
+	Messages     []OpenAIMessage                   `json:"messages"`
+	Stream       bool                              `json:"stream"`
+	Conversation sydney.CreateConversationResponse `json:"conversation,omitempty"`
 }
 
 type OpenAIChatCompletionChunk []struct {

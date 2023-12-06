@@ -15,6 +15,7 @@ Then the server will be running at <http://localhost:8080>.
 - `NO_LOG`: Whether to disable logging. Default: `false`
 - `DEFAULT_COOKIES`: Default cookies to use, can be obtained by `document.cookie`. Default: `""`
 - `HTTPS_PROXY` or `HTTP_PROXY`: The proxy to use for requests to Microsoft. Default: `""`
+- `AUTH_TOKEN`: The Bearer token to access the API server. Default: `""`
 
 ## Endpoints
 
@@ -65,3 +66,7 @@ Start a chat stream.
   - Body: Server-sent events
     - `event`: `string`
     - `data`: `string`
+
+### POST /v1/chat/completions
+
+This endpoint is compatible with the OpenAI API. You can check the API reference [here](https://platform.openai.com/docs/api-reference/chat).

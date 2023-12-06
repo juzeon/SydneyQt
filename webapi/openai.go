@@ -6,8 +6,7 @@ import (
 )
 
 var (
-	ErrInvalidOpenAIMessage = errors.New("invalid openai message")
-	ErrUnknownPrompt        = errors.New("unknown prompt")
+	ErrMissingPrompt = errors.New("user prompt is missing (last message is not sent by user)")
 )
 
 func ParseOpenAIMessages(messages []OpenAIMessage) (OpenAIMessagesParseResult, error) {
@@ -20,7 +19,7 @@ func ParseOpenAIMessages(messages []OpenAIMessage) (OpenAIMessagesParseResult, e
 	prompt, imageUrl := ParseOpenAIMessageContent(lastMessage.Content)
 
 	if lastMessage.Role != "user" || prompt == "" {
-		return OpenAIMessagesParseResult{}, ErrUnknownPrompt
+		return OpenAIMessagesParseResult{}, ErrMissingPrompt
 	}
 
 	// construct context
