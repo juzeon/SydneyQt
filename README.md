@@ -115,6 +115,10 @@ Here's the TL;DR version:
 3. Clone the project: `git clone https://github.com/juzeon/SydneyQt`.
 4. Run the building command: `wails build`.
 
+## Web API
+
+Thanks to [@PeronGH](https://github.com/PeronGH) we now have a Web API. [Check out for more details.](webapi/README.md)
+
 ## Screenshots
 
 ![](https://public.ptree.top/ShareX/2023/12/04/1701694976/1qwHCtSW7D.png)

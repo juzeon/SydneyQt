@@ -113,6 +113,10 @@ Bing禁止特定国家访问Bing AI（具体来说，是sydney.bing.com），所
 3. 克隆项目: `git clone https://github.com/juzeon/SydneyQt`。
 4. 运行构建命令: `wails build`。
 
+## Web API
+
+感谢 [@PeronGH](https://github.com/PeronGH) 现在我们有了一个 Web API。[点这里查看详情。](webapi/README.md)
+
 ## 截图
 
 ![](https://public.ptree.top/ShareX/2023/12/04/1701694976/1qwHCtSW7D.png)
