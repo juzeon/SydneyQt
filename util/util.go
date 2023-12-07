@@ -12,6 +12,8 @@ import (
 	"image/jpeg"
 	_ "image/jpeg"
 	_ "image/png"
+	"io"
+	"log"
 	"math/rand"
 	"net/http"
 	"net/url"
@@ -38,11 +40,13 @@ func MakeHTTPClient(proxy string, timeout time.Duration) (*http.Client, error) {
 		}
 		transport.Proxy = http.ProxyURL(proxyURL)
 	} else { // try to get system proxy
+		log.SetOutput(io.Discard) // FIXME this is a dirty fix that may result in concurrency problems
 		proxies := []getproxy.Proxy{
 			getproxy.NewProvider("").GetHTTPProxy("https://www.bing.com"),
 			getproxy.NewProvider("").GetHTTPSProxy("https://www.bing.com"),
 			getproxy.NewProvider("").GetSOCKSProxy("https://www.bing.com"),
 		}
+		log.SetOutput(os.Stdout)
 		var sysProxy getproxy.Proxy
 		for _, p := range proxies {
 			p := p
