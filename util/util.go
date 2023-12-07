@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"errors"
+	getproxy "github.com/rapid7/go-get-proxied/proxy"
 	"image"
 	_ "image/gif"
 	"image/jpeg"
@@ -30,13 +31,29 @@ func Ternary[T any](expression bool, trueResult T, falseResult T) T {
 }
 func MakeHTTPClient(proxy string, timeout time.Duration) (*http.Client, error) {
 	transport := http.DefaultTransport.(*http.Transport).Clone()
-	if proxy != "" {
+	if proxy != "" { // user filled proxy
 		proxyURL, err := url.Parse(proxy)
 		if err != nil {
 			return nil, err
 		}
-		proxy := http.ProxyURL(proxyURL)
-		transport.Proxy = proxy
+		transport.Proxy = http.ProxyURL(proxyURL)
+	} else { // try to get system proxy
+		proxies := []getproxy.Proxy{
+			getproxy.NewProvider("").GetHTTPProxy("https://www.bing.com"),
+			getproxy.NewProvider("").GetHTTPSProxy("https://www.bing.com"),
+			getproxy.NewProvider("").GetSOCKSProxy("https://www.bing.com"),
+		}
+		var sysProxy getproxy.Proxy
+		for _, p := range proxies {
+			p := p
+			if p != nil {
+				sysProxy = p
+				break
+			}
+		}
+		if sysProxy != nil { // valid system proxy
+			transport.Proxy = http.ProxyURL(sysProxy.URL())
+		}
 	}
 	client := &http.Client{}
 	client.Transport = transport
