@@ -40,7 +40,7 @@
    - 打开扩展
    - 授予所有网站的权限
    - 点击右下角的`Export`，然后点击`Export as JSON`（这会把你的cookies保存到剪贴板）
-   - 把你的cookies粘贴到一个名为`cookies.json`的文件中，创建在`main.py`的同一个目录下。
+   - 把你的cookies粘贴到一个名为`cookies.json`的文件中，创建在可执行文件的同一个目录下。
    - **注意：在导出cookie之前，确保你可以使用网页聊天。**
 2. 运行程序。
 

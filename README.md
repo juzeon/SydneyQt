@@ -42,7 +42,7 @@ Platform information:
    - Open the extension
    - Grant permission for All sites
    - Click `Export` on the bottom right, then `Export as JSON` (This saves your cookies to clipboard)
-   - Paste your cookies into a file `cookies.json`, created in the same directory as `main.py`.
+   - Paste your cookies into a file `cookies.json`, created in the same directory as the executable file.
    - **Note: make sure you can use the web chat before exporting the cookie.**
 2. Run the program.
 
