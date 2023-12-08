@@ -149,6 +149,8 @@ func (o *Sydney) AskStream(options AskStreamOptions) <-chan Message {
 								Text: messageText[wrote:],
 							}
 							wrote = len(messageText)
+						} else if wrote > len(messageText) { // Bing deletes some already sent text
+							wrote = len(messageText)
 						}
 						sendSuggestedResponses(message)
 					}
