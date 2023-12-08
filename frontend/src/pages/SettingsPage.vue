@@ -286,7 +286,9 @@ function onChangeOpenAIMaxTokens(val: string) {
             <v-dialog max-width="500" v-model="versionDialog">
               <v-card :title="'New Version: '+versionResult?.latest_version">
                 <v-card-text>
-                  <div v-html="marked.parse(versionResult?.release_note || '*No release note.*') as string"></div>
+                  <div
+                      v-html="marked.parse(versionResult?.release_note?.replace(/\n+/g,'\n\n')
+                      || '*No release note.*') as string"></div>
                 </v-card-text>
                 <v-card-actions>
                   <v-spacer></v-spacer>
@@ -541,7 +543,8 @@ function onChangeOpenAIMaxTokens(val: string) {
                         <v-slider label="Presence Penalty" v-model="backend.presence_penalty"
                                   color="primary" min="-2" max="2" step="0.1" thumb-label="always"></v-slider>
                         <v-text-field label="Max Tokens" color="primary" :model-value="backend.max_tokens"
-                                      @update:model-value="onChangeOpenAIMaxTokens" hint="No limitation on purpose: 0"></v-text-field>
+                                      @update:model-value="onChangeOpenAIMaxTokens"
+                                      hint="No limitation on purpose: 0"></v-text-field>
                         <div class="d-flex my-3">
                           <v-spacer></v-spacer>
                           <v-btn icon color="red" variant="text" :disabled="isRenamingBackend"
