@@ -75,11 +75,14 @@ func (o *Sydney) AskStream(options AskStreamOptions) <-chan Message {
 					arr := gjson.Parse(messageText).Array()
 					for _, group := range arr {
 						srIndex := 1
-						for _, subGroup := range group.Array() {
-							links = append(links, fmt.Sprintf("[^%d^][%s](%s)",
-								srIndex, subGroup.Get("title").String(), subGroup.Get("url").String()))
-							srIndex++
-						}
+						group.ForEach(func(key, value gjson.Result) bool {
+							for _, subGroup := range value.Array() {
+								links = append(links, fmt.Sprintf("[^%d^][%s](%s)",
+									srIndex, subGroup.Get("title").String(), subGroup.Get("url").String()))
+								srIndex++
+							}
+							return true
+						})
 					}
 					out <- Message{
 						Type: MessageTypeSearchResult,
