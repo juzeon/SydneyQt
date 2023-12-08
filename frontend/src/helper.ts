@@ -1,4 +1,5 @@
 import Swal, {SweetAlertResult} from 'sweetalert2'
+import {generate} from "random-words"
 
 export interface ISwal {
     success: (text: string) => Promise<SweetAlertResult>,
@@ -68,4 +69,8 @@ export function shadeColor(color: string, percent: number): string {
     let GG = ((G.toString(16).length == 1) ? "0" + G.toString(16) : G.toString(16))
     let BB = ((B.toString(16).length == 1) ? "0" + B.toString(16) : B.toString(16))
     return "#" + RR + GG + BB
+}
+
+export function generateRandomName() {
+    return generate({maxLength: 6}) + '_' + generate({maxLength: 6})
 }

@@ -2,7 +2,7 @@
 import {computed, onMounted, onUnmounted, ref, watch} from "vue"
 import {main} from "../../wailsjs/go/models"
 import {EventsEmit, EventsOff, EventsOn} from "../../wailsjs/runtime"
-import {ChatMessage, shadeColor, swal, toChatMessages} from "../helper"
+import {ChatMessage, generateRandomName, shadeColor, swal, toChatMessages} from "../helper"
 import {AskAI, CountToken, FetchWebpage, UploadDocument, UploadSydneyImage} from "../../wailsjs/go/main/App"
 import {AskTypeOpenAI, AskTypeSydney} from "../constants"
 import Scaffold from "../components/Scaffold.vue"
@@ -29,7 +29,7 @@ let localeList = ['zh-CN', 'en-US']
 let loading = ref(true)
 let currentWorkspace = ref(<Workspace>{
   id: 1,
-  title: 'New Chat',
+  title: 'Chat ' + generateRandomName(),
   context: '',
   input: '',
   backend: 'Sydney',
@@ -371,7 +371,7 @@ function onReset() {
 
 function onDeleteWorkspace(workspace: Workspace) {
   if (sortedWorkspaces.value.length <= 1) {
-    workspace.title = 'New Chat'
+    workspace.title = 'Chat ' + generateRandomName()
     workspace.input = ''
     workspace.created_at = dayjs().format()
     onReset()
@@ -407,7 +407,7 @@ function addWorkspace() {
   let nextID = sortedWorkspaces.value[0].id + 1
   let workspace = <Workspace>{
     id: nextID,
-    title: 'New Chat',
+    title: 'Chat ' + generateRandomName(),
     created_at: dayjs().format(),
     no_search: currentWorkspace.value.no_search,
     backend: currentWorkspace.value.backend,
