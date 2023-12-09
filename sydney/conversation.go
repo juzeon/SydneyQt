@@ -20,7 +20,6 @@ func (o *Sydney) CreateConversation() (CreateConversationResponse, error) {
 	if err != nil {
 		return CreateConversationResponse{}, err
 	}
-	req.Header.Set("Cookie", util.FormatCookieString(o.cookies))
 	for k, v := range o.headersCreateConversation {
 		req.Header.Set(k, v)
 	}

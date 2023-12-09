@@ -193,10 +193,8 @@ func (o *Sydney) AskStreamRaw(options AskStreamOptions) <-chan RawMessage {
 			}
 			return
 		}
-		headers := util.CopyMap(o.headers)
-		headers["Cookie"] = util.FormatCookieString(o.cookies)
 		httpHeaders := http.Header{}
-		for k, v := range headers {
+		for k, v := range o.headers {
 			httpHeaders.Set(k, v)
 		}
 		ctx, cancel := util.CreateTimeoutContext(10 * time.Second)
