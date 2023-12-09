@@ -48,6 +48,8 @@ func main() {
 		r.Use(middleware.Logger)
 	}
 	r.Use(middleware.SetHeader("Access-Control-Allow-Origin", allowedOrigins))
+	r.Use(middleware.SetHeader("Access-Control-Allow-Methods", "POST"))
+	r.Use(middleware.SetHeader("Access-Control-Allow-Headers", "*"))
 	// handle preflight requests
 	r.Use(func(h http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
