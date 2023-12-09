@@ -47,12 +47,14 @@ func main() {
 	if !noLog {
 		r.Use(middleware.Logger)
 	}
-	r.Use(middleware.SetHeader("Access-Control-Allow-Origin", allowedOrigins))
-	r.Use(middleware.SetHeader("Access-Control-Allow-Methods", "POST"))
-	r.Use(middleware.SetHeader("Access-Control-Allow-Headers", "*"))
-	// handle preflight requests
+	// handle CORS and preflight requests
 	r.Use(func(h http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Access-Control-Allow-Origin", allowedOrigins)
+			w.Header().Set("Access-Control-Allow-Methods", "POST")
+			w.Header().Set("Access-Control-Allow-Headers", "*")
+			w.Header().Set("Access-Control-Max-Age", "86400")
+
 			if r.Method == http.MethodOptions {
 				w.WriteHeader(http.StatusNoContent)
 				return
