@@ -158,3 +158,19 @@ func ConvertImageToJpg(img []byte) ([]byte, error) {
 	// Return the buffer as a []byte
 	return buf.Bytes(), nil
 }
+func GenerateSecMSGec() string {
+    // Create a new local random generator
+    src := rand.NewSource(time.Now().UnixNano())
+    rng := rand.New(src)
+
+    // Create a byte slice of length 32
+    randomBytes := make([]byte, 32)
+
+    // Fill the slice with random bytes
+    for i := range randomBytes {
+        randomBytes[i] = byte(rng.Intn(256))
+    }
+
+    // Convert to hexadecimal
+    return hex.EncodeToString(randomBytes)
+}

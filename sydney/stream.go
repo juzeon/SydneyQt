@@ -4,15 +4,17 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/google/uuid"
-	"github.com/tidwall/gjson"
 	"log"
 	"log/slog"
+	"net/http"
 	"net/url"
-	"nhooyr.io/websocket"
 	"strings"
 	"sydneyqt/util"
 	"time"
+
+	"github.com/google/uuid"
+	"github.com/tidwall/gjson"
+	"nhooyr.io/websocket"
 )
 
 func (o *Sydney) AskStream(options AskStreamOptions) <-chan Message {
@@ -193,9 +195,9 @@ func (o *Sydney) AskStreamRaw(options AskStreamOptions) <-chan RawMessage {
 		}
 		headers := util.CopyMap(o.headers)
 		headers["Cookie"] = util.FormatCookieString(o.cookies)
-		httpHeaders := map[string][]string{}
+		httpHeaders := http.Header{}
 		for k, v := range headers {
-			httpHeaders[k] = []string{v}
+			httpHeaders.Set(k, v)
 		}
 		ctx, cancel := util.CreateTimeoutContext(10 * time.Second)
 		defer cancel()
