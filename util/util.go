@@ -3,10 +3,12 @@ package util
 import (
 	"bytes"
 	"context"
+	"crypto/tls"
 	"encoding/hex"
 	"encoding/json"
 	"errors"
 	getproxy "github.com/rapid7/go-get-proxied/proxy"
+	tlsx "github.com/refraction-networking/utls"
 	"image"
 	_ "image/gif"
 	"image/jpeg"
@@ -33,6 +35,18 @@ func Ternary[T any](expression bool, trueResult T, falseResult T) T {
 }
 func MakeHTTPClient(proxy string, timeout time.Duration) (*http.Client, error) {
 	transport := http.DefaultTransport.(*http.Transport).Clone()
+	c, err := tlsx.UTLSIdToSpec(tlsx.HelloChrome_102)
+	if err != nil {
+		return nil, err
+	}
+	transport.DisableKeepAlives = false
+	transport.TLSClientConfig = &tls.Config{
+		InsecureSkipVerify: true,
+		MinVersion:         c.TLSVersMin,
+		MaxVersion:         c.TLSVersMax,
+		CipherSuites:       c.CipherSuites,
+		ClientSessionCache: tls.NewLRUClientSessionCache(32),
+	}
 	if proxy != "" { // user filled proxy
 		proxyURL, err := url.Parse(proxy)
 		if err != nil {
@@ -159,18 +173,18 @@ func ConvertImageToJpg(img []byte) ([]byte, error) {
 	return buf.Bytes(), nil
 }
 func GenerateSecMSGec() string {
-    // Create a new local random generator
-    src := rand.NewSource(time.Now().UnixNano())
-    rng := rand.New(src)
+	// Create a new local random generator
+	src := rand.NewSource(time.Now().UnixNano())
+	rng := rand.New(src)
 
-    // Create a byte slice of length 32
-    randomBytes := make([]byte, 32)
+	// Create a byte slice of length 32
+	randomBytes := make([]byte, 32)
 
-    // Fill the slice with random bytes
-    for i := range randomBytes {
-        randomBytes[i] = byte(rng.Intn(256))
-    }
+	// Fill the slice with random bytes
+	for i := range randomBytes {
+		randomBytes[i] = byte(rng.Intn(256))
+	}
 
-    // Convert to hexadecimal
-    return hex.EncodeToString(randomBytes)
+	// Convert to hexadecimal
+	return hex.EncodeToString(randomBytes)
 }
