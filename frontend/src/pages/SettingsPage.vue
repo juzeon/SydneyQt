@@ -7,7 +7,7 @@ import {computed, onMounted, ref} from "vue"
 import {useTheme} from "vuetify"
 import {shadeColor} from "../helper"
 import UpdateCard from "../components/settings/UpdateCard.vue"
-import OpenAIBackendsCard from "../components/settings/OpenAIBackendsCard.vue"
+import OpenAIBackendsCard from "../components/settings/OpenAIBackendCard.vue"
 import PresetCard from "../components/settings/PresetCard.vue"
 
 let theme = useTheme()
