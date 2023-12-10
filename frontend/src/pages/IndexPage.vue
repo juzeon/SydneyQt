@@ -3,7 +3,7 @@ import {computed, onMounted, onUnmounted, ref, watch} from "vue"
 import {main, sydney} from "../../wailsjs/go/models"
 import {EventsEmit, EventsOff, EventsOn} from "../../wailsjs/runtime"
 import {ChatMessage, generateRandomName, shadeColor, swal, toChatMessages} from "../helper"
-import {AskAI, CountToken, FetchWebpage, GenerateImage} from "../../wailsjs/go/main/App"
+import {AskAI, CountToken, GenerateImage} from "../../wailsjs/go/main/App"
 import {AskTypeOpenAI, AskTypeSydney} from "../constants"
 import Scaffold from "../components/Scaffold.vue"
 import {useSettings} from "../composables"
@@ -15,6 +15,7 @@ import UserStatusButton from "../components/UserStatusButton.vue"
 import WorkspaceNav from "../components/WorkspaceNav.vue"
 import UploadImageButton from "../components/UploadImageButton.vue"
 import UploadDocumentButton from "../components/UploadDocumentButton.vue"
+import FetchWebpageButton from "../components/FetchWebpageButton.vue"
 import AskOptions = main.AskOptions
 import Workspace = main.Workspace
 import ChatFinishResult = main.ChatFinishResult
@@ -249,37 +250,7 @@ function stopAsking() {
   EventsEmit('chat_stop')
 }
 
-
 let uploadedImage = ref<UploadSydneyImageResult | undefined>()
-
-let webpageFetchDialog = ref(false)
-let webpageFetchURL = ref('')
-let webpageFetching = ref(false)
-let webpageFetchError = ref('')
-
-function fetchWebpage() {
-  webpageFetching.value = true
-  webpageFetchError.value = ''
-  FetchWebpage(webpageFetchURL.value).then(res => {
-    let text = '[user](#webpage_context)\n'
-    if (res.title === '') {
-      text += JSON.stringify(res.content)
-    } else {
-      text += JSON.stringify(res)
-    }
-    text += '\n\n'
-    fixContextLineBreak()
-    currentWorkspace.value.context += text
-    scrollChatContextToBottom()
-    webpageFetching.value = false
-    webpageFetchDialog.value = false
-    webpageFetchURL.value = ''
-  }).catch(err => {
-    webpageFetchError.value = err.toString()
-  }).finally(() => {
-    webpageFetching.value = false
-  })
-}
 
 function handleKeyPress(event: KeyboardEvent) {
   if (document.getElementById('user-input') !== document.activeElement) {
@@ -453,25 +424,9 @@ let workspaceNav = ref(null)
           <upload-document-button @fix-context-line-break="fixContextLineBreak"
                                   @scroll-chat-context-to-bottom="scrollChatContextToBottom" :is-asking="isAsking"
                                   :current-workspace="currentWorkspace"></upload-document-button>
-          <user-input-tool-button tooltip="Fetch a webpage" icon="mdi-web" @click="webpageFetchDialog=true"
-                                  :disabled="isAsking" :loading="webpageFetching"></user-input-tool-button>
-          <v-dialog v-model="webpageFetchDialog" max-width="500" :persistent="true">
-            <v-card>
-              <v-card-title>Enter a URL to fetch</v-card-title>
-              <v-card-text>
-                <v-text-field :error-messages="webpageFetchError" label="URL" v-model="webpageFetchURL"
-                              color="primary" @keydown.enter="fetchWebpage"></v-text-field>
-              </v-card-text>
-              <v-card-actions>
-                <v-spacer></v-spacer>
-                <v-btn variant="text" color="primary" :disabled="webpageFetching"
-                       @click="webpageFetchURL='';webpageFetchDialog=false">
-                  Cancel
-                </v-btn>
-                <v-btn variant="text" color="primary" :loading="webpageFetching" @click="fetchWebpage">Fetch</v-btn>
-              </v-card-actions>
-            </v-card>
-          </v-dialog>
+          <fetch-webpage-button :current-workspace="currentWorkspace" :is-asking="isAsking"
+                                @scroll-chat-context-to-bottom="scrollChatContextToBottom"
+                                @fix-context-line-break="fixContextLineBreak"></fetch-webpage-button>
           <user-input-tool-button tooltip="Revoke the latest user message" icon="mdi-undo" @click="handleRevoke"
                                   :disabled="isAsking"></user-input-tool-button>
           <v-menu>
