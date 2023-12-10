@@ -4,12 +4,12 @@ import Scaffold from "../components/Scaffold.vue"
 import {useRouter} from "vue-router"
 import {useSettings} from "../composables"
 import {computed, onMounted, ref} from "vue"
-import {useTheme} from "vuetify"
-import {shadeColor} from "../helper"
 import UpdateCard from "../components/settings/UpdateCard.vue"
 import OpenAIBackendsCard from "../components/settings/OpenAIBackendCard.vue"
 import PresetCard from "../components/settings/PresetCard.vue"
 import QuickResponseCard from "../components/settings/QuickResponseCard.vue"
+import ThemeTextField from "../components/settings/ThemeTextField.vue"
+import {useTheme} from "vuetify"
 
 let theme = useTheme()
 let router = useRouter()
@@ -44,19 +44,6 @@ function onRevokeReplyCountChanged(v: string) {
   let i = parseInt(v)
   if (isNaN(i) || i < 0) return
   config.value.revoke_reply_count = i
-}
-
-function onChangeThemeColor(val: string) {
-  if (!checkThemeColor(val)) {
-    return
-  }
-  config.value.theme_color = val
-  theme.themes.value.light.colors.primary = val
-  theme.themes.value.dark.colors.primary = shadeColor(val, -40)
-}
-
-function checkThemeColor(val: string): boolean {
-  return /^#[0-9A-Fa-f]{6}$/i.test(val)
 }
 </script>
 
@@ -129,9 +116,7 @@ function checkThemeColor(val: string): boolean {
                             thumb-label="always" hint="Default: 20"></v-slider>
                 </template>
               </v-tooltip>
-              <v-text-field label="Theme Color" color="primary" :model-value="config.theme_color"
-                            @update:model-value="onChangeThemeColor"
-                            hint="Must be a valid hex color; default value: #FF9800"></v-text-field>
+              <theme-text-field v-model:theme-color="config.theme_color"></theme-text-field>
             </v-card-text>
           </v-card>
           <v-card title="Accessibility" class="my-3">
