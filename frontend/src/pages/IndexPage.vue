@@ -2,13 +2,12 @@
 import {computed, onMounted, onUnmounted, ref, watch} from "vue"
 import {main, sydney} from "../../wailsjs/go/models"
 import {EventsEmit, EventsOff, EventsOn} from "../../wailsjs/runtime"
-import {ChatMessage, generateRandomName, shadeColor, swal, toChatMessages} from "../helper"
+import {generateRandomName, shadeColor, swal} from "../helper"
 import {AskAI, CountToken, GenerateImage} from "../../wailsjs/go/main/App"
 import {AskTypeOpenAI, AskTypeSydney} from "../constants"
 import Scaffold from "../components/Scaffold.vue"
 import {useSettings} from "../composables"
 import {useTheme} from "vuetify"
-import UserInputToolButton from "../components/index/UserInputToolButton.vue"
 import dayjs from "dayjs"
 import RichChatContext from "../components/index/RichChatContext.vue"
 import UserStatusButton from "../components/index/UserStatusButton.vue"
@@ -16,6 +15,7 @@ import WorkspaceNav from "../components/index/WorkspaceNav.vue"
 import UploadImageButton from "../components/index/UploadImageButton.vue"
 import UploadDocumentButton from "../components/index/UploadDocumentButton.vue"
 import FetchWebpageButton from "../components/index/FetchWebpageButton.vue"
+import RevokeButton from "../components/index/RevokeButton.vue"
 import AskOptions = main.AskOptions
 import Workspace = main.Workspace
 import ChatFinishResult = main.ChatFinishResult
@@ -172,15 +172,6 @@ function fixContextLineBreak() {
   }
 }
 
-function getChatMessages(): ChatMessage[] {
-  let ctx = currentWorkspace.value.context
-  return toChatMessages(ctx)
-}
-
-function setChatMessages(arr: ChatMessage[]) {
-  currentWorkspace.value.context = arr.map(v => `[${v.role}](#${v.type})\n${v.message}`).join('\n\n') + '\n\n'
-}
-
 function doListeningEvents(isUnregister: boolean = false) {
   isUnregister ? console.log('unregister chat listener') : console.log('register chat listener')
   for (let [event, func] of Object.entries(askEventMap)) {
@@ -231,19 +222,6 @@ function applyQuickResponse(text: string) {
     currentWorkspace.value.input += '\n'
   }
   currentWorkspace.value.input += text
-}
-
-function handleRevoke() {
-  let arr = getChatMessages()
-  console.log(arr)
-  let usersArr = arr.filter(v => v.role === 'user' && v.type === 'message')
-  if (usersArr.length < 1) {
-    swal.error('Nothing to revoke')
-    return
-  }
-  currentWorkspace.value.input = usersArr[usersArr.length - 1].message
-  // @ts-ignore
-  setChatMessages(arr.slice(0, arr.findLastIndex(v => v === usersArr[usersArr.length - 1])))
 }
 
 function stopAsking() {
@@ -432,8 +410,7 @@ let workspaceNav = ref(null)
           ></upload-document-button>
           <fetch-webpage-button :is-asking="isAsking"
                                 @append-block-to-current-workspace="appendBlockToCurrentWorkspace"></fetch-webpage-button>
-          <user-input-tool-button tooltip="Revoke the latest user message" icon="mdi-undo" @click="handleRevoke"
-                                  :disabled="isAsking"></user-input-tool-button>
+          <revoke-button :is-asking="isAsking" :current-workspace="currentWorkspace"></revoke-button>
           <v-menu>
             <template #activator="{props}">
               <v-btn color="primary" density="compact" variant="tonal" append-icon="mdi-menu-down"
