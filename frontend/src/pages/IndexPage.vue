@@ -13,14 +13,13 @@ import {
 } from "../../wailsjs/go/main/App"
 import {AskTypeOpenAI, AskTypeSydney} from "../constants"
 import Scaffold from "../components/Scaffold.vue"
-import Conversation from "../components/Conversation.vue"
 import {useSettings} from "../composables"
 import {useTheme} from "vuetify"
 import UserInputToolButton from "../components/UserInputToolButton.vue"
 import dayjs from "dayjs"
-import SearchWorkspaceButton from "../components/SearchWorkspaceButton.vue"
 import RichChatContext from "../components/RichChatContext.vue"
 import UserStatusButton from "../components/UserStatusButton.vue"
+import WorkspaceNav from "../components/WorkspaceNav.vue"
 import AskOptions = main.AskOptions
 import Workspace = main.Workspace
 import ChatFinishResult = main.ChatFinishResult
@@ -49,11 +48,7 @@ let currentWorkspace = ref(<Workspace>{
   image_packs: <GenerateImageResult[]>[],
   created_at: dayjs().format()
 })
-let sortedWorkspaces = computed(() => {
-  return config.value.workspaces?.sort((a, b) => {
-    return b.id - a.id
-  }) ?? []
-})
+
 let chatContextTokenCount = ref(0)
 let userInputTokenCount = ref(0)
 let fetchingTokenCount = ref(0)
@@ -382,64 +377,6 @@ function onReset() {
   suggestedResponses.value = []
 }
 
-function onDeleteWorkspace(workspace: Workspace) {
-  if (sortedWorkspaces.value.length <= 1) {
-    workspace.title = 'Chat ' + generateRandomName()
-    workspace.input = ''
-    workspace.created_at = dayjs().format()
-    onReset()
-    return
-  }
-  config.value.workspaces = config.value.workspaces.filter(v => v.id !== workspace.id)
-  if (workspace.id === currentWorkspace.value.id) {
-    switchWorkspace(sortedWorkspaces.value[0])
-  }
-}
-
-let editWorkspaceDialog = ref(false)
-let editWorkspaceTitle = ref('')
-let editWorkspaceIndex = ref(0)
-
-function onEditWorkspace(workspace: Workspace) {
-  editWorkspaceTitle.value = workspace.title
-  editWorkspaceIndex.value = workspace.id
-  editWorkspaceDialog.value = true
-}
-
-function confirmEditWorkspace() {
-  if (editWorkspaceTitle.value === '') {
-    return
-  }
-  let workspace = sortedWorkspaces.value.find(v => v.id === editWorkspaceIndex.value)!
-  workspace.title = editWorkspaceTitle.value
-  editWorkspaceDialog.value = false
-}
-
-
-function addWorkspace() {
-  let nextID = sortedWorkspaces.value[0].id + 1
-  let workspace = <Workspace>{
-    id: nextID,
-    title: 'Chat ' + generateRandomName(),
-    created_at: dayjs().format(),
-    no_search: currentWorkspace.value.no_search,
-    backend: currentWorkspace.value.backend,
-    context: config.value.presets.find(v => v.name === currentWorkspace.value.preset)?.content ?? '',
-    conversation_style: currentWorkspace.value.conversation_style,
-    input: '',
-    locale: currentWorkspace.value.locale,
-    preset: currentWorkspace.value.preset,
-    image_packs: <GenerateImageResult[]>[],
-  }
-  config.value.workspaces.push(workspace)
-  switchWorkspace(workspace)
-}
-
-function switchWorkspace(workspace: Workspace) {
-  currentWorkspace.value = workspace
-  suggestedResponses.value = []
-}
-
 let chatContextTabIndex = ref(0)
 
 let generativeImageLoading = ref(false)
@@ -459,6 +396,9 @@ function generateImage(req: GenerativeImage) {
     generativeImageLoading.value = false
   })
 }
+
+let workspaceNav = ref(null)
+
 </script>
 
 <template>
@@ -472,38 +412,10 @@ function generateImage(req: GenerativeImage) {
       <user-status-button></user-status-button>
     </template>
     <template #default>
-      <v-navigation-drawer v-model="navDrawer" :permanent="true">
-        <div class="d-flex flex-column fill-height">
-          <v-list class="overflow-y-auto flex-grow-1">
-            <v-list-item v-for="workspace in sortedWorkspaces">
-              <conversation :title="workspace.title" :created-at="workspace.created_at"
-                            :active="workspace.id===currentWorkspace.id" :disabled="isAsking"
-                            @delete="onDeleteWorkspace(workspace)" @edit="onEditWorkspace(workspace)"
-                            @click="switchWorkspace(workspace)"></conversation>
-            </v-list-item>
-          </v-list>
-          <div class="d-flex ma-3">
-            <v-btn :disabled="isAsking" @click="addWorkspace" variant="text" class="flex-grow-1" color="primary"
-                   prepend-icon="mdi-plus">
-              Add
-            </v-btn>
-            <search-workspace-button @switch-workspace="switchWorkspace" :is-asking="isAsking"
-                                     :workspaces="sortedWorkspaces"></search-workspace-button>
-          </div>
-        </div>
-      </v-navigation-drawer>
-      <v-dialog max-width="500" v-model="editWorkspaceDialog">
-        <v-card>
-          <v-card-text>
-            <v-text-field color="primary" label="Workspace Title" v-model="editWorkspaceTitle"></v-text-field>
-          </v-card-text>
-          <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-btn variant="text" color="primary" @click="editWorkspaceDialog=false">Cancel</v-btn>
-            <v-btn variant="text" color="primary" @click="confirmEditWorkspace">Confirm</v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-dialog>
+      <workspace-nav v-if="!loading" :is-asking="isAsking" v-model="navDrawer"
+                     v-model:current-workspace="currentWorkspace"
+                     v-model:workspaces="config.workspaces" :presets="config.presets" @on-reset="onReset"
+                     @update:suggested-responses="arr => suggestedResponses=arr"></workspace-nav>
       <div class="d-flex flex-column fill-height" v-if="!loading">
         <div class="d-flex align-center top-action-bar mx-2">
           <p class="font-weight-bold">Chat Context:</p>
