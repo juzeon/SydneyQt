@@ -52,9 +52,9 @@ Start a chat stream.
 - **Request**:
   - Content-Type: `application/json`
   - Body:
-    - `conversation`: `CreateConversationResponse`
     - `prompt`: `string`
     - `context`: `string`
+    - `conversation`: `CreateConversationResponse` (Optional)
     - `cookies`: `string` (Optional)
     - `imageUrl`: `string` (Optional)
     - `noSearch`: `boolean` (Optional)

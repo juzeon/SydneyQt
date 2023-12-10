@@ -163,16 +163,25 @@ func main() {
 			request.Locale = "en-US"
 		}
 
+		sydneyAPI := sydney.NewSydney(false, cookies, proxy, request.ConversationStyle, request.Locale, "", "", request.NoSearch)
+
+		// create new conversation if not provided
+		if request.Conversation.ConversationId == "" {
+			request.Conversation, err = sydneyAPI.CreateConversation()
+			if err != nil {
+				http.Error(w, "error creating conversation: "+err.Error(), http.StatusInternalServerError)
+				return
+			}
+		}
+
 		// stream chat
-		messageCh := sydney.
-			NewSydney(false, cookies, proxy, request.ConversationStyle, request.Locale, "", "", request.NoSearch).
-			AskStream(sydney.AskStreamOptions{
-				StopCtx:        r.Context(),
-				Conversation:   request.Conversation,
-				Prompt:         request.Prompt,
-				WebpageContext: request.WebpageContext,
-				ImageURL:       request.ImageURL,
-			})
+		messageCh := sydneyAPI.AskStream(sydney.AskStreamOptions{
+			StopCtx:        r.Context(),
+			Conversation:   request.Conversation,
+			Prompt:         request.Prompt,
+			WebpageContext: request.WebpageContext,
+			ImageURL:       request.ImageURL,
+		})
 
 		// set headers
 		w.Header().Set("Content-Type", "text/event-stream")

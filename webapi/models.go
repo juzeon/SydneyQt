@@ -7,9 +7,9 @@ type CreateConversationRequest struct {
 }
 
 type ChatStreamRequest struct {
-	Conversation      sydney.CreateConversationResponse `json:"conversation"`
 	Prompt            string                            `json:"prompt"`
 	WebpageContext    string                            `json:"context"`
+	Conversation      sydney.CreateConversationResponse `json:"conversation,omitempty"`
 	Cookies           string                            `json:"cookies,omitempty"`
 	ImageURL          string                            `json:"imageUrl,omitempty"`
 	NoSearch          bool                              `json:"noSearch,omitempty"`
