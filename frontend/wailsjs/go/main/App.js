@@ -22,6 +22,10 @@ export function FetchWebpage(arg1) {
   return window['go']['main']['App']['FetchWebpage'](arg1);
 }
 
+export function GenerateImage(arg1) {
+  return window['go']['main']['App']['GenerateImage'](arg1);
+}
+
 export function GetUser() {
   return window['go']['main']['App']['GetUser']();
 }

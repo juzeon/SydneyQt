@@ -1,9 +1,16 @@
 <script setup lang="ts">
 import {computed, onMounted, onUnmounted, ref, watch} from "vue"
-import {main} from "../../wailsjs/go/models"
+import {main, sydney} from "../../wailsjs/go/models"
 import {EventsEmit, EventsOff, EventsOn} from "../../wailsjs/runtime"
 import {ChatMessage, generateRandomName, shadeColor, swal, toChatMessages} from "../helper"
-import {AskAI, CountToken, FetchWebpage, UploadDocument, UploadSydneyImage} from "../../wailsjs/go/main/App"
+import {
+  AskAI,
+  CountToken,
+  FetchWebpage,
+  GenerateImage,
+  UploadDocument,
+  UploadSydneyImage
+} from "../../wailsjs/go/main/App"
 import {AskTypeOpenAI, AskTypeSydney} from "../constants"
 import Scaffold from "../components/Scaffold.vue"
 import Conversation from "../components/Conversation.vue"
@@ -18,6 +25,8 @@ import AskOptions = main.AskOptions
 import Workspace = main.Workspace
 import ChatFinishResult = main.ChatFinishResult
 import UploadSydneyImageResult = main.UploadSydneyImageResult
+import GenerativeImage = sydney.GenerativeImage
+import GenerateImageResult = sydney.GenerateImageResult
 
 let theme = useTheme()
 let navDrawer = ref(true)
@@ -37,6 +46,7 @@ let currentWorkspace = ref(<Workspace>{
   preset: 'Sydney',
   conversation_style: 'Creative',
   no_search: false,
+  image_packs: <GenerateImageResult[]>[],
   created_at: dayjs().format()
 })
 let sortedWorkspaces = computed(() => {
@@ -140,6 +150,9 @@ let askEventMap = {
   },
   "chat_conversation_created": () => {
     statusBarText.value = 'Fetching the response...'
+  },
+  "chat_generate_image": (req: GenerativeImage) => {
+    generateImage(req)
   }
 }
 
@@ -416,6 +429,7 @@ function addWorkspace() {
     input: '',
     locale: currentWorkspace.value.locale,
     preset: currentWorkspace.value.preset,
+    image_packs: <GenerateImageResult[]>[],
   }
   config.value.workspaces.push(workspace)
   switchWorkspace(workspace)
@@ -427,6 +441,24 @@ function switchWorkspace(workspace: Workspace) {
 }
 
 let chatContextTabIndex = ref(0)
+
+let generativeImageLoading = ref(false)
+let generativeImageError = ref('')
+
+function generateImage(req: GenerativeImage) {
+  generativeImageLoading.value = true
+  generativeImageError.value = ''
+  GenerateImage(req).then(res => {
+    if (!currentWorkspace.value.image_packs) {
+      currentWorkspace.value.image_packs = []
+    }
+    currentWorkspace.value.image_packs.push(res)
+  }).catch(err => {
+    generativeImageError.value = err.toString()
+  }).finally(() => {
+    generativeImageLoading.value = false
+  })
+}
 </script>
 
 <template>

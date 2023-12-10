@@ -138,6 +138,7 @@ type GenerativeImage struct {
 	URL  string `json:"url"`
 }
 type GenerateImageResult struct {
+	GenerativeImage
 	ImageURLs []string      `json:"image_urls"`
 	Duration  time.Duration `json:"duration"`
 }

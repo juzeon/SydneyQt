@@ -96,6 +96,7 @@ export namespace main {
 	    preset: string;
 	    conversation_style: string;
 	    no_search: boolean;
+	    image_packs: sydney.GenerateImageResult[];
 	    // Go type: time
 	    created_at: any;
 	
@@ -114,6 +115,7 @@ export namespace main {
 	        this.preset = source["preset"];
 	        this.conversation_style = source["conversation_style"];
 	        this.no_search = source["no_search"];
+	        this.image_packs = this.convertValues(source["image_packs"], sydney.GenerateImageResult);
 	        this.created_at = this.convertValues(source["created_at"], null);
 	    }
 	
@@ -263,6 +265,43 @@ export namespace main {
 	        this.base64_url = source["base64_url"];
 	        this.bing_url = source["bing_url"];
 	        this.canceled = source["canceled"];
+	    }
+	}
+
+}
+
+export namespace sydney {
+	
+	export class GenerateImageResult {
+	    text: string;
+	    url: string;
+	    image_urls: string[];
+	    duration: number;
+	
+	    static createFrom(source: any = {}) {
+	        return new GenerateImageResult(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.text = source["text"];
+	        this.url = source["url"];
+	        this.image_urls = source["image_urls"];
+	        this.duration = source["duration"];
+	    }
+	}
+	export class GenerativeImage {
+	    text: string;
+	    url: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new GenerativeImage(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.text = source["text"];
+	        this.url = source["url"];
 	    }
 	}
 

@@ -2,8 +2,10 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"github.com/life4/genesis/slices"
+	"github.com/samber/lo"
 	"github.com/sashabaranov/go-openai"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"io"
@@ -46,6 +48,7 @@ const (
 	EventChatFinish             = "chat_finish"
 	EventChatSuggestedResponses = "chat_suggested_responses"
 	EventChatToken              = "chat_token"
+	EventChatGenerateImage      = "chat_generate_image"
 )
 
 const (
@@ -148,6 +151,11 @@ func (a *App) askSydney(options AskOptions) {
 			fullMessageText += msg.Text
 			runtime.EventsEmit(a.ctx, EventChatToken, a.CountToken(fullMessageText))
 			textToAppend = msg.Text
+		case sydney.MessageTypeGenerativeImage:
+			var image sydney.GenerativeImage
+			lo.Must0(json.Unmarshal([]byte(msg.Text), &image))
+			runtime.EventsEmit(a.ctx, EventChatGenerateImage, image)
+			textToAppend = image.Text + "\n\n"
 		default:
 			textToAppend = msg.Text + "\n\n"
 		}

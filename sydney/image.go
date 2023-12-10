@@ -49,8 +49,9 @@ func (o *Sydney) GenerateImage(generativeImage GenerativeImage) (GenerateImageRe
 			imageURLs = append(imageURLs, match[1])
 		}
 		return GenerateImageResult{
-			ImageURLs: imageURLs,
-			Duration:  time.Now().Sub(start),
+			GenerativeImage: generativeImage,
+			ImageURLs:       imageURLs,
+			Duration:        time.Now().Sub(start),
 		}, nil
 	}
 	return empty, errors.New("image creation timeout")

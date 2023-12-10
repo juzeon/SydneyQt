@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/pkg/errors"
 	"os"
+	"sydneyqt/sydney"
 	"sydneyqt/util"
 	"sync"
 	"time"
@@ -14,16 +15,17 @@ type Preset struct {
 	Content string `json:"content"`
 }
 type Workspace struct {
-	ID                int       `json:"id"`
-	Title             string    `json:"title"`
-	Context           string    `json:"context"`
-	Input             string    `json:"input"`
-	Backend           string    `json:"backend"`
-	Locale            string    `json:"locale"`
-	Preset            string    `json:"preset"`
-	ConversationStyle string    `json:"conversation_style"`
-	NoSearch          bool      `json:"no_search"`
-	CreatedAt         time.Time `json:"created_at"`
+	ID                int                          `json:"id"`
+	Title             string                       `json:"title"`
+	Context           string                       `json:"context"`
+	Input             string                       `json:"input"`
+	Backend           string                       `json:"backend"`
+	Locale            string                       `json:"locale"`
+	Preset            string                       `json:"preset"`
+	ConversationStyle string                       `json:"conversation_style"`
+	NoSearch          bool                         `json:"no_search"`
+	ImagePacks        []sydney.GenerateImageResult `json:"image_packs"`
+	CreatedAt         time.Time                    `json:"created_at"`
 }
 type OpenAIBackend struct {
 	Name              string  `json:"name"`

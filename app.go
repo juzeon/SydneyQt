@@ -18,6 +18,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+	"sydneyqt/sydney"
 	"sydneyqt/util"
 	"sync"
 	"time"
@@ -247,4 +248,13 @@ func (a *App) CheckUpdate() (CheckUpdateResult, error) {
 		ReleaseURL:     githubRelease[0].HtmlUrl,
 		ReleaseNote:    githubRelease[0].Body,
 	}, nil
+}
+
+func (a *App) GenerateImage(generativeImage sydney.GenerativeImage) (sydney.GenerateImageResult, error) {
+	empty := sydney.GenerateImageResult{}
+	syd, err := a.createSydney()
+	if err != nil {
+		return empty, err
+	}
+	return syd.GenerateImage(generativeImage)
 }
