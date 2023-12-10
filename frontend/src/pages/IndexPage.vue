@@ -269,6 +269,12 @@ function handleKeyPress(event: KeyboardEvent) {
   }
 }
 
+function appendBlockToCurrentWorkspace(blockText: string) {
+  fixContextLineBreak()
+  currentWorkspace.value.context += blockText
+  scrollChatContextToBottom()
+}
+
 onMounted(() => {
   loading.value = true
   doListeningEvents()
@@ -421,12 +427,11 @@ let workspaceNav = ref(null)
           <p class="font-weight-bold">Follow-up User Input:</p>
           <v-spacer></v-spacer>
           <upload-image-button :is-asking="isAsking" v-model="uploadedImage"></upload-image-button>
-          <upload-document-button @fix-context-line-break="fixContextLineBreak"
-                                  @scroll-chat-context-to-bottom="scrollChatContextToBottom" :is-asking="isAsking"
-                                  :current-workspace="currentWorkspace"></upload-document-button>
-          <fetch-webpage-button :current-workspace="currentWorkspace" :is-asking="isAsking"
-                                @scroll-chat-context-to-bottom="scrollChatContextToBottom"
-                                @fix-context-line-break="fixContextLineBreak"></fetch-webpage-button>
+          <upload-document-button :is-asking="isAsking"
+                                  @append-block-to-current-workspace="appendBlockToCurrentWorkspace"
+          ></upload-document-button>
+          <fetch-webpage-button :is-asking="isAsking"
+                                @append-block-to-current-workspace="appendBlockToCurrentWorkspace"></fetch-webpage-button>
           <user-input-tool-button tooltip="Revoke the latest user message" icon="mdi-undo" @click="handleRevoke"
                                   :disabled="isAsking"></user-input-tool-button>
           <v-menu>

@@ -4,16 +4,12 @@ import UserInputToolButton from "./UserInputToolButton.vue"
 import {ref} from "vue"
 import {UploadDocument} from "../../wailsjs/go/main/App"
 import {swal} from "../helper"
-import {main} from "../../wailsjs/go/models"
-import Workspace = main.Workspace
 
 let props = defineProps<{
-  currentWorkspace: Workspace,
   isAsking: boolean,
 }>()
 let emit = defineEmits<{
-  (e: 'fixContextLineBreak'): void
-  (e: 'scrollChatContextToBottom'): void
+  (e: 'appendBlockToCurrentWorkspace', val: string): void
 }>()
 let uploadingDocument = ref(false)
 
@@ -23,9 +19,7 @@ function uploadDocument() {
     if (res.canceled) {
       return
     }
-    emit('fixContextLineBreak')
-    props.currentWorkspace.context += '[user](#document_context_' + res.ext?.substring(1) + '_file)\n' + res.text
-    emit('scrollChatContextToBottom')
+    emit('appendBlockToCurrentWorkspace', '[user](#document_context_' + res.ext?.substring(1) + '_file)\n' + res.text)
   }).catch(err => {
     swal.error(err)
   }).finally(() => {

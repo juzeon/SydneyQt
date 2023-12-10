@@ -3,16 +3,12 @@
 import UserInputToolButton from "./UserInputToolButton.vue"
 import {ref} from "vue"
 import {FetchWebpage} from "../../wailsjs/go/main/App"
-import {main} from "../../wailsjs/go/models"
-import Workspace = main.Workspace
 
 let props = defineProps<{
   isAsking: boolean,
-  currentWorkspace: Workspace,
 }>()
 let emit = defineEmits<{
-  (e: 'fixContextLineBreak'): void
-  (e: 'scrollChatContextToBottom'): void
+  (e: 'appendBlockToCurrentWorkspace', val: string): void
 }>()
 
 let webpageFetchDialog = ref(false)
@@ -31,9 +27,7 @@ function fetchWebpage() {
       text += JSON.stringify(res)
     }
     text += '\n\n'
-    emit('fixContextLineBreak')
-    props.currentWorkspace.context += text
-    emit('scrollChatContextToBottom')
+    emit('appendBlockToCurrentWorkspace', text)
     webpageFetching.value = false
     webpageFetchDialog.value = false
     webpageFetchURL.value = ''
