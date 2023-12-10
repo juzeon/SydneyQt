@@ -2,8 +2,8 @@
 
 import UserInputToolButton from "./UserInputToolButton.vue"
 import {ref} from "vue"
-import {UploadDocument} from "../../wailsjs/go/main/App"
-import {swal} from "../helper"
+import {UploadDocument} from "../../../wailsjs/go/main/App"
+import {swal} from "../../helper"
 
 let props = defineProps<{
   isAsking: boolean,

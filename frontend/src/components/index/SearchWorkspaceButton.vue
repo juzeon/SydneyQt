@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {computed, ref} from "vue"
-import {main} from "../../wailsjs/go/models"
+import {main} from "../../../wailsjs/go/models"
 import Workspace = main.Workspace
 
 let props = defineProps<{

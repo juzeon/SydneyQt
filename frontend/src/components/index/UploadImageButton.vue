@@ -2,9 +2,9 @@
 
 import UserInputToolButton from "./UserInputToolButton.vue"
 import {ref} from "vue"
-import {UploadSydneyImage} from "../../wailsjs/go/main/App"
-import {swal} from "../helper"
-import {main} from "../../wailsjs/go/models"
+import {UploadSydneyImage} from "../../../wailsjs/go/main/App"
+import {swal} from "../../helper"
+import {main} from "../../../wailsjs/go/models"
 import UploadSydneyImageResult = main.UploadSydneyImageResult
 
 let uploadingImage = ref(false)

@@ -2,7 +2,7 @@
 
 import UserInputToolButton from "./UserInputToolButton.vue"
 import {ref} from "vue"
-import {FetchWebpage} from "../../wailsjs/go/main/App"
+import {FetchWebpage} from "../../../wailsjs/go/main/App"
 
 let props = defineProps<{
   isAsking: boolean,

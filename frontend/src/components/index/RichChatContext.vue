@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {computed, onUpdated} from "vue"
-import {toChatMessages} from "../helper"
+import {toChatMessages} from "../../helper"
 import {marked} from "marked"
 import katex from 'katex'
 

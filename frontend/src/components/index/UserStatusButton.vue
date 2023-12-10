@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {onMounted, ref} from "vue"
-import {GetUser} from "../../wailsjs/go/main/App"
+import {GetUser} from "../../../wailsjs/go/main/App"
 
 let currentUser = ref('')
 let currentError = ref('')

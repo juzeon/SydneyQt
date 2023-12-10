@@ -2,8 +2,8 @@
 
 import Conversation from "./Conversation.vue"
 import SearchWorkspaceButton from "./SearchWorkspaceButton.vue"
-import {main, sydney} from "../../wailsjs/go/models"
-import {generateRandomName} from "../helper"
+import {main, sydney} from "../../../wailsjs/go/models"
+import {generateRandomName} from "../../helper"
 import dayjs from "dayjs"
 import {computed, ref} from "vue"
 import Workspace = main.Workspace
