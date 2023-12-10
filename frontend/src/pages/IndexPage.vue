@@ -26,6 +26,7 @@ import ChatFinishResult = main.ChatFinishResult
 import UploadSydneyImageResult = main.UploadSydneyImageResult
 import GenerativeImage = sydney.GenerativeImage
 import GenerateImageResult = sydney.GenerateImageResult
+import UploadImageButton from "../components/UploadImageButton.vue"
 
 let theme = useTheme()
 let navDrawer = ref(true)
@@ -254,23 +255,8 @@ function stopAsking() {
   EventsEmit('chat_stop')
 }
 
+
 let uploadedImage = ref<UploadSydneyImageResult | undefined>()
-let uploadingImage = ref(false)
-
-function uploadImage() {
-  uploadingImage.value = true
-  UploadSydneyImage().then(res => {
-    if (res.canceled) {
-      return
-    }
-    uploadedImage.value = res
-  }).catch(err => {
-    swal.error(err)
-  }).finally(() => {
-    uploadingImage.value = false
-  })
-}
-
 let uploadingDocument = ref(false)
 
 function uploadDocument() {
@@ -486,36 +472,7 @@ let workspaceNav = ref(null)
         <div class="my-1 d-flex">
           <p class="font-weight-bold">Follow-up User Input:</p>
           <v-spacer></v-spacer>
-          <div style="position: relative">
-            <v-hover v-slot="{ isHovering, props }">
-              <v-hover v-slot="{isHovering:subHovering,props:subProps}">
-                <v-fade-transition>
-                  <v-card v-show="(isHovering || subHovering) && uploadedImage" v-bind="subProps"
-                          style="position: absolute;bottom: 24px;right: 32px;">
-                    <v-card-text>
-                      <img v-if="uploadedImage" style="max-width: 200px;max-height: 400px"
-                           :src="uploadedImage.base64_url" alt="img"/>
-                    </v-card-text>
-                    <v-card-actions>
-                      <v-spacer></v-spacer>
-                      <v-btn variant="text" color="primary" @click="uploadImage">
-                        <v-icon>mdi-file-replace</v-icon>
-                        Replace
-                      </v-btn>
-                      <v-btn variant="text" color="red" @click="uploadedImage=undefined">
-                        <v-icon>mdi-close</v-icon>
-                        Remove
-                      </v-btn>
-                    </v-card-actions>
-                  </v-card>
-                </v-fade-transition>
-              </v-hover>
-              <user-input-tool-button @click="uploadImage" :bindings="uploadedImage?props:undefined"
-                                      tooltip="Upload an image"
-                                      icon="mdi-file-image" :color="uploadedImage?'green':undefined"
-                                      :disabled="isAsking" :loading="uploadingImage"></user-input-tool-button>
-            </v-hover>
-          </div>
+          <upload-image-button :is-asking="isAsking" v-model="uploadedImage"></upload-image-button>
           <user-input-tool-button @click="uploadDocument" tooltip="Upload a document (.pdf/.docx/.pptx)"
                                   icon="mdi-file-document"
                                   :loading="uploadingDocument"
