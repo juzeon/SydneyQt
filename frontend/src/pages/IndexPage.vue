@@ -3,14 +3,7 @@ import {computed, onMounted, onUnmounted, ref, watch} from "vue"
 import {main, sydney} from "../../wailsjs/go/models"
 import {EventsEmit, EventsOff, EventsOn} from "../../wailsjs/runtime"
 import {ChatMessage, generateRandomName, shadeColor, swal, toChatMessages} from "../helper"
-import {
-  AskAI,
-  CountToken,
-  FetchWebpage,
-  GenerateImage,
-  UploadDocument,
-  UploadSydneyImage
-} from "../../wailsjs/go/main/App"
+import {AskAI, CountToken, FetchWebpage, GenerateImage} from "../../wailsjs/go/main/App"
 import {AskTypeOpenAI, AskTypeSydney} from "../constants"
 import Scaffold from "../components/Scaffold.vue"
 import {useSettings} from "../composables"
@@ -20,13 +13,14 @@ import dayjs from "dayjs"
 import RichChatContext from "../components/RichChatContext.vue"
 import UserStatusButton from "../components/UserStatusButton.vue"
 import WorkspaceNav from "../components/WorkspaceNav.vue"
+import UploadImageButton from "../components/UploadImageButton.vue"
+import UploadDocumentButton from "../components/UploadDocumentButton.vue"
 import AskOptions = main.AskOptions
 import Workspace = main.Workspace
 import ChatFinishResult = main.ChatFinishResult
 import UploadSydneyImageResult = main.UploadSydneyImageResult
 import GenerativeImage = sydney.GenerativeImage
 import GenerateImageResult = sydney.GenerateImageResult
-import UploadImageButton from "../components/UploadImageButton.vue"
 
 let theme = useTheme()
 let navDrawer = ref(true)
@@ -257,23 +251,6 @@ function stopAsking() {
 
 
 let uploadedImage = ref<UploadSydneyImageResult | undefined>()
-let uploadingDocument = ref(false)
-
-function uploadDocument() {
-  uploadingDocument.value = true
-  UploadDocument().then(res => {
-    if (res.canceled) {
-      return
-    }
-    fixContextLineBreak()
-    currentWorkspace.value.context += '[user](#document_context_' + res.ext?.substring(1) + '_file)\n' + res.text
-    scrollChatContextToBottom()
-  }).catch(err => {
-    swal.error(err)
-  }).finally(() => {
-    uploadingDocument.value = false
-  })
-}
 
 let webpageFetchDialog = ref(false)
 let webpageFetchURL = ref('')
@@ -473,10 +450,9 @@ let workspaceNav = ref(null)
           <p class="font-weight-bold">Follow-up User Input:</p>
           <v-spacer></v-spacer>
           <upload-image-button :is-asking="isAsking" v-model="uploadedImage"></upload-image-button>
-          <user-input-tool-button @click="uploadDocument" tooltip="Upload a document (.pdf/.docx/.pptx)"
-                                  icon="mdi-file-document"
-                                  :loading="uploadingDocument"
-                                  :disabled="isAsking"></user-input-tool-button>
+          <upload-document-button @fix-context-line-break="fixContextLineBreak"
+                                  @scroll-chat-context-to-bottom="scrollChatContextToBottom" :is-asking="isAsking"
+                                  :current-workspace="currentWorkspace"></upload-document-button>
           <user-input-tool-button tooltip="Fetch a webpage" icon="mdi-web" @click="webpageFetchDialog=true"
                                   :disabled="isAsking" :loading="webpageFetching"></user-input-tool-button>
           <v-dialog v-model="webpageFetchDialog" max-width="500" :persistent="true">
