@@ -16,6 +16,7 @@ import UploadImageButton from "../components/index/UploadImageButton.vue"
 import UploadDocumentButton from "../components/index/UploadDocumentButton.vue"
 import FetchWebpageButton from "../components/index/FetchWebpageButton.vue"
 import RevokeButton from "../components/index/RevokeButton.vue"
+import GenerativeImageWindow from "../components/index/GenerativeImageWindow.vue"
 import AskOptions = main.AskOptions
 import Workspace = main.Workspace
 import ChatFinishResult = main.ChatFinishResult
@@ -262,6 +263,9 @@ onMounted(() => {
     theme.global.name.value = config.value.dark_mode ? 'dark' : 'light'
     let workspace = config.value.workspaces?.find(v => v.id === config.value.current_workspace_id)
     if (workspace) {
+      if (!workspace.image_packs) {
+        workspace.image_packs = []
+      }
       currentWorkspace.value = workspace
     } else {
       currentWorkspace.value.context = config.value.presets.find(v => v.name === 'Sydney')?.content ?? ''
@@ -292,24 +296,23 @@ function onPresetChange(newValue: string) {
 
 function onReset() {
   currentWorkspace.value.context = config.value.presets.find(v => v.name === currentWorkspace.value.preset)?.content ?? ''
+  currentWorkspace.value.image_packs = []
   suggestedResponses.value = []
 }
 
 let chatContextTabIndex = ref(0)
 
 let generativeImageLoading = ref(false)
-let generativeImageError = ref('')
 
 function generateImage(req: GenerativeImage) {
   generativeImageLoading.value = true
-  generativeImageError.value = ''
   GenerateImage(req).then(res => {
     if (!currentWorkspace.value.image_packs) {
       currentWorkspace.value.image_packs = []
     }
     currentWorkspace.value.image_packs.push(res)
   }).catch(err => {
-    generativeImageError.value = err.toString()
+    swal.error(err)
   }).finally(() => {
     generativeImageLoading.value = false
   })
@@ -368,6 +371,7 @@ let workspaceNav = ref(null)
         <v-tabs v-model="chatContextTabIndex" density="compact" color="primary" class="mb-1 flex-shrink-0">
           <v-tab :value="0">Plain</v-tab>
           <v-tab :value="1">Rich</v-tab>
+          <v-tab :value="3">Image</v-tab>
         </v-tabs>
         <div class="flex-grow-1" style="min-height: 0;position: relative"><!-- This is to enable the scroll bar -->
           <v-window v-model="chatContextTabIndex" class="fill-height">
@@ -379,6 +383,10 @@ let workspaceNav = ref(null)
               <rich-chat-context :lock-scroll="lockScroll" :custom-font-style="customFontStyle"
                                  :context="currentWorkspace.context"></rich-chat-context>
             </v-window-item>
+            <v-window-item :value="3" class="fill-height">
+              <generative-image-window :custom-font-style="customFontStyle"
+                                       v-model:image-packs="currentWorkspace.image_packs"></generative-image-window>
+            </v-window-item>
           </v-window>
           <v-tooltip :text="lockScroll?'Enable Auto Scrolling':'Disable Auto Scrolling'" location="top">
             <template #activator="{props}">
@@ -388,6 +396,16 @@ let workspaceNav = ref(null)
                        color="primary">
                   <v-icon v-if="lockScroll">mdi-transfer-down</v-icon>
                   <v-icon v-else>mdi-arrow-vertical-lock</v-icon>
+                </v-btn>
+              </v-scale-transition>
+            </template>
+          </v-tooltip>
+          <v-tooltip text="There are images generating..." location="top">
+            <template #activator="{props}">
+              <v-scale-transition>
+                <v-btn v-bind="props" icon v-if="generativeImageLoading"
+                       style="position:absolute;left: 25px;bottom: 25px;" color="primary">
+                  <img class="loading-icon"/>
                 </v-btn>
               </v-scale-transition>
             </template>

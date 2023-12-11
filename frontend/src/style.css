@@ -30,3 +30,7 @@ body::-webkit-scrollbar {
 .katex-html[aria-hidden="true"] {
     display: none;
 }
+
+img.loading-icon {
+    content:url("assets/images/90-ring-with-bg.svg");
+}

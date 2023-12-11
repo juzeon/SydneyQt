@@ -48,6 +48,7 @@ func (o *Sydney) GenerateImage(generativeImage GenerativeImage) (GenerateImageRe
 		for _, match := range arr {
 			imageURLs = append(imageURLs, match[1])
 		}
+		slog.Info("Created images successfully", "images", imageURLs)
 		return GenerateImageResult{
 			GenerativeImage: generativeImage,
 			ImageURLs:       imageURLs,

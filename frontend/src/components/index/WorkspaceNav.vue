@@ -84,6 +84,9 @@ function addWorkspace() {
 }
 
 function switchWorkspace(workspace: Workspace) {
+  if (!workspace.image_packs) {
+    workspace.image_packs = []
+  }
   emit('update:currentWorkspace', workspace)
   emit('update:suggestedResponses', [])
 }
