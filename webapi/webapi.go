@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -367,8 +368,10 @@ func main() {
 		}
 
 		// ask stream
+		newContext, cancel := context.WithCancel(r.Context())
+
 		messageCh := sydneyAPI.AskStream(sydney.AskStreamOptions{
-			StopCtx:        r.Context(),
+			StopCtx:        newContext,
 			Conversation:   conversation,
 			Prompt:         request.Prompt,
 			WebpageContext: ImageGeneratorContext,
@@ -378,10 +381,13 @@ func main() {
 
 		for message := range messageCh {
 			if message.Type == sydney.MessageTypeGenerativeImage {
-				json.Unmarshal([]byte(message.Text), &generativeImage)
-				break
+				err := json.Unmarshal([]byte(message.Text), &generativeImage)
+				if err == nil {
+					break
+				}
 			}
 		}
+		cancel()
 
 		if generativeImage.URL == "" {
 			http.Error(w, "empty generative image", http.StatusInternalServerError)
