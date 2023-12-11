@@ -100,7 +100,7 @@ Due to differences between the OpenAI API and the Sydney API, only the following
 - `model`: `GPT-3.5-Turbo` series will be mapped to `Balance`, others will be mapped to `Creative`.
 - `stream`: The same as OpenAI's.
 
-There is an extra field or reusing conversation, if your SDK supports such customization:
+There is an extra field for reusing conversation, if your SDK supports such customization:
 
 - `conversation`: `CreateConversationResponse`
 
