@@ -19,6 +19,15 @@ Then the server will be running at <http://localhost:8080>.
 
 ## Endpoints
 
+### GET /check/health
+
+Check the health of the server.
+
+- **Request**: None
+- **Response**:
+  - Content-Type: `text/plain`
+  - Body: `OK`
+
 ### POST /conversation/new
 
 Create a new conversation.

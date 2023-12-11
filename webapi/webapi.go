@@ -51,7 +51,7 @@ func main() {
 	r.Use(func(h http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Access-Control-Allow-Origin", allowedOrigins)
-			w.Header().Set("Access-Control-Allow-Methods", "POST")
+			w.Header().Set("Access-Control-Allow-Methods", "*")
 			w.Header().Set("Access-Control-Allow-Headers", "*")
 			w.Header().Set("Access-Control-Max-Age", "86400")
 
@@ -78,6 +78,14 @@ func main() {
 	})
 
 	// add handlers
+	r.Get("/check/health", func(w http.ResponseWriter, r *http.Request) {
+		// set headers
+		w.Header().Set("Content-Type", "text/plain")
+
+		// write response
+		fmt.Fprint(w, "OK")
+	})
+
 	r.Post("/conversation/new", func(w http.ResponseWriter, r *http.Request) {
 		// parse request
 		var request CreateConversationRequest
