@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/klippa-app/go-pdfium"
 	"github.com/klippa-app/go-pdfium/requests"
 	"github.com/klippa-app/go-pdfium/webassembly"
@@ -32,24 +33,32 @@ func (P PDFDocumentReader) WillSkipPostprocess() bool {
 }
 
 var pdfInstance pdfium.Pdfium
+var initPDFError error
 var initPDFInstance = sync.OnceFunc(func() {
 	pool, err := webassembly.Init(webassembly.Config{
 		MinIdle:  1,
 		MaxIdle:  1,
 		MaxTotal: 1,
+		Stdout:   io.Discard,
+		Stderr:   io.Discard,
 	})
 	if err != nil {
-		panic(err)
+		initPDFError = fmt.Errorf("cannot create pool: %w", err)
+		return
 	}
 	instance, err := pool.GetInstance(time.Second * 30)
 	if err != nil {
-		panic(err)
+		initPDFError = fmt.Errorf("cannot get instance from pool: %w", err)
+		return
 	}
 	pdfInstance = instance
 })
 
 func (P PDFDocumentReader) Read(filePath string) (string, error) {
 	initPDFInstance()
+	if initPDFError != nil {
+		return "", initPDFError
+	}
 	// Load the PDF file into a byte array.
 	pdfBytes, err := os.ReadFile(filePath)
 	if err != nil {
