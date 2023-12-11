@@ -16,6 +16,7 @@
 - 与你浏览的网页聊天。
 - 与你打开的文档聊天（包括pdf、docx和pptx）。
 - 具有视觉功能的GPT-4，支持图片搜索。
+- 使用最新的 DALL·E 3 模型生成图像。
 - 使用可切换的不同配置的OpenAI ChatGPT API。
 - 在自定义的提示预设之间切换。
 - 使用现代的Web技术构建的负责任和人性化的UI设计。
@@ -122,6 +123,8 @@ Bing禁止特定国家访问Bing AI（具体来说，是sydney.bing.com），所
 ![](https://public.ptree.top/ShareX/2023/12/04/1701694976/1qwHCtSW7D.png)
 
 ![](https://public.ptree.top/ShareX/2023/12/05/1701779864/syd-color.jpg)
+
+![](https://public.ptree.top/ShareX/2023/12/11/1702287078/qUxbdxgRcN.png)
 
 ![](https://public.ptree.top/ShareX/2023/12/04/1701694905/sGRMfoZDFY.png)
 

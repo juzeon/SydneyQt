@@ -18,6 +18,7 @@ A cross-platform desktop client for the jailbroken New Bing AI (Sydney ver.) bui
 - Chat with webpages you browse.
 - Chat with documents you open (including pdf, docx and pptx).
 - GPT-4 with vision that supports image search.
+- Generate images using the latest DALL·E 3 model.
 - Use OpenAI ChatGPT API with swichable different configurations.
 - Switch between custom prompt presets.
 - Responsible and humanized UI designs built with modern web technologies.
@@ -124,6 +125,8 @@ Thanks to [@PeronGH](https://github.com/PeronGH) we now have a Web API. [Check o
 ![](https://public.ptree.top/ShareX/2023/12/04/1701694976/1qwHCtSW7D.png)
 
 ![](https://public.ptree.top/ShareX/2023/12/05/1701779864/syd-color.jpg)
+
+![](https://public.ptree.top/ShareX/2023/12/11/1702287078/qUxbdxgRcN.png)
 
 ![](https://public.ptree.top/ShareX/2023/12/04/1701694905/sGRMfoZDFY.png)
 
