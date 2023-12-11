@@ -63,6 +63,7 @@ type OpenAIChatCompletionRequest struct {
 	Model        string                            `json:"model"`
 	Messages     []OpenAIMessage                   `json:"messages"`
 	Stream       bool                              `json:"stream"`
+	ToolChoice   *interface{}                      `json:"tool_choice,omitempty"`
 	Conversation sydney.CreateConversationResponse `json:"conversation,omitempty"`
 }
 

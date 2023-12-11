@@ -99,6 +99,7 @@ Due to differences between the OpenAI API and the Sydney API, only the following
 - `messages`: The same as OpenAI's, and can contain image url (only valid in the last message).
 - `model`: `GPT-3.5-Turbo` series will be mapped to `Balance`, others will be mapped to `Creative`.
 - `stream`: The same as OpenAI's.
+- `tool_choice`: Will enable `noSearch` if it is `null`.
 
 There is an extra field for reusing conversation, if your SDK supports such customization:
 
