@@ -140,7 +140,7 @@ func (p PptxDocumentReader) Read(filePath string) (string, error) {
 	slideReg := regexp.MustCompile("slide(\\d+)\\.xml")
 	policy := bluemonday.StripTagsPolicy()
 	for _, file := range reader.File {
-		if !strings.HasPrefix(file.Name, "ppt/slides/") || strings.HasSuffix(file.Name, ".rels") {
+		if !strings.HasPrefix(file.Name, "ppt/slides/") || !strings.HasSuffix(file.Name, ".xml") {
 			continue
 		}
 		arr := slideReg.FindStringSubmatch(file.Name)
