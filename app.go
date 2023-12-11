@@ -258,3 +258,32 @@ func (a *App) GenerateImage(generativeImage sydney.GenerativeImage) (sydney.Gene
 	}
 	return syd.GenerateImage(generativeImage)
 }
+func (a *App) SaveRemoteJPEGImage(url string) error {
+	filePath, err := runtime.SaveFileDialog(a.ctx, runtime.SaveDialogOptions{
+		Title: "Choose a destination to save the image",
+		Filters: []runtime.FileFilter{{
+			DisplayName: "JPEG Image Files (*.jpg, *.jpeg)",
+			Pattern:     "*.jpg;*.jpeg",
+		}},
+		CanCreateDirectories: true,
+	})
+	if err != nil {
+		return err
+	}
+	if filePath == "" { // cancelled
+		return nil
+	}
+	hClient, err := util.MakeHTTPClient(a.settings.config.Proxy, 0)
+	if err != nil {
+		return err
+	}
+	client := resty.New().SetTimeout(30 * time.Second).SetTransport(hClient.Transport)
+	resp, err := client.R().Get(url)
+	if err != nil {
+		return err
+	}
+	if !strings.HasSuffix(filePath, ".jpg") && !strings.HasSuffix(filePath, ".jpeg") {
+		filePath += ".jpg"
+	}
+	return os.WriteFile(filePath, resp.Body(), 0644)
+}

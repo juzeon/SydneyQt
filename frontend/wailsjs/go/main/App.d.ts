@@ -17,6 +17,8 @@ export function GenerateImage(arg1:sydney.GenerativeImage):Promise<sydney.Genera
 
 export function GetUser():Promise<string>;
 
+export function SaveRemoteJPEGImage(arg1:string):Promise<void>;
+
 export function UploadDocument():Promise<main.UploadSydneyDocumentResult>;
 
 export function UploadSydneyImage():Promise<main.UploadSydneyImageResult>;
