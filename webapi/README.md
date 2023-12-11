@@ -47,7 +47,7 @@ Upload an image and return its URL.
 - **Request**:
   - Content-Type: `multipart/form-data`
   - Body:
-    - `image`: `File`
+    - `file`: `File`
     - `cookies`: `string` (Optional)
 
 - **Response**:
