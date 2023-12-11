@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"strings"
+	"sydneyqt/sydney"
 	"time"
 )
 
@@ -132,5 +133,22 @@ func NewOpenAIChatCompletionChunk(model, delta string, finishReason *string) *Op
 				FinishReason: finishReason,
 			},
 		},
+	}
+}
+
+func ToOpenAIImageGeneration(result sydney.GenerateImageResult) OpenAIImageGeneration {
+	var objects []OpenAIImageObject
+
+	for _, url := range result.ImageURLs {
+		urlWithoutQuery := strings.Split(url, "?")[0]
+		objects = append(objects, OpenAIImageObject{
+			URL:           urlWithoutQuery,
+			RevisedPrompt: result.Text,
+		})
+	}
+
+	return OpenAIImageGeneration{
+		Created: time.Now().Unix(),
+		Data:    objects,
 	}
 }

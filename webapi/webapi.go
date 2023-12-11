@@ -344,6 +344,64 @@ func main() {
 		fmt.Fprintf(w, "data: %s\n\ndata: [DONE]\n", encoded)
 	})
 
+	r.Post("/v1/images/generations", func(w http.ResponseWriter, r *http.Request) {
+		// parse request
+		var request OpenAIImageGenerationRequest
+
+		err := json.NewDecoder(r.Body).Decode(&request)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		cookiesStr := r.Header.Get("Cookie")
+		cookies := util.Ternary(cookiesStr == "", defaultCookies, ParseCookies(cookiesStr))
+
+		sydneyAPI := sydney.NewSydney(false, cookies, proxy, "Creative", "en-US", "", "", false)
+
+		// create conversation
+		conversation, err := sydneyAPI.CreateConversation()
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		// ask stream
+		messageCh := sydneyAPI.AskStream(sydney.AskStreamOptions{
+			StopCtx:        r.Context(),
+			Conversation:   conversation,
+			Prompt:         request.Prompt,
+			WebpageContext: ImageGeneratorContext,
+		})
+
+		var generativeImage sydney.GenerativeImage
+
+		for message := range messageCh {
+			if message.Type == sydney.MessageTypeGenerativeImage {
+				json.Unmarshal([]byte(message.Text), &generativeImage)
+				break
+			}
+		}
+
+		if generativeImage.URL == "" {
+			http.Error(w, "empty generative image", http.StatusInternalServerError)
+			return
+		}
+
+		// create image
+		image, err := sydneyAPI.GenerateImage(generativeImage)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		// set headers
+		w.Header().Set("Content-Type", "application/json")
+
+		// write response
+		json.NewEncoder(w).Encode(ToOpenAIImageGeneration(image))
+	})
+
 	// serve the router
 	log.Println("Listening on :" + port)
 	log.Fatal(http.ListenAndServe(":"+port, r))

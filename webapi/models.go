@@ -112,3 +112,17 @@ type OpenAIChatCompletion struct {
 	Choices           []ChatCompletionChoice `json:"choices"`
 	Usage             UsageStats             `json:"usage"`
 }
+
+type OpenAIImageObject struct {
+	URL           string `json:"url"`
+	RevisedPrompt string `json:"revised_prompt"`
+}
+
+type OpenAIImageGeneration struct {
+	Created int64               `json:"created"`
+	Data    []OpenAIImageObject `json:"data"`
+}
+
+type OpenAIImageGenerationRequest struct {
+	Prompt string `json:"prompt"`
+}

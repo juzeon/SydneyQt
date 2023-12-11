@@ -107,3 +107,13 @@ There is an extra field or reusing conversation, if your SDK supports such custo
 The `Cookie` header is also supported to provide custom cookies.
 
 The response is full of dummy values, and only the `choices` field is valid. The stop reason is `length` if any error occurs, and `stop` otherwise.
+
+### POST /v1/images/generations
+
+This endpoint is compatible with the OpenAI API. You can check the API reference [here](https://platform.openai.com/docs/api-reference/images).
+
+Due to differences between the OpenAI API and the Sydney API, only the following parameters are supported:
+
+- `prompt`: The same as OpenAI's.
+
+The `Cookie` header is also supported to provide custom cookies.
