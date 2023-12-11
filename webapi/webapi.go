@@ -152,6 +152,34 @@ func main() {
 		fmt.Fprint(w, imgUrl)
 	})
 
+	r.Post("/image/create", func(w http.ResponseWriter, r *http.Request) {
+		var request CreateImageRequest
+
+		err := json.NewDecoder(r.Body).Decode(&request)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		cookies := util.Ternary(request.Cookies == "", defaultCookies, ParseCookies(request.Cookies))
+
+		// create image
+		image, err := sydney.
+			NewSydney(false, cookies, proxy, "Creative", "", "", "", false).
+			GenerateImage(request.Image)
+
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		// set headers
+		w.Header().Set("Content-Type", "application/json")
+
+		// write response
+		json.NewEncoder(w).Encode(image)
+	})
+
 	r.Post("/chat/stream", func(w http.ResponseWriter, r *http.Request) {
 		// parse request
 		request := ChatStreamRequest{

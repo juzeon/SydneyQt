@@ -54,6 +54,20 @@ Upload an image and return its URL.
   - Content-Type: `text/plain`
   - Body: `string`
 
+## POST /image/create
+
+Get urls of images created by Sydney.
+
+- **Request**:
+  - Content-Type: `application/json`
+  - Body:
+    - `image`: `GenerativeImage`
+    - `cookies`: `string` (Optional)
+
+- **Response**:
+  - Content-Type: `application/json`
+  - Body: `GenerateImageResult`
+
 ### POST /chat/stream
 
 Start a chat stream.

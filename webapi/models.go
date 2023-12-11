@@ -6,6 +6,11 @@ type CreateConversationRequest struct {
 	Cookies string `json:"cookies,omitempty"`
 }
 
+type CreateImageRequest struct {
+	Image   sydney.GenerativeImage `json:"image"`
+	Cookies string                 `json:"cookies,omitempty"`
+}
+
 type ChatStreamRequest struct {
 	Prompt            string                            `json:"prompt"`
 	WebpageContext    string                            `json:"context"`
@@ -69,7 +74,7 @@ type ChoiceDelta struct {
 type ChatCompletionChunkChoice struct {
 	Index        int         `json:"index"`
 	Delta        ChoiceDelta `json:"delta"`
-	FinishReason *string      `json:"finish_reason"`
+	FinishReason *string     `json:"finish_reason"`
 }
 
 type OpenAIChatCompletionChunk struct {
