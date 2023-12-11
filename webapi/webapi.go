@@ -78,7 +78,7 @@ func main() {
 	})
 
 	// add handlers
-	r.Get("/check/health", func(w http.ResponseWriter, r *http.Request) {
+	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		// set headers
 		w.Header().Set("Content-Type", "text/plain")
 

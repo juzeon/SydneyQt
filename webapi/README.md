@@ -19,7 +19,7 @@ Then the server will be running at <http://localhost:8080>.
 
 ## Endpoints
 
-### GET /check/health
+### GET /
 
 Check the health of the server.
 
