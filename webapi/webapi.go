@@ -102,14 +102,8 @@ func main() {
 		// create conversation
 		conversation, err := sydney.
 			NewSydney(sydney.Options{
-				Debug:                 false,
-				Cookies:               cookies,
-				Proxy:                 proxy,
-				ConversationStyle:     "",
-				Locale:                "",
-				WssDomain:             "",
-				CreateConversationURL: "",
-				NoSearch:              false,
+				Cookies: cookies,
+				Proxy:   proxy,
 			}).
 			CreateConversation()
 
@@ -148,14 +142,8 @@ func main() {
 		// upload image
 		imgUrl, err := sydney.
 			NewSydney(sydney.Options{
-				Debug:                 false,
-				Cookies:               cookies,
-				Proxy:                 proxy,
-				ConversationStyle:     "",
-				Locale:                "",
-				WssDomain:             "",
-				CreateConversationURL: "",
-				NoSearch:              false,
+				Cookies: cookies,
+				Proxy:   proxy,
 			}).
 			UploadImage(bytes)
 
@@ -185,14 +173,9 @@ func main() {
 		// create image
 		image, err := sydney.
 			NewSydney(sydney.Options{
-				Debug:                 false,
-				Cookies:               cookies,
-				Proxy:                 proxy,
-				ConversationStyle:     "Creative",
-				Locale:                "",
-				WssDomain:             "",
-				CreateConversationURL: "",
-				NoSearch:              false,
+				Cookies:           cookies,
+				Proxy:             proxy,
+				ConversationStyle: "Creative",
 			}).
 			GenerateImage(request.Image)
 
@@ -228,14 +211,11 @@ func main() {
 		}
 
 		sydneyAPI := sydney.NewSydney(sydney.Options{
-			Debug:                 false,
-			Cookies:               cookies,
-			Proxy:                 proxy,
-			ConversationStyle:     request.ConversationStyle,
-			Locale:                request.Locale,
-			WssDomain:             "",
-			CreateConversationURL: "",
-			NoSearch:              request.NoSearch,
+			Cookies:           cookies,
+			Proxy:             proxy,
+			ConversationStyle: request.ConversationStyle,
+			Locale:            request.Locale,
+			NoSearch:          request.NoSearch,
 		})
 
 		// create new conversation if not provided
@@ -294,14 +274,12 @@ func main() {
 			strings.HasPrefix(request.Model, "gpt-3.5-turbo"), "Balanced", "Creative")
 
 		sydneyAPI := sydney.NewSydney(sydney.Options{
-			Debug:                 false,
-			Cookies:               cookies,
-			Proxy:                 proxy,
-			ConversationStyle:     conversationStyle,
-			Locale:                "en-US",
-			WssDomain:             "",
-			CreateConversationURL: "",
-			NoSearch:              request.ToolChoice != nil,
+			Cookies:           cookies,
+			Proxy:             proxy,
+			ConversationStyle: conversationStyle,
+			Locale:            "en-US",
+			NoSearch:          request.ToolChoice != nil,
+			GPT4Turbo:         true,
 		})
 
 		// create new conversation if not provided
@@ -404,14 +382,10 @@ func main() {
 		cookies := util.Ternary(cookiesStr == "", defaultCookies, ParseCookies(cookiesStr))
 
 		sydneyAPI := sydney.NewSydney(sydney.Options{
-			Debug:                 false,
-			Cookies:               cookies,
-			Proxy:                 proxy,
-			ConversationStyle:     "Creative",
-			Locale:                "en-US",
-			WssDomain:             "",
-			CreateConversationURL: "",
-			NoSearch:              false,
+			Cookies:           cookies,
+			Proxy:             proxy,
+			ConversationStyle: "Creative",
+			Locale:            "en-US",
 		})
 
 		// create conversation
