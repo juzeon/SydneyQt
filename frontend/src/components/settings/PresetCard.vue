@@ -25,7 +25,8 @@ function deletePreset(preset: Preset) {
   if (preset.name === 'Sydney') {
     return
   }
-  emit('update:presets', props.presets.filter(v => v.name !== preset.name))
+  let presetIx = props.presets.findIndex(v => v.name === preset.name)
+  props.presets.splice(presetIx, 1)
   if (preset === activePreset.value) {
     activePreset.value = props.presets[0]
   }

@@ -38,7 +38,8 @@ function onDeleteWorkspace(workspace: Workspace) {
     emit('onReset')
     return
   }
-  emit('update:workspaces', props.workspaces.filter(v => v.id !== workspace.id))
+  let workspaceIx = sortedWorkspaces.value.findIndex(v => v.id === workspace.id)
+  props.workspaces.splice(workspaceIx, 1)
   if (workspace.id === props.currentWorkspace.id) {
     switchWorkspace(sortedWorkspaces.value[0])
   }
