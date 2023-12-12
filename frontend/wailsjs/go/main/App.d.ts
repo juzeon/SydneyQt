@@ -11,6 +11,8 @@ export function CountToken(arg1:string):Promise<number>;
 
 export function Dummy1():Promise<main.ChatFinishResult>;
 
+export function ExportWorkspace(arg1:number):Promise<void>;
+
 export function FetchWebpage(arg1:string):Promise<main.FetchWebpageResult>;
 
 export function GenerateImage(arg1:sydney.GenerativeImage):Promise<sydney.GenerateImageResult>;

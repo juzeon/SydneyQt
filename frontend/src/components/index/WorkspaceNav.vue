@@ -3,9 +3,10 @@
 import Conversation from "./Conversation.vue"
 import SearchWorkspaceButton from "./SearchWorkspaceButton.vue"
 import {main, sydney} from "../../../wailsjs/go/models"
-import {generateRandomName} from "../../helper"
+import {generateRandomName, swal} from "../../helper"
 import dayjs from "dayjs"
 import {computed, ref} from "vue"
+import {ExportWorkspace} from "../../../wailsjs/go/main/App"
 import Workspace = main.Workspace
 import Preset = main.Preset
 import GenerateImageResult = sydney.GenerateImageResult
@@ -92,6 +93,12 @@ function switchWorkspace(workspace: Workspace) {
   emit('update:currentWorkspace', workspace)
   emit('update:suggestedResponses', [])
 }
+
+function exportWorkspace(workspace: Workspace) {
+  ExportWorkspace(workspace.id).catch(err => {
+    swal.error(err)
+  })
+}
 </script>
 
 <template>
@@ -104,7 +111,7 @@ function switchWorkspace(workspace: Workspace) {
             <conversation :title="workspace.title" :created-at="workspace.created_at"
                           :active="workspace.id===currentWorkspace.id" :disabled="isAsking"
                           @delete="onDeleteWorkspace(workspace)" @edit="onEditWorkspace(workspace)"
-                          @click="switchWorkspace(workspace)"></conversation>
+                          @click="switchWorkspace(workspace)" @export="exportWorkspace(workspace)"></conversation>
           </v-list-item>
         </v-list>
         <div class="d-flex ma-3">

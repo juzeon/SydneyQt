@@ -18,6 +18,10 @@ export function Dummy1() {
   return window['go']['main']['App']['Dummy1']();
 }
 
+export function ExportWorkspace(arg1) {
+  return window['go']['main']['App']['ExportWorkspace'](arg1);
+}
+
 export function FetchWebpage(arg1) {
   return window['go']['main']['App']['FetchWebpage'](arg1);
 }

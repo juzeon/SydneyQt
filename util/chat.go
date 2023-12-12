@@ -7,10 +7,32 @@ import (
 )
 
 func GetOpenAIChatMessages(chatContext string) []openai.ChatCompletionMessage {
+	var result []openai.ChatCompletionMessage
+	messages := GetChatMessage(chatContext)
+	for _, msg := range messages {
+		content := msg.Content
+		if msg.Type != "message" && msg.Type != "additional_instructions" {
+			content = "# " + msg.Type + "\n" + content
+		}
+		result = append(result, openai.ChatCompletionMessage{
+			Role:    msg.Role,
+			Content: content,
+		})
+	}
+	return result
+}
+
+type ChatMessage struct {
+	Role    string `json:"role"`
+	Type    string `json:"type"`
+	Content string `json:"content"`
+}
+
+func GetChatMessage(chatContext string) []ChatMessage {
 	ctx := chatContext + "\n\n[system](#sydney__placeholder)"
 	re := regexp2.MustCompile(`\[(system|user|assistant)]\(#(.*?)\)([\s\S]*?)(?=\n.*?(^\[(system|user|assistant)]\(#.*?\)))`,
 		regexp2.IgnoreCase|regexp2.Multiline)
-	var result []openai.ChatCompletionMessage
+	var result []ChatMessage
 	match, err := re.FindStringMatch(ctx)
 	if err != nil {
 		GracefulPanic(err)
@@ -21,10 +43,8 @@ func GetOpenAIChatMessages(chatContext string) []openai.ChatCompletionMessage {
 			continue
 		}
 		content := strings.TrimSpace(groups[3].String())
-		if groups[2].String() != "message" && groups[2].String() != "additional_instructions" {
-			content = groups[2].String() + "\n" + content
-		}
-		result = append(result, openai.ChatCompletionMessage{
+		result = append(result, ChatMessage{
+			Type:    groups[2].String(),
 			Role:    groups[1].String(),
 			Content: content,
 		})

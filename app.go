@@ -1,22 +1,26 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	_ "embed"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/PuerkitoBio/goquery"
 	"github.com/go-resty/resty/v2"
 	goversion "github.com/hashicorp/go-version"
 	"github.com/life4/genesis/slices"
 	"github.com/microcosm-cc/bluemonday"
 	"github.com/pkoukk/tiktoken-go"
+	"github.com/samber/lo"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"log/slog"
 	"os"
 	"path/filepath"
 	"regexp"
+	"strconv"
 	"strings"
 	"sydneyqt/sydney"
 	"sydneyqt/util"
@@ -285,4 +289,39 @@ func (a *App) SaveRemoteJPEGImage(url string) error {
 		filePath += ".jpg"
 	}
 	return os.WriteFile(filePath, resp.Body(), 0644)
+}
+func (a *App) ExportWorkspace(id int) error {
+	workspace, ok := lo.Find(a.settings.config.Workspaces, func(item Workspace) bool {
+		return item.ID == id
+	})
+	if !ok {
+		return errors.New("workspace not exist by id: " + strconv.Itoa(id))
+	}
+	filePath, err := runtime.SaveFileDialog(a.ctx, runtime.SaveDialogOptions{
+		Title: "Choose a destination to save the chat",
+		Filters: []runtime.FileFilter{{
+			DisplayName: "MarkDown Files (*.md)",
+			Pattern:     "*.md",
+		}},
+		CanCreateDirectories: true,
+	})
+	if err != nil {
+		return err
+	}
+	if filePath == "" {
+		return nil
+	}
+	if !strings.HasSuffix(filePath, ".md") {
+		filePath += ".md"
+	}
+	messages := util.GetChatMessage(workspace.Context)
+	var out bytes.Buffer
+	for _, msg := range messages {
+		out.WriteString(fmt.Sprintf("# \\[%s\\](#%s)\n%s\n\n", msg.Role, msg.Type, msg.Content))
+	}
+	input := strings.TrimSpace(workspace.Input)
+	if input != "" {
+		out.WriteString("# \\[user\\](#message)\n" + workspace.Input + "\n\n")
+	}
+	return os.WriteFile(filePath, out.Bytes(), 0644)
 }

@@ -13,7 +13,8 @@ defineProps<{
 let emit = defineEmits<{
   (e: 'delete'): void,
   (e: 'edit'): void,
-  (e: 'click'): void
+  (e: 'click'): void,
+  (e: 'export'): void
 }>()
 </script>
 
@@ -25,6 +26,7 @@ let emit = defineEmits<{
     </div>
     <v-card-actions>
       <v-spacer></v-spacer>
+      <v-btn @click="emit('export')" color="primary" density="comfortable" icon="mdi-export"></v-btn>
       <v-btn @click="emit('edit')" color="primary" density="compact" icon="mdi-pencil"></v-btn>
       <v-btn @click="emit('delete')" color="primary" :disabled="disabled ?? false" density="compact"
              icon="mdi-delete"></v-btn>
