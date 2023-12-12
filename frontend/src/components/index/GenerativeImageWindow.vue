@@ -3,8 +3,8 @@ import {sydney} from "../../../wailsjs/go/models"
 import duration from "dayjs/plugin/duration"
 import dayjs from "dayjs"
 import {SaveRemoteJPEGImage} from "../../../wailsjs/go/main/App"
-import GenerateImageResult = sydney.GenerateImageResult
 import {swal} from "../../helper"
+import GenerateImageResult = sydney.GenerateImageResult
 
 dayjs.extend(duration)
 let props = defineProps<{
@@ -31,7 +31,7 @@ function saveImage(url: string) {
     <div v-for="(pack,index) in imagePacks">
       <div class="d-flex align-center">
         <v-icon>mdi-image-multiple</v-icon>
-        <p class="text-h6 ml-3">{{ pack.text }}</p>
+        <p class="text-h6 ml-3" :style="{'font-family':customFontStyle['font-family']}">{{ pack.text }}</p>
         <p class="ml-3 text-caption" style="color: #999">Generation took
           {{ dayjs.duration(Math.floor(pack.duration / 1000 / 1000)).asSeconds() }} seconds</p>
       </div>

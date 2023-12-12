@@ -62,8 +62,8 @@ let statusBarText = ref('Ready.')
 let {config, fetch: fetchSettings} = useSettings()
 let customFontStyle = computed(() => {
   return {
-    'font-family': "'" + config.value.font_family + "'",
-    'font-size': config.value.font_size + 'px',
+    'font-family': "'" + config.value.font_family + "'!important",
+    'font-size': config.value.font_size + 'px!important',
   }
 })
 
