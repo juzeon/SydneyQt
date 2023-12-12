@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"net/url"
 	"regexp"
+	"strings"
 	"sydneyqt/util"
 	"time"
 )
@@ -39,10 +40,14 @@ func (o *Sydney) GenerateImage(generativeImage GenerativeImage) (GenerateImageRe
 		if err != nil {
 			return empty, err
 		}
+		bodyStr := string(resp.Body())
+		if strings.Contains(bodyStr, "Please try again or come back later") {
+			return empty, errors.New("the prompt for image creation has been rejected by Bing")
+		}
 		var imageURLs []string
-		arr := re.FindAllStringSubmatch(string(resp.Body()), -1)
+		arr := re.FindAllStringSubmatch(bodyStr, -1)
 		if len(arr) == 0 {
-			slog.Info("No matched images currently", "body", string(resp.Body()))
+			slog.Info("No matched images currently", "body", bodyStr)
 			continue
 		}
 		for _, match := range arr {
