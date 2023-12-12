@@ -373,9 +373,17 @@ let additionalOptionsDialog = ref(false)
                     <v-switch v-model="currentWorkspace.no_search" label="No Search" density="compact"
                               :disabled="currentWorkspace.backend!=='Sydney'"
                               color="primary" class="mx-2 mt-1"></v-switch>
-                    <v-switch v-model="currentWorkspace.gpt_4_turbo" label="GPT4Turbo" density="compact"
-                              :disabled="currentWorkspace.backend!=='Sydney'"
-                              color="primary" class="mx-2 mt-1"></v-switch>
+                    <v-tooltip
+                        text="Enable the latest gpt-4-turbo model will increase the speed of response,
+                        reduce repeatability, but be harder to jailbreak."
+                        location="bottom">
+                      <template #activator="{props}">
+                        <v-switch v-bind="props" v-model="currentWorkspace.gpt_4_turbo" label="GPT-4-Turbo"
+                                  density="compact"
+                                  :disabled="currentWorkspace.backend!=='Sydney'"
+                                  color="primary" class="mx-2 mt-1"></v-switch>
+                      </template>
+                    </v-tooltip>
                   </div>
                 </v-card-text>
                 <v-card-actions>
