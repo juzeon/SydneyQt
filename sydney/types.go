@@ -105,6 +105,17 @@ type PreviousMessage struct {
 	MessageType string `json:"messageType"`
 	MessageId   string `json:"messageId"`
 }
+type Options struct {
+	Debug                 bool
+	Cookies               map[string]string
+	Proxy                 string
+	ConversationStyle     string
+	Locale                string
+	WssDomain             string
+	CreateConversationURL string
+	NoSearch              bool
+	GPT4Turbo             bool
+}
 type AskStreamOptions struct {
 	StopCtx        context.Context
 	Conversation   CreateConversationResponse

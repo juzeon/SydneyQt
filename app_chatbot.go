@@ -67,10 +67,17 @@ func (a *App) createSydney() (*sydney.Sydney, error) {
 	if err != nil {
 		return nil, err
 	}
-	return sydney.NewSydney(a.debug, cookies, a.settings.config.Proxy,
-		currentWorkspace.ConversationStyle, currentWorkspace.Locale, a.settings.config.WssDomain,
-		a.settings.config.CreateConversationURL,
-		currentWorkspace.NoSearch), nil
+	return sydney.NewSydney(sydney.Options{
+		Debug:                 a.debug,
+		Cookies:               cookies,
+		Proxy:                 a.settings.config.Proxy,
+		ConversationStyle:     currentWorkspace.ConversationStyle,
+		Locale:                currentWorkspace.Locale,
+		WssDomain:             a.settings.config.WssDomain,
+		CreateConversationURL: a.settings.config.CreateConversationURL,
+		NoSearch:              currentWorkspace.NoSearch,
+		GPT4Turbo:             false,
+	}), nil
 }
 
 func (a *App) askSydney(options AskOptions) {

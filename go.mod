@@ -11,6 +11,7 @@ require (
 	github.com/go-resty/resty/v2 v2.10.0
 	github.com/google/uuid v1.3.1
 	github.com/hashicorp/go-version v1.6.0
+	github.com/huandu/go-clone/generic v1.7.2
 	github.com/klippa-app/go-pdfium v1.8.2
 	github.com/life4/genesis v1.10.2
 	github.com/microcosm-cc/bluemonday v1.0.26
@@ -36,6 +37,7 @@ require (
 	github.com/gaukas/godicttls v0.0.4 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
 	github.com/gorilla/css v1.0.0 // indirect
+	github.com/huandu/go-clone v1.7.2 // indirect
 	github.com/jchv/go-winloader v0.0.0-20210711035445-715c2860da7e // indirect
 	github.com/jolestar/go-commons-pool/v2 v2.1.2 // indirect
 	github.com/klauspost/compress v1.17.4 // indirect

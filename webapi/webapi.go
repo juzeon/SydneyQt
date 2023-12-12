@@ -92,7 +92,16 @@ func main() {
 
 		// create conversation
 		conversation, err := sydney.
-			NewSydney(false, cookies, proxy, "", "", "", "", false).
+			NewSydney(sydney.Options{
+				Debug:                 false,
+				Cookies:               cookies,
+				Proxy:                 proxy,
+				ConversationStyle:     "",
+				Locale:                "",
+				WssDomain:             "",
+				CreateConversationURL: "",
+				NoSearch:              false,
+			}).
 			CreateConversation()
 
 		if err != nil {
@@ -129,7 +138,16 @@ func main() {
 
 		// upload image
 		imgUrl, err := sydney.
-			NewSydney(false, cookies, proxy, "Creative", "", "", "", false).
+			NewSydney(sydney.Options{
+				Debug:                 false,
+				Cookies:               cookies,
+				Proxy:                 proxy,
+				ConversationStyle:     "",
+				Locale:                "",
+				WssDomain:             "",
+				CreateConversationURL: "",
+				NoSearch:              false,
+			}).
 			UploadImage(bytes)
 
 		if err != nil {
@@ -163,7 +181,16 @@ func main() {
 			request.Locale = "en-US"
 		}
 
-		sydneyAPI := sydney.NewSydney(false, cookies, proxy, request.ConversationStyle, request.Locale, "", "", request.NoSearch)
+		sydneyAPI := sydney.NewSydney(sydney.Options{
+			Debug:                 false,
+			Cookies:               cookies,
+			Proxy:                 proxy,
+			ConversationStyle:     request.ConversationStyle,
+			Locale:                request.Locale,
+			WssDomain:             "",
+			CreateConversationURL: "",
+			NoSearch:              request.NoSearch,
+		})
 
 		// create new conversation if not provided
 		if request.Conversation.ConversationId == "" {
@@ -220,7 +247,16 @@ func main() {
 		conversationStyle := util.Ternary(
 			strings.HasPrefix(request.Model, "gpt-3.5-turbo"), "Balanced", "Creative")
 
-		sydneyAPI := sydney.NewSydney(false, cookies, proxy, conversationStyle, "en-US", "", "", false)
+		sydneyAPI := sydney.NewSydney(sydney.Options{
+			Debug:                 false,
+			Cookies:               cookies,
+			Proxy:                 proxy,
+			ConversationStyle:     conversationStyle,
+			Locale:                "en-US",
+			WssDomain:             "",
+			CreateConversationURL: "",
+			NoSearch:              false,
+		})
 
 		// create new conversation if not provided
 		if request.Conversation.ConversationId == "" {

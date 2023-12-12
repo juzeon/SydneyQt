@@ -2,6 +2,7 @@ package sydney
 
 import (
 	"github.com/google/uuid"
+	"github.com/huandu/go-clone/generic"
 	"log/slog"
 	"strconv"
 	"sydneyqt/util"
@@ -9,7 +10,6 @@ import (
 
 type Sydney struct {
 	debug                 bool
-	cookies               map[string]string
 	proxy                 string
 	conversationStyle     string
 	locale                string
@@ -17,7 +17,6 @@ type Sydney struct {
 	createConversationURL string
 	noSearch              bool
 
-	basicOptionsSet           []string
 	optionsSetMap             map[string][]string
 	sliceIDs                  []string
 	locationHints             map[string][]LocationHint
@@ -27,10 +26,10 @@ type Sydney struct {
 	headersCreateImage        map[string]string
 }
 
-func NewSydney(debug bool, cookies map[string]string, proxy string,
-	conversationStyle string, locale string, wssDomain string, createConversationURL string, noSearch bool) *Sydney {
-	slog.Info("New Sydney", "proxy", proxy, "conversationStyle",
-		conversationStyle, "locale", locale, "wssDomain", wssDomain, "noSearch", noSearch)
+func NewSydney(options Options) *Sydney {
+	debugOptions := clone.Clone(options)
+	debugOptions.Cookies = nil
+	slog.Info("New Sydney", "v", debugOptions)
 	basicOptionsSet := []string{
 		"nlu_direct_response_filter",
 		"deepleo",
@@ -45,23 +44,25 @@ func NewSydney(debug bool, cookies map[string]string, proxy string,
 		"gencontentv3",
 		"nojbf",
 	}
+	if options.GPT4Turbo {
+		basicOptionsSet = append(basicOptionsSet, "dlgpt4t")
+	}
 	uuidObj, err := uuid.NewUUID()
 	if err != nil {
 		panic(err)
 	}
 	forwardedIP := "1.0.0." + strconv.Itoa(util.RandIntInclusive(1, 255))
+	cookies := util.Ternary(options.Cookies == nil, map[string]string{}, options.Cookies)
 	return &Sydney{
-		debug:             debug,
-		cookies:           cookies,
-		proxy:             proxy,
-		conversationStyle: conversationStyle,
-		locale:            locale,
-		wssURL: util.Ternary(wssDomain == "", "wss://sydney.bing.com/sydney/ChatHub",
-			"wss://"+wssDomain+"/sydney/ChatHub"),
-		noSearch: noSearch,
-		createConversationURL: util.Ternary(createConversationURL == "",
-			"https://edgeservices.bing.com/edgesvc/turing/conversation/create", createConversationURL),
-		basicOptionsSet: basicOptionsSet,
+		debug:             options.Debug,
+		proxy:             options.Proxy,
+		conversationStyle: util.Ternary(options.ConversationStyle == "", "Creative", options.ConversationStyle),
+		locale:            util.Ternary(options.Locale == "", "en-US", options.Locale),
+		wssURL: util.Ternary(options.WssDomain == "", "wss://sydney.bing.com/sydney/ChatHub",
+			"wss://"+options.WssDomain+"/sydney/ChatHub"),
+		noSearch: options.NoSearch,
+		createConversationURL: util.Ternary(options.CreateConversationURL == "",
+			"https://edgeservices.bing.com/edgesvc/turing/conversation/create", options.CreateConversationURL),
 		optionsSetMap: map[string][]string{
 			"Creative": append(basicOptionsSet, "h3imaginative"),
 			"Balanced": append(basicOptionsSet, "galileo"),
