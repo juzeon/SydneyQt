@@ -3,7 +3,7 @@ package main
 import (
 	"encoding/json"
 	"github.com/pkg/errors"
-	"github.com/sqweek/dialog"
+	"github.com/ncruces/zenity"
 	"os"
 	"sydneyqt/sydney"
 	"sydneyqt/util"
@@ -218,8 +218,8 @@ func (o *Settings) checkMutex() {
 	if time.Now().Sub(timeRead) <= 4*time.Second {
 		_, err = os.ReadFile("wails.json")
 		if err != nil { // not dev
-			dialog.Message("An instance is already running or the lock is not yet released.\n" +
-				"Please wait up to 4 seconds.").Error()
+			zenity.Error("An instance is already running or the lock is not yet released.\n" +
+				"Please wait up to 4 seconds.")
 			os.Exit(-1)
 		}
 	}

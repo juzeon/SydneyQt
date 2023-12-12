@@ -7,10 +7,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"errors"
-	getproxy "github.com/rapid7/go-get-proxied/proxy"
-	tlsx "github.com/refraction-networking/utls"
-	"github.com/samber/lo"
-	"github.com/sqweek/dialog"
+	"fmt"
 	"image"
 	_ "image/gif"
 	"image/jpeg"
@@ -25,6 +22,11 @@ import (
 	"os/exec"
 	"runtime"
 	"time"
+
+	"github.com/ncruces/zenity"
+	getproxy "github.com/rapid7/go-get-proxied/proxy"
+	tlsx "github.com/refraction-networking/utls"
+	"github.com/samber/lo"
 )
 
 func RandIntInclusive(min int, max int) int {
@@ -194,9 +196,9 @@ func GenerateSecMSGec() string {
 }
 func GracefulPanic(err error) {
 	_, file, line, _ := runtime.Caller(1)
-	dialog.Message("Error: %v\nDetails: file(%s), line(%d).\n"+
+	zenity.Error(fmt.Sprintf("Error: %v\nDetails: file(%s), line(%d).\n"+
 		"Instruction: This is probably an unknown bug. Please take a screenshot and report this issue.",
-		err, file, line).Error()
+		err, file, line))
 	lo.Must0(OpenURL("https://github.com/juzeon/SydneyQt/issues"))
 	os.Exit(-1)
 }
