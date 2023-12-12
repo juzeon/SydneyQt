@@ -99,6 +99,7 @@ export namespace main {
 	    image_packs: sydney.GenerateImageResult[];
 	    // Go type: time
 	    created_at: any;
+	    gpt_4_turbo: boolean;
 	
 	    static createFrom(source: any = {}) {
 	        return new Workspace(source);
@@ -117,6 +118,7 @@ export namespace main {
 	        this.no_search = source["no_search"];
 	        this.image_packs = this.convertValues(source["image_packs"], sydney.GenerateImageResult);
 	        this.created_at = this.convertValues(source["created_at"], null);
+	        this.gpt_4_turbo = source["gpt_4_turbo"];
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {

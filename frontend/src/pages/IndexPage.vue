@@ -43,7 +43,8 @@ let currentWorkspace = ref(<Workspace>{
   conversation_style: 'Creative',
   no_search: false,
   image_packs: <GenerateImageResult[]>[],
-  created_at: dayjs().format()
+  created_at: dayjs().format(),
+  gpt_4_turbo: false,
 })
 
 let chatContextTokenCount = ref(0)
@@ -359,6 +360,9 @@ let workspaceNav = ref(null)
                       density="compact"
                       class="mx-2"></v-select>
             <v-switch v-model="currentWorkspace.no_search" label="No Search" density="compact"
+                      :disabled="currentWorkspace.backend!=='Sydney'"
+                      color="primary" class="mx-2 mt-1"></v-switch>
+            <v-switch v-model="currentWorkspace.gpt_4_turbo" label="GPT4Turbo" density="compact"
                       :disabled="currentWorkspace.backend!=='Sydney'"
                       color="primary" class="mx-2 mt-1"></v-switch>
           </div>

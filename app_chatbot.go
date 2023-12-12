@@ -76,7 +76,7 @@ func (a *App) createSydney() (*sydney.Sydney, error) {
 		WssDomain:             a.settings.config.WssDomain,
 		CreateConversationURL: a.settings.config.CreateConversationURL,
 		NoSearch:              currentWorkspace.NoSearch,
-		GPT4Turbo:             false,
+		GPT4Turbo:             currentWorkspace.GPT4Turbo,
 	}), nil
 }
 
