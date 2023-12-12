@@ -42,6 +42,7 @@ type OpenAIBackend struct {
 	MaxTokens         int     `json:"max_tokens"`
 }
 type Config struct {
+	Debug                   bool            `json:"debug"`
 	Presets                 []Preset        `json:"presets"`
 	EnterMode               string          `json:"enter_mode"`
 	Proxy                   string          `json:"proxy"`
@@ -214,8 +215,11 @@ func (o *Settings) checkMutex() {
 		util.GracefulPanic(err)
 	}
 	if time.Now().Sub(timeRead) <= 4*time.Second {
-		dialog.Message("An instance is already running or the lock is not yet released.\n" +
-			"Please wait up to 4 seconds.").Error()
-		os.Exit(-1)
+		_, err = os.ReadFile("wails.json")
+		if err != nil { // not dev
+			dialog.Message("An instance is already running or the lock is not yet released.\n" +
+				"Please wait up to 4 seconds.").Error()
+			os.Exit(-1)
+		}
 	}
 }

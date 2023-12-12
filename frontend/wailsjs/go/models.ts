@@ -154,6 +154,7 @@ export namespace main {
 	    }
 	}
 	export class Config {
+	    debug: boolean;
 	    presets: Preset[];
 	    enter_mode: string;
 	    proxy: string;
@@ -181,6 +182,7 @@ export namespace main {
 	
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.debug = source["debug"];
 	        this.presets = this.convertValues(source["presets"], Preset);
 	        this.enter_mode = source["enter_mode"];
 	        this.proxy = source["proxy"];

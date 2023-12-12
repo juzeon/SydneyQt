@@ -68,7 +68,7 @@ func (a *App) createSydney() (*sydney.Sydney, error) {
 		return nil, err
 	}
 	return sydney.NewSydney(sydney.Options{
-		Debug:                 a.debug,
+		Debug:                 a.settings.config.Debug,
 		Cookies:               cookies,
 		Proxy:                 a.settings.config.Proxy,
 		ConversationStyle:     currentWorkspace.ConversationStyle,
@@ -240,6 +240,12 @@ func (a *App) askOpenAI(options AskOptions) {
 		if err != nil {
 			handleErr(err)
 			return
+		}
+		if a.settings.config.Debug {
+			slog.Info("Received OpenAI delta", "v", response)
+		}
+		if len(response.Choices) == 0 {
+			continue
 		}
 		textToAppend := response.Choices[0].Delta.Content
 		fullMessage += textToAppend

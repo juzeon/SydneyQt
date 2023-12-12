@@ -29,14 +29,13 @@ var version string
 
 // App struct
 type App struct {
-	debug    bool
 	settings *Settings
 	ctx      context.Context
 }
 
 // NewApp creates a new App application struct
 func NewApp(settings *Settings) *App {
-	return &App{debug: false, settings: settings}
+	return &App{settings: settings}
 }
 
 // startup is called when the app starts. The context is saved
