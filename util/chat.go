@@ -13,7 +13,7 @@ func GetOpenAIChatMessages(chatContext string) []openai.ChatCompletionMessage {
 	var result []openai.ChatCompletionMessage
 	match, err := re.FindStringMatch(ctx)
 	if err != nil {
-		panic(err)
+		GracefulPanic(err)
 	}
 	for match != nil {
 		groups := match.Groups()
@@ -30,7 +30,7 @@ func GetOpenAIChatMessages(chatContext string) []openai.ChatCompletionMessage {
 		})
 		match, err = re.FindNextMatch(match)
 		if err != nil {
-			panic(err)
+			GracefulPanic(err)
 		}
 	}
 	return result

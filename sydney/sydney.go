@@ -49,7 +49,7 @@ func NewSydney(options Options) *Sydney {
 	}
 	uuidObj, err := uuid.NewUUID()
 	if err != nil {
-		panic(err)
+		util.GracefulPanic(err)
 	}
 	forwardedIP := "1.0.0." + strconv.Itoa(util.RandIntInclusive(1, 255))
 	cookies := util.Ternary(options.Cookies == nil, map[string]string{}, options.Cookies)

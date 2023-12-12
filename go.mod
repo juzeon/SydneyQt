@@ -21,6 +21,7 @@ require (
 	github.com/refraction-networking/utls v1.5.4
 	github.com/samber/lo v1.38.1
 	github.com/sashabaranov/go-openai v1.17.9
+	github.com/sqweek/dialog v0.0.0-20220809060634-e981b270ebbf
 	github.com/stretchr/testify v1.8.4
 	github.com/tidwall/gjson v1.17.0
 	github.com/wailsapp/wails/v2 v2.6.0
@@ -28,6 +29,7 @@ require (
 )
 
 require (
+	github.com/TheTitanrain/w32 v0.0.0-20180517000239-4f5cfb03fabf // indirect
 	github.com/andybalholm/brotli v1.0.6 // indirect
 	github.com/andybalholm/cascadia v1.3.2 // indirect
 	github.com/aymerick/douceur v0.2.0 // indirect

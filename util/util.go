@@ -9,6 +9,7 @@ import (
 	"errors"
 	getproxy "github.com/rapid7/go-get-proxied/proxy"
 	tlsx "github.com/refraction-networking/utls"
+	"github.com/sqweek/dialog"
 	"image"
 	_ "image/gif"
 	"image/jpeg"
@@ -104,7 +105,7 @@ func MustGenerateRandomHex(length int) string {
 	randomBytes := make([]byte, length)
 	_, err := rand.New(rand.NewSource(time.Now().Unix())).Read(randomBytes)
 	if err != nil {
-		panic(err)
+		GracefulPanic(err)
 	}
 	randomString := hex.EncodeToString(randomBytes)
 	return randomString
@@ -187,4 +188,8 @@ func GenerateSecMSGec() string {
 
 	// Convert to hexadecimal
 	return hex.EncodeToString(randomBytes)
+}
+func GracefulPanic(err error) {
+	dialog.Message(err.Error()).Error()
+	os.Exit(-1)
 }

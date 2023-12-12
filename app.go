@@ -50,7 +50,7 @@ var initTkFunc = sync.OnceFunc(func() {
 	slog.Info("Init tiktoken")
 	t, err := tiktoken.EncodingForModel("gpt-4")
 	if err != nil {
-		panic(t)
+		util.GracefulPanic(err)
 	}
 	tk = t
 })

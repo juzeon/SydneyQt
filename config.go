@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"github.com/pkg/errors"
+	"github.com/sqweek/dialog"
 	"os"
 	"sydneyqt/sydney"
 	"sydneyqt/util"
@@ -138,22 +139,24 @@ func NewSettings() *Settings {
 		if errors.Is(err, os.ErrNotExist) {
 			fileExist = false
 		} else {
-			panic(err)
+			util.GracefulPanic(err)
 		}
 	}
 	if fileExist {
 		v, err := os.ReadFile("config.json")
 		if err != nil {
-			panic(err)
+			util.GracefulPanic(err)
 		}
 		err = json.Unmarshal(v, &config)
 		if err != nil {
-			panic(err)
+			util.GracefulPanic(err)
 		}
 	}
 	config.FillDefault()
 	settings := &Settings{config: config}
+	settings.checkMutex()
 	go settings.writer()
+	go settings.mutexWriter()
 	return settings
 }
 func (o *Settings) GetConfig() Config {
@@ -174,15 +177,45 @@ func (o *Settings) writer() {
 		if o.version > localVersion {
 			v, err := json.MarshalIndent(&o.config, "", "  ")
 			if err != nil {
-				panic(err)
+				util.GracefulPanic(err)
 			}
 			err = os.WriteFile("config.json", v, 0644)
 			if err != nil {
-				panic(err)
+				util.GracefulPanic(err)
 			}
 			localVersion = o.version
 		}
 		o.mu.RUnlock()
 		time.Sleep(1 * time.Second)
+	}
+}
+func (o *Settings) mutexWriter() {
+	for {
+		timeNow := time.Now()
+		v, err := json.Marshal(&timeNow)
+		if err != nil {
+			util.GracefulPanic(err)
+		}
+		err = os.WriteFile("config.lock", v, 0644)
+		if err != nil {
+			util.GracefulPanic(err)
+		}
+		time.Sleep(2 * time.Second)
+	}
+}
+func (o *Settings) checkMutex() {
+	v, err := os.ReadFile("config.lock")
+	if err != nil && errors.Is(err, os.ErrNotExist) {
+		return
+	}
+	var timeRead time.Time
+	err = json.Unmarshal(v, &timeRead)
+	if err != nil {
+		util.GracefulPanic(err)
+	}
+	if time.Now().Sub(timeRead) <= 4*time.Second {
+		dialog.Message("An instance is already running or the lock is not yet released.\n" +
+			"Please wait up to 4 seconds.").Error()
+		os.Exit(-1)
 	}
 }

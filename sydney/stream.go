@@ -122,7 +122,7 @@ func (o *Sydney) AskStream(options AskStreamOptions) <-chan Message {
 					}
 					v, err := json.Marshal(&generativeImage)
 					if err != nil {
-						panic(err)
+						util.GracefulPanic(err)
 					}
 					out <- Message{
 						Type: MessageTypeGenerativeImage,
