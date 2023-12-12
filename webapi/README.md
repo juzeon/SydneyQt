@@ -19,6 +19,15 @@ Then the server will be running at <http://localhost:8080>.
 
 ## Endpoints
 
+### GET /
+
+Check the health of the server.
+
+- **Request**: None
+- **Response**:
+  - Content-Type: `text/plain`
+  - Body: `OK`
+
 ### POST /conversation/new
 
 Create a new conversation.
@@ -38,12 +47,26 @@ Upload an image and return its URL.
 - **Request**:
   - Content-Type: `multipart/form-data`
   - Body:
-    - `image`: `File`
+    - `file`: `File`
     - `cookies`: `string` (Optional)
 
 - **Response**:
   - Content-Type: `text/plain`
   - Body: `string`
+
+## POST /image/create
+
+Get urls of images created by Sydney.
+
+- **Request**:
+  - Content-Type: `application/json`
+  - Body:
+    - `image`: `GenerativeImage`
+    - `cookies`: `string` (Optional)
+
+- **Response**:
+  - Content-Type: `application/json`
+  - Body: `GenerateImageResult`
 
 ### POST /chat/stream
 
@@ -76,11 +99,22 @@ Due to differences between the OpenAI API and the Sydney API, only the following
 - `messages`: The same as OpenAI's, and can contain image url (only valid in the last message).
 - `model`: `GPT-3.5-Turbo` series will be mapped to `Balance`, others will be mapped to `Creative`.
 - `stream`: The same as OpenAI's.
+- `tool_choice`: Will enable `noSearch` if it is `null`.
 
-There is an extra field or reusing conversation, if your SDK supports such customization:
+There is an extra field for reusing conversation, if your SDK supports such customization:
 
 - `conversation`: `CreateConversationResponse`
 
 The `Cookie` header is also supported to provide custom cookies.
 
 The response is full of dummy values, and only the `choices` field is valid. The stop reason is `length` if any error occurs, and `stop` otherwise.
+
+### POST /v1/images/generations
+
+This endpoint is compatible with the OpenAI API. You can check the API reference [here](https://platform.openai.com/docs/api-reference/images).
+
+Due to differences between the OpenAI API and the Sydney API, only the following parameters are supported:
+
+- `prompt`: The same as OpenAI's.
+
+The `Cookie` header is also supported to provide custom cookies.

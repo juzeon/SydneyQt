@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -51,7 +52,7 @@ func main() {
 	r.Use(func(h http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Access-Control-Allow-Origin", allowedOrigins)
-			w.Header().Set("Access-Control-Allow-Methods", "POST")
+			w.Header().Set("Access-Control-Allow-Methods", "*")
 			w.Header().Set("Access-Control-Allow-Headers", "*")
 			w.Header().Set("Access-Control-Max-Age", "86400")
 
@@ -78,6 +79,14 @@ func main() {
 	})
 
 	// add handlers
+	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
+		// set headers
+		w.Header().Set("Content-Type", "text/plain")
+
+		// write response
+		fmt.Fprint(w, "OK")
+	})
+
 	r.Post("/conversation/new", func(w http.ResponseWriter, r *http.Request) {
 		// parse request
 		var request CreateConversationRequest
@@ -160,6 +169,43 @@ func main() {
 
 		// write response
 		fmt.Fprint(w, imgUrl)
+	})
+
+	r.Post("/image/create", func(w http.ResponseWriter, r *http.Request) {
+		var request CreateImageRequest
+
+		err := json.NewDecoder(r.Body).Decode(&request)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		cookies := util.Ternary(request.Cookies == "", defaultCookies, ParseCookies(request.Cookies))
+
+		// create image
+		image, err := sydney.
+			NewSydney(sydney.Options{
+				Debug:                 false,
+				Cookies:               cookies,
+				Proxy:                 proxy,
+				ConversationStyle:     "Creative",
+				Locale:                "",
+				WssDomain:             "",
+				CreateConversationURL: "",
+				NoSearch:              false,
+			}).
+			GenerateImage(request.Image)
+
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		// set headers
+		w.Header().Set("Content-Type", "application/json")
+
+		// write response
+		json.NewEncoder(w).Encode(image)
 	})
 
 	r.Post("/chat/stream", func(w http.ResponseWriter, r *http.Request) {
@@ -255,7 +301,7 @@ func main() {
 			Locale:                "en-US",
 			WssDomain:             "",
 			CreateConversationURL: "",
-			NoSearch:              false,
+			NoSearch:              request.ToolChoice != nil,
 		})
 
 		// create new conversation if not provided
@@ -342,6 +388,78 @@ func main() {
 		chunk := NewOpenAIChatCompletionChunk(conversationStyle, "", util.Ternary(errored, &FinishReasonLength, &FinishReasonStop))
 		encoded, _ := json.Marshal(chunk)
 		fmt.Fprintf(w, "data: %s\n\ndata: [DONE]\n", encoded)
+	})
+
+	r.Post("/v1/images/generations", func(w http.ResponseWriter, r *http.Request) {
+		// parse request
+		var request OpenAIImageGenerationRequest
+
+		err := json.NewDecoder(r.Body).Decode(&request)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		cookiesStr := r.Header.Get("Cookie")
+		cookies := util.Ternary(cookiesStr == "", defaultCookies, ParseCookies(cookiesStr))
+
+		sydneyAPI := sydney.NewSydney(sydney.Options{
+			Debug:                 false,
+			Cookies:               cookies,
+			Proxy:                 proxy,
+			ConversationStyle:     "Creative",
+			Locale:                "en-US",
+			WssDomain:             "",
+			CreateConversationURL: "",
+			NoSearch:              false,
+		})
+
+		// create conversation
+		conversation, err := sydneyAPI.CreateConversation()
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		// ask stream
+		newContext, cancel := context.WithCancel(r.Context())
+
+		messageCh := sydneyAPI.AskStream(sydney.AskStreamOptions{
+			StopCtx:        newContext,
+			Conversation:   conversation,
+			Prompt:         request.Prompt,
+			WebpageContext: ImageGeneratorContext,
+		})
+
+		var generativeImage sydney.GenerativeImage
+
+		for message := range messageCh {
+			if message.Type == sydney.MessageTypeGenerativeImage {
+				err := json.Unmarshal([]byte(message.Text), &generativeImage)
+				if err == nil {
+					break
+				}
+			}
+		}
+		cancel()
+
+		if generativeImage.URL == "" {
+			http.Error(w, "empty generative image", http.StatusInternalServerError)
+			return
+		}
+
+		// create image
+		image, err := sydneyAPI.GenerateImage(generativeImage)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		// set headers
+		w.Header().Set("Content-Type", "application/json")
+
+		// write response
+		json.NewEncoder(w).Encode(ToOpenAIImageGeneration(image))
 	})
 
 	// serve the router

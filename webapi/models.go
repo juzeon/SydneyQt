@@ -6,6 +6,11 @@ type CreateConversationRequest struct {
 	Cookies string `json:"cookies,omitempty"`
 }
 
+type CreateImageRequest struct {
+	Image   sydney.GenerativeImage `json:"image"`
+	Cookies string                 `json:"cookies,omitempty"`
+}
+
 type ChatStreamRequest struct {
 	Prompt            string                            `json:"prompt"`
 	WebpageContext    string                            `json:"context"`
@@ -58,6 +63,7 @@ type OpenAIChatCompletionRequest struct {
 	Model        string                            `json:"model"`
 	Messages     []OpenAIMessage                   `json:"messages"`
 	Stream       bool                              `json:"stream"`
+	ToolChoice   *interface{}                      `json:"tool_choice,omitempty"`
 	Conversation sydney.CreateConversationResponse `json:"conversation,omitempty"`
 }
 
@@ -69,7 +75,7 @@ type ChoiceDelta struct {
 type ChatCompletionChunkChoice struct {
 	Index        int         `json:"index"`
 	Delta        ChoiceDelta `json:"delta"`
-	FinishReason *string      `json:"finish_reason"`
+	FinishReason *string     `json:"finish_reason"`
 }
 
 type OpenAIChatCompletionChunk struct {
@@ -106,4 +112,18 @@ type OpenAIChatCompletion struct {
 	SystemFingerprint string                 `json:"system_fingerprint"`
 	Choices           []ChatCompletionChoice `json:"choices"`
 	Usage             UsageStats             `json:"usage"`
+}
+
+type OpenAIImageObject struct {
+	URL           string `json:"url"`
+	RevisedPrompt string `json:"revised_prompt"`
+}
+
+type OpenAIImageGeneration struct {
+	Created int64               `json:"created"`
+	Data    []OpenAIImageObject `json:"data"`
+}
+
+type OpenAIImageGenerationRequest struct {
+	Prompt string `json:"prompt"`
 }
