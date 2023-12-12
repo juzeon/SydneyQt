@@ -7,3 +7,4 @@ config.json
 cookies.json
 /test
 debug.bat
+config.lock
