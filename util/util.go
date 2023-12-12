@@ -9,6 +9,7 @@ import (
 	"errors"
 	getproxy "github.com/rapid7/go-get-proxied/proxy"
 	tlsx "github.com/refraction-networking/utls"
+	"github.com/samber/lo"
 	"github.com/sqweek/dialog"
 	"image"
 	_ "image/gif"
@@ -21,6 +22,8 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"os/exec"
+	"runtime"
 	"time"
 )
 
@@ -190,6 +193,26 @@ func GenerateSecMSGec() string {
 	return hex.EncodeToString(randomBytes)
 }
 func GracefulPanic(err error) {
-	dialog.Message(err.Error()).Error()
+	_, file, line, _ := runtime.Caller(1)
+	dialog.Message("Error: %v\nDetails: file(%s), line(%d).\n"+
+		"Instruction: This is probably an unknown bug. Please take a screenshot and report this issue.",
+		err, file, line).Error()
+	lo.Must0(OpenURL("https://github.com/juzeon/SydneyQt/issues"))
 	os.Exit(-1)
+}
+func OpenURL(url string) error {
+	var cmd string
+	var args []string
+
+	switch runtime.GOOS {
+	case "windows":
+		cmd = "cmd"
+		args = []string{"/c", "start"}
+	case "darwin":
+		cmd = "open"
+	default: // "linux", "freebsd", "openbsd", "netbsd"
+		cmd = "xdg-open"
+	}
+	args = append(args, url)
+	return exec.Command(cmd, args...).Start()
 }
