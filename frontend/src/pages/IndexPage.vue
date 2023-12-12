@@ -321,6 +321,11 @@ function generateImage(req: GenerativeImage) {
 
 let workspaceNav = ref(null)
 let additionalOptionsDialog = ref(false)
+let additionalOptionPreview = computed(() => {
+  return 'Locale: ' + currentWorkspace.value.locale +
+      '; No Search: ' + currentWorkspace.value.no_search +
+      '; GPT-4-Turbo: ' + currentWorkspace.value.gpt_4_turbo
+})
 </script>
 
 <template>
@@ -355,7 +360,7 @@ let additionalOptionsDialog = ref(false)
                       label="Preset"
                       density="compact"
                       class="mx-2"></v-select>
-            <v-tooltip text="Additional Options" location="bottom">
+            <v-tooltip :text="additionalOptionPreview" location="bottom">
               <template #activator="{props}">
                 <v-btn @click="additionalOptionsDialog=true" v-bind="props" icon variant="text" color="primary">
                   <v-icon>mdi-dots-horizontal</v-icon>
