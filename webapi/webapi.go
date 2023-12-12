@@ -278,7 +278,7 @@ func main() {
 			Proxy:             proxy,
 			ConversationStyle: conversationStyle,
 			Locale:            "en-US",
-			NoSearch:          request.ToolChoice != nil,
+			NoSearch:          request.ToolChoice == nil,
 			GPT4Turbo:         true,
 		})
 
