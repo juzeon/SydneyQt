@@ -320,7 +320,7 @@ function generateImage(req: GenerativeImage) {
 }
 
 let workspaceNav = ref(null)
-
+let additionalOptionsDialog = ref(false)
 </script>
 
 <template>
@@ -350,21 +350,40 @@ let workspaceNav = ref(null)
                       :items="modeList" color="primary" label="Mode"
                       density="compact"
                       class="mx-2"></v-select>
-            <v-select v-model="currentWorkspace.locale" :disabled="currentWorkspace.backend!=='Sydney'"
-                      :items="localeList" color="primary" label="Locale"
-                      density="compact"
-                      class="mx-2"></v-select>
             <v-select :model-value="currentWorkspace.preset" @update:model-value="onPresetChange"
                       :items="config.presets.map(v=>v.name)" color="primary"
                       label="Preset"
                       density="compact"
                       class="mx-2"></v-select>
-            <v-switch v-model="currentWorkspace.no_search" label="No Search" density="compact"
-                      :disabled="currentWorkspace.backend!=='Sydney'"
-                      color="primary" class="mx-2 mt-1"></v-switch>
-            <v-switch v-model="currentWorkspace.gpt_4_turbo" label="GPT4Turbo" density="compact"
-                      :disabled="currentWorkspace.backend!=='Sydney'"
-                      color="primary" class="mx-2 mt-1"></v-switch>
+            <v-tooltip text="Additional Options" location="bottom">
+              <template #activator="{props}">
+                <v-btn @click="additionalOptionsDialog=true" v-bind="props" icon variant="text" color="primary">
+                  <v-icon>mdi-dots-horizontal</v-icon>
+                </v-btn>
+              </template>
+            </v-tooltip>
+            <v-dialog max-width="230" v-model="additionalOptionsDialog">
+              <v-card title="Additional Options">
+                <v-card-text>
+                  <div class="d-flex flex-column">
+                    <v-select v-model="currentWorkspace.locale" :disabled="currentWorkspace.backend!=='Sydney'"
+                              :items="localeList" color="primary" label="Locale"
+                              density="compact"
+                              class="mx-2"></v-select>
+                    <v-switch v-model="currentWorkspace.no_search" label="No Search" density="compact"
+                              :disabled="currentWorkspace.backend!=='Sydney'"
+                              color="primary" class="mx-2 mt-1"></v-switch>
+                    <v-switch v-model="currentWorkspace.gpt_4_turbo" label="GPT4Turbo" density="compact"
+                              :disabled="currentWorkspace.backend!=='Sydney'"
+                              color="primary" class="mx-2 mt-1"></v-switch>
+                  </div>
+                </v-card-text>
+                <v-card-actions>
+                  <v-spacer></v-spacer>
+                  <v-btn variant="text" color="primary" @click="additionalOptionsDialog=false">Done</v-btn>
+                </v-card-actions>
+              </v-card>
+            </v-dialog>
           </div>
           <v-btn class="ml-2" variant="tonal" :disabled="isAsking" color="primary"
                  @click="onReset">
