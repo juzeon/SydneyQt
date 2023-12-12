@@ -167,6 +167,14 @@ let developerSettings = ref(false)
                             v-model="config.no_image_removal_after_chat"></v-switch>
                 </template>
               </v-tooltip>
+              <v-tooltip
+                  text="Prevent receiving loader messages every time you ask a question when No Search is enabled."
+                  location="bottom">
+                <template #activator="{props}">
+                  <v-switch v-bind="props" label="Disable No Search Loader" color="primary"
+                            v-model="config.disable_no_search_loader"></v-switch>
+                </template>
+              </v-tooltip>
             </v-card-text>
           </v-card>
           <v-card title="Templates" class="my-3">

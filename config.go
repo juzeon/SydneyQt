@@ -63,6 +63,7 @@ type Config struct {
 	NoImageRemovalAfterChat bool            `json:"no_image_removal_after_chat"`
 	CreateConversationURL   string          `json:"create_conversation_url"`
 	ThemeColor              string          `json:"theme_color"`
+	DisableNoSearchLoader   bool            `json:"disable_no_search_loader"`
 }
 
 func fillDefault[T comparable](pointer *T, defaultValue T) {

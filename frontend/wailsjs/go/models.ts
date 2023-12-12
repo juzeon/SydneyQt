@@ -175,6 +175,7 @@ export namespace main {
 	    no_image_removal_after_chat: boolean;
 	    create_conversation_url: string;
 	    theme_color: string;
+	    disable_no_search_loader: boolean;
 	
 	    static createFrom(source: any = {}) {
 	        return new Config(source);
@@ -203,6 +204,7 @@ export namespace main {
 	        this.no_image_removal_after_chat = source["no_image_removal_after_chat"];
 	        this.create_conversation_url = source["create_conversation_url"];
 	        this.theme_color = source["theme_color"];
+	        this.disable_no_search_loader = source["disable_no_search_loader"];
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {

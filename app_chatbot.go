@@ -128,6 +128,7 @@ func (a *App) askSydney(options AskOptions) {
 	}
 	fullMessageText := ""
 	lastMessageType := ""
+	receivedBingSearchDisabledLoader := false
 	for msg := range ch {
 		textToAppend := ""
 		switch msg.Type {
@@ -163,6 +164,18 @@ func (a *App) askSydney(options AskOptions) {
 			lo.Must0(json.Unmarshal([]byte(msg.Text), &image))
 			runtime.EventsEmit(a.ctx, EventChatGenerateImage, image)
 			textToAppend = image.Text + "\n\n"
+		case sydney.MessageTypeLoading:
+			if a.settings.config.DisableNoSearchLoader {
+				if msg.Text == "BingSearchDisabled" {
+					receivedBingSearchDisabledLoader = true
+					break
+				}
+				if msg.Text == "Generating answers for you..." && receivedBingSearchDisabledLoader {
+					receivedBingSearchDisabledLoader = false
+					break
+				}
+			}
+			textToAppend = msg.Text + "\n\n"
 		default:
 			textToAppend = msg.Text + "\n\n"
 		}
