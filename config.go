@@ -2,8 +2,8 @@ package main
 
 import (
 	"encoding/json"
-	"github.com/pkg/errors"
 	"github.com/ncruces/zenity"
+	"github.com/pkg/errors"
 	"os"
 	"sydneyqt/sydney"
 	"sydneyqt/util"

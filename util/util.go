@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/samber/lo"
 	"image"
 	_ "image/gif"
 	"image/jpeg"
@@ -26,7 +27,6 @@ import (
 	"github.com/ncruces/zenity"
 	getproxy "github.com/rapid7/go-get-proxied/proxy"
 	tlsx "github.com/refraction-networking/utls"
-	"github.com/samber/lo"
 )
 
 func RandIntInclusive(min int, max int) int {
