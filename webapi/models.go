@@ -18,6 +18,7 @@ type ChatStreamRequest struct {
 	Cookies           string                            `json:"cookies,omitempty"`
 	ImageURL          string                            `json:"imageUrl,omitempty"`
 	NoSearch          bool                              `json:"noSearch,omitempty"`
+	UseGPT4Turbo      bool                              `json:"gpt4turbo,omitempty"`
 	ConversationStyle string                            `json:"conversationStyle,omitempty"`
 	Locale            string                            `json:"locale,omitempty"`
 }

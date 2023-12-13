@@ -216,6 +216,7 @@ func main() {
 			ConversationStyle: request.ConversationStyle,
 			Locale:            request.Locale,
 			NoSearch:          request.NoSearch,
+			GPT4Turbo:         request.UseGPT4Turbo,
 		})
 
 		// create new conversation if not provided

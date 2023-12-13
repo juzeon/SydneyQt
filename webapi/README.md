@@ -83,6 +83,7 @@ Start a chat stream.
     - `noSearch`: `boolean` (Optional)
     - `conversationStyle`: `string` (Optional)
     - `locale`: `string` (Optional)
+    - `gpt4turbo`: `boolean` (Optional)
 
 - **Response**:
   - Content-Type: `text/event-stream`
@@ -97,7 +98,7 @@ This endpoint is compatible with the OpenAI API. You can check the API reference
 Due to differences between the OpenAI API and the Sydney API, only the following parameters are supported:
 
 - `messages`: The same as OpenAI's, and can contain image url (only valid in the last message).
-- `model`: `GPT-3.5-Turbo` series will be mapped to `Balance`, others will be mapped to `Creative`.
+- `model`: `GPT-3.5-Turbo` series will be mapped to `Balance`, others will be mapped to `Creative`. GPT-4-Turbo will always be enabled.
 - `stream`: The same as OpenAI's.
 - `tool_choice`: Will enable `noSearch` if it is `null`.
 
