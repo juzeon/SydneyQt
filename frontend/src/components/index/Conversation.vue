@@ -20,10 +20,12 @@ let emit = defineEmits<{
 
 <template>
   <v-card style="margin: 1px">
-    <div @click="disabled?()=>{}:emit('click')" style="cursor: pointer">
-      <v-card-title :class="{'font-weight-bold':active}">{{ title }}</v-card-title>
-      <v-card-subtitle>{{ dayjs(createdAt).format() }}</v-card-subtitle>
-    </div>
+    <v-card-text>
+      <div @click="disabled?()=>{}:emit('click')" style="cursor: pointer">
+        <p :class="{'font-weight-bold':active,'conversation-title':true}">{{ title }}</p>
+        <p style="color: #999;font-size: 14px">{{ dayjs(createdAt).format() }}</p>
+      </div>
+    </v-card-text>
     <v-card-actions>
       <v-spacer></v-spacer>
       <v-btn @click="emit('export')" color="primary" density="comfortable" icon="mdi-export"></v-btn>
@@ -35,5 +37,12 @@ let emit = defineEmits<{
 </template>
 
 <style scoped>
-
+.conversation-title {
+  font-size: 16px;
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
 </style>
