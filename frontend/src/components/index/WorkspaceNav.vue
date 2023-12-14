@@ -29,6 +29,7 @@ let emit = defineEmits<{
   (e: 'update:workspaces', workspaces: Workspace[]): void
   (e: 'update:currentWorkspace', workspace: Workspace): void
   (e: 'update:suggestedResponses', arr: string[]): void
+  (e: 'scrollChatContextToBottom'): void
 }>()
 
 function onDeleteWorkspace(workspace: Workspace) {
@@ -92,6 +93,7 @@ function switchWorkspace(workspace: Workspace) {
   }
   emit('update:currentWorkspace', workspace)
   emit('update:suggestedResponses', [])
+  emit('scrollChatContextToBottom')
 }
 
 function exportWorkspace(workspace: Workspace) {

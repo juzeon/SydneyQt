@@ -342,7 +342,8 @@ let additionalOptionPreview = computed(() => {
       <workspace-nav v-if="!loading" :is-asking="isAsking" v-model="navDrawer"
                      v-model:current-workspace="currentWorkspace"
                      v-model:workspaces="config.workspaces" :presets="config.presets" @on-reset="onReset"
-                     @update:suggested-responses="arr => suggestedResponses=arr"></workspace-nav>
+                     @update:suggested-responses="arr => suggestedResponses=arr"
+                     @scroll-chat-context-to-bottom="scrollChatContextToBottom"></workspace-nav>
       <div class="d-flex flex-column fill-height" v-if="!loading">
         <div class="d-flex align-center top-action-bar mx-2">
           <p class="font-weight-bold">Chat Context:</p>
