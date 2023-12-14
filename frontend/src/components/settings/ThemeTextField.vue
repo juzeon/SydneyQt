@@ -40,7 +40,7 @@ let colorDialog = ref(false)
       <v-card title="Pick a Theme Color">
         <v-card-text>
           <v-color-picker :hide-inputs="true" :model-value="themeColor" @update:model-value="onChangeThemeColor"
-                          :show-swatches="true"></v-color-picker>
+                          :show-swatches="true" mode="rgb"></v-color-picker>
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
