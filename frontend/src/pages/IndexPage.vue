@@ -338,7 +338,7 @@ function generateTitle() {
       '## Rules:\n' +
       '- Write an extremely concise subtitle for the text provided wrapped with <x-text> tag ' +
       'with no more than a few words.\n' +
-      '- All words should be capitalized.\n' +
+      '- The first letter of all words should be capitalized.\n' +
       '- Exclude punctuation.\n' +
       '- Write just the title and nothing else. No introduction to yourself. No explanation. Just the title.\n'
   let req: ConciseAnswerReq
