@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
@@ -213,15 +214,11 @@ func (a *App) askOpenAI(options AskOptions) {
 		return
 	}
 	slog.Info("Ask OpenAI with backend: ", "data", backend)
-	hClient, err := util.MakeHTTPClient(a.settings.config.Proxy, 0)
+	client, err := util.CreateOpenAIClient(a.settings.config.Proxy, backend.OpenaiKey, backend.OpenaiEndpoint)
 	if err != nil {
 		handleErr(err)
 		return
 	}
-	config := openai.DefaultConfig(backend.OpenaiKey)
-	config.BaseURL = backend.OpenaiEndpoint
-	config.HTTPClient = hClient
-	client := openai.NewClientWithConfig(config)
 	messages := util.GetOpenAIChatMessages(options.ChatContext)
 	slog.Info("Get chat messages", "messages", messages)
 	messages = append(messages, openai.ChatCompletionMessage{
@@ -276,4 +273,81 @@ func (a *App) AskAI(options AskOptions) {
 	} else if options.Type == AskTypeOpenAI {
 		a.askOpenAI(options)
 	}
+}
+
+type ConciseAnswerReq struct {
+	Prompt  string `json:"prompt"`
+	Context string `json:"context"`
+	Backend string `json:"backend"`
+}
+
+func (a *App) GetConciseAnswer(req ConciseAnswerReq) (string, error) {
+	if req.Backend == "Sydney" {
+		cookies, err := util.ReadCookiesFile()
+		if err != nil {
+			return "", err
+		}
+		syd := sydney.NewSydney(sydney.Options{
+			Debug:                 false,
+			Cookies:               cookies,
+			Proxy:                 a.settings.config.Proxy,
+			WssDomain:             a.settings.config.WssDomain,
+			CreateConversationURL: a.settings.config.CreateConversationURL,
+			NoSearch:              true,
+			GPT4Turbo:             true,
+		})
+		if err != nil {
+			return "", err
+		}
+		conversation, err := syd.CreateConversation()
+		if err != nil {
+			return "", err
+		}
+		ch := syd.AskStream(sydney.AskStreamOptions{
+			StopCtx:        context.Background(),
+			Conversation:   conversation,
+			Prompt:         req.Prompt,
+			WebpageContext: req.Context,
+		})
+		var result bytes.Buffer
+		for msg := range ch {
+			if msg.Type == sydney.MessageTypeError {
+				return "", msg.Error
+			}
+			if msg.Type != sydney.MessageTypeMessageText {
+				continue
+			}
+			result.WriteString(msg.Text)
+		}
+		return result.String(), nil
+	}
+	// openai backends
+	backend, ok := lo.Find(a.settings.config.OpenAIBackends, func(item OpenAIBackend) bool {
+		return item.Name == req.Backend
+	})
+	if !ok {
+		return "", errors.New("openai backend not found: " + req.Backend)
+	}
+	client, err := util.CreateOpenAIClient(a.settings.config.Proxy, backend.OpenaiKey, backend.OpenaiEndpoint)
+	if err != nil {
+		return "", err
+	}
+	messages := lo.Ternary(req.Context == "", []openai.ChatCompletionMessage{
+		{Role: "user", Content: req.Prompt},
+	}, []openai.ChatCompletionMessage{
+		{Role: "system", Content: req.Context},
+		{Role: "user", Content: req.Prompt},
+	})
+	resp, err := client.CreateChatCompletion(context.Background(), openai.ChatCompletionRequest{
+		Model:       backend.OpenaiShortModel,
+		Messages:    messages,
+		Temperature: 1,
+	})
+	if err != nil {
+		return "", err
+	}
+	if len(resp.Choices) == 0 {
+		return "", errors.New("openai len(choices) == 0")
+	}
+	return resp.Choices[0].Message.Content, nil
 }

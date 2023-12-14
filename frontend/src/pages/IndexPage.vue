@@ -3,7 +3,7 @@ import {computed, onMounted, onUnmounted, ref, watch} from "vue"
 import {main, sydney} from "../../wailsjs/go/models"
 import {EventsEmit, EventsOff, EventsOn} from "../../wailsjs/runtime"
 import {generateRandomName, shadeColor, swal} from "../helper"
-import {AskAI, CountToken, GenerateImage} from "../../wailsjs/go/main/App"
+import {AskAI, CountToken, GenerateImage, GetConciseAnswer} from "../../wailsjs/go/main/App"
 import {AskTypeOpenAI, AskTypeSydney} from "../constants"
 import Scaffold from "../components/Scaffold.vue"
 import {useSettings} from "../composables"
@@ -23,6 +23,7 @@ import ChatFinishResult = main.ChatFinishResult
 import UploadSydneyImageResult = main.UploadSydneyImageResult
 import GenerativeImage = sydney.GenerativeImage
 import GenerateImageResult = sydney.GenerateImageResult
+import ConciseAnswerReq = main.ConciseAnswerReq
 
 let theme = useTheme()
 let navDrawer = ref(true)
@@ -105,6 +106,7 @@ let askEventMap = {
         uploadedImage.value = undefined
       }
       lockScroll.value = false
+      generateTitle()
     } else {
       console.log('error type: ' + result.err_type)
       console.log('error message: ' + result.err_msg)
@@ -326,6 +328,39 @@ let additionalOptionPreview = computed(() => {
       '; No Search: ' + currentWorkspace.value.no_search +
       '; GPT-4-Turbo: ' + currentWorkspace.value.gpt_4_turbo
 })
+
+function generateTitle() {
+  let workspace = currentWorkspace.value
+  if (!/^Chat \w+_\w+$/m.test(workspace.title)) {
+    return
+  }
+  let systemPrompt = '# Role: Title Generator\n' +
+      '## Rules:\n' +
+      '- Write an extremely concise subtitle for the text provided wrapped with <x-text> tag ' +
+      'with no more than a few words.\n' +
+      '- All words should be capitalized.\n' +
+      '- Exclude punctuation.\n' +
+      '- Write just the title and nothing else. No introduction to yourself. No explanation. Just the title.\n'
+  let req: ConciseAnswerReq
+  if (workspace.backend === 'Sydney') {
+    req = {
+      backend: workspace.backend,
+      context: '<x-text>\n' + workspace.context + '\n</x-text>',
+      prompt: systemPrompt,
+    }
+  } else {
+    req = {
+      backend: workspace.backend,
+      context: systemPrompt,
+      prompt: '<x-text>\n' + workspace.context + '\n</x-text>',
+    }
+  }
+  GetConciseAnswer(req).then(title => {
+    workspace.title = title
+  }).catch(err => {
+    console.log(err)
+  })
+}
 </script>
 
 <template>

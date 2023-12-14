@@ -30,6 +30,10 @@ export function GenerateImage(arg1) {
   return window['go']['main']['App']['GenerateImage'](arg1);
 }
 
+export function GetConciseAnswer(arg1) {
+  return window['go']['main']['App']['GetConciseAnswer'](arg1);
+}
+
 export function GetUser() {
   return window['go']['main']['App']['GetUser']();
 }

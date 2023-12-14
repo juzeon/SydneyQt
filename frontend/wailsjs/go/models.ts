@@ -56,6 +56,22 @@ export namespace main {
 	        this.release_note = source["release_note"];
 	    }
 	}
+	export class ConciseAnswerReq {
+	    prompt: string;
+	    context: string;
+	    backend: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new ConciseAnswerReq(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.prompt = source["prompt"];
+	        this.context = source["context"];
+	        this.backend = source["backend"];
+	    }
+	}
 	export class OpenAIBackend {
 	    name: string;
 	    openai_key: string;
