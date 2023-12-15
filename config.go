@@ -28,6 +28,7 @@ type Workspace struct {
 	ImagePacks        []sydney.GenerateImageResult `json:"image_packs"`
 	CreatedAt         time.Time                    `json:"created_at"`
 	GPT4Turbo         bool                         `json:"gpt_4_turbo"`
+	PersistentInput   bool                         `json:"persistent_input"`
 }
 type OpenAIBackend struct {
 	Name              string  `json:"name"`

@@ -116,6 +116,7 @@ export namespace main {
 	    // Go type: time
 	    created_at: any;
 	    gpt_4_turbo: boolean;
+	    persistent_input: boolean;
 	
 	    static createFrom(source: any = {}) {
 	        return new Workspace(source);
@@ -135,6 +136,7 @@ export namespace main {
 	        this.image_packs = this.convertValues(source["image_packs"], sydney.GenerateImageResult);
 	        this.created_at = this.convertValues(source["created_at"], null);
 	        this.gpt_4_turbo = source["gpt_4_turbo"];
+	        this.persistent_input = source["persistent_input"];
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {

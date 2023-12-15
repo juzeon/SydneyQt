@@ -46,6 +46,7 @@ let currentWorkspace = ref(<Workspace>{
   image_packs: <GenerateImageResult[]>[],
   created_at: dayjs().format(),
   gpt_4_turbo: false,
+  persistent_input: false,
 })
 
 let chatContextTokenCount = ref(0)
@@ -85,7 +86,9 @@ let askEventMap = {
       currentWorkspace.value.context += '[user](#message)\n' +
           (hiddenPrompt.value === '' ? currentWorkspace.value.input : hiddenPrompt.value) + "\n\n"
       if (hiddenPrompt.value === '') {
-        currentWorkspace.value.input = ''
+        if (!currentWorkspace.value.persistent_input) {
+          currentWorkspace.value.input = ''
+        }
       } else {
         hiddenPrompt.value = ''
       }
@@ -409,11 +412,10 @@ function generateTitle() {
                   <div class="d-flex flex-column">
                     <v-select v-model="currentWorkspace.locale" :disabled="currentWorkspace.backend!=='Sydney'"
                               :items="localeList" color="primary" label="Locale"
-                              density="compact"
-                              class="mx-2"></v-select>
+                              density="compact"></v-select>
                     <v-switch v-model="currentWorkspace.no_search" label="No Search" density="compact"
                               :disabled="currentWorkspace.backend!=='Sydney'"
-                              color="primary" class="mx-2 mt-1"></v-switch>
+                              color="primary"></v-switch>
                     <v-tooltip
                         text="Enable the latest gpt-4-turbo model will increase the speed of response,
                         reduce repeatability, but be harder to jailbreak."
@@ -422,7 +424,13 @@ function generateTitle() {
                         <v-switch v-bind="props" v-model="currentWorkspace.gpt_4_turbo" label="GPT-4-Turbo"
                                   density="compact"
                                   :disabled="currentWorkspace.backend!=='Sydney'"
-                                  color="primary" class="mx-2 mt-1"></v-switch>
+                                  color="primary"></v-switch>
+                      </template>
+                    </v-tooltip>
+                    <v-tooltip text="Persist the user input so that it won't be cleared after sent." location="bottom">
+                      <template #activator="{props}">
+                        <v-switch v-bind="props" v-model="currentWorkspace.persistent_input" label="Persistent Input"
+                                  density="compact" color="primary"></v-switch>
                       </template>
                     </v-tooltip>
                   </div>
