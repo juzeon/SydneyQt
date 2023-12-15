@@ -221,10 +221,25 @@ func (a *App) askOpenAI(options AskOptions) {
 	}
 	messages := util.GetOpenAIChatMessages(options.ChatContext)
 	slog.Info("Get chat messages", "messages", messages)
-	messages = append(messages, openai.ChatCompletionMessage{
-		Role:    "user",
-		Content: options.Prompt,
-	})
+	if options.ImageURL == "" {
+		messages = append(messages, openai.ChatCompletionMessage{
+			Role:    "user",
+			Content: options.Prompt,
+		})
+	} else {
+		messages = append(messages, openai.ChatCompletionMessage{
+			Role: "user",
+			MultiContent: []openai.ChatMessagePart{{
+				Type: openai.ChatMessagePartTypeText,
+				Text: options.Prompt,
+			}, {
+				Type: openai.ChatMessagePartTypeImageURL,
+				ImageURL: &openai.ChatMessageImageURL{
+					URL: options.ImageURL,
+				},
+			}},
+		})
+	}
 	stream, err := client.CreateChatCompletionStream(context.Background(), openai.ChatCompletionRequest{
 		Model:            backend.OpenaiShortModel,
 		Messages:         messages,
