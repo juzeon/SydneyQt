@@ -233,9 +233,7 @@ func (a *App) CheckUpdate() (CheckUpdateResult, error) {
 		return empty, err
 	}
 	latestVersionStr := githubRelease[0].TagName
-	if strings.HasPrefix(latestVersionStr, "v") {
-		latestVersionStr = latestVersionStr[1:]
-	}
+	latestVersionStr = strings.TrimPrefix(latestVersionStr, "v")
 	latestVersion, err := goversion.NewVersion(latestVersionStr)
 	if err != nil {
 		return empty, err
