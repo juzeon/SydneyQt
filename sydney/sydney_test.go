@@ -12,8 +12,17 @@ func TestSydney(t *testing.T) {
 	a := assert.New(t)
 	cookies, err := util.ReadCookiesFile()
 	a.Nil(err)
-	sydney := NewSydney(true, cookies,
-		"", "Creative", "zh-CN", "", "", false)
+	sydney := NewSydney(Options{
+		Debug:                 true,
+		Cookies:               cookies,
+		Proxy:                 "",
+		ConversationStyle:     "",
+		Locale:                "zh-CN",
+		WssDomain:             "",
+		CreateConversationURL: "",
+		NoSearch:              false,
+		GPT4Turbo:             false,
+	})
 	log.Println("Stage 1")
 	conversation, err := sydney.CreateConversation()
 	a.Nil(err)
