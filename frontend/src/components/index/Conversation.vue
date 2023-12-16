@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import dayjs from "dayjs"
-import relativeTime from "dayjs/plugin/relativeTime"
+import LocalizedFormat from "dayjs/plugin/localizedFormat"
 
-dayjs.extend(relativeTime)
+dayjs.extend(LocalizedFormat)
 
 defineProps<{
   disabled?: boolean
@@ -23,7 +23,9 @@ let emit = defineEmits<{
     <v-card-text>
       <div @click="disabled?()=>{}:emit('click')" style="cursor: pointer">
         <p :class="{'font-weight-bold':active,'conversation-title':true}">{{ title }}</p>
-        <p style="color: #999;font-size: 14px">{{ dayjs(createdAt).format() }}</p>
+        <p style="color: #999;font-size: 14px" class="text-no-wrap overflow-hidden">{{
+            dayjs(createdAt).format('llll')
+          }}</p>
       </div>
     </v-card-text>
     <v-card-actions>
