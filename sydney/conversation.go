@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
-	"log"
 	"log/slog"
 	"net/http"
 	"sydneyqt/util"
@@ -47,7 +46,7 @@ func (o *Sydney) CreateConversation() (CreateConversationResponse, error) {
 		response.SecAccessToken = value
 	}
 	if o.debug {
-		log.Printf("%#v\n", response)
+		slog.Info("Create conversation", "response", response)
 	}
 	slog.Info("Created Conversation")
 	return response, nil

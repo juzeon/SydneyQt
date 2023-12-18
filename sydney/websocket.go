@@ -2,7 +2,7 @@ package sydney
 
 import (
 	"errors"
-	"log"
+	"log/slog"
 	"nhooyr.io/websocket"
 	"strings"
 	"sydneyqt/util"
@@ -19,7 +19,7 @@ func (o *Conn) WriteWithTimeout(v []byte) error {
 	defer cancel()
 	bytes := append(v, []byte(string(delimiter))...)
 	if o.debug {
-		log.Println("sending: " + string(bytes))
+		slog.Info("WriteWithTimeout", "v", string(bytes))
 	}
 	return o.Write(ctx, websocket.MessageText, bytes)
 }
@@ -40,7 +40,7 @@ func (o *Conn) ReadWithTimeout() ([]string, error) {
 	arr := strings.Split(str, string(delimiter))
 	if o.debug {
 		for _, item := range arr {
-			log.Println("receiving: " + item)
+			slog.Info("ReadWithTimeout", "v", item)
 		}
 	}
 	return arr, nil

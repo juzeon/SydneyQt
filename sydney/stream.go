@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
 	"log/slog"
 	"net/http"
 	"net/url"
@@ -40,7 +39,7 @@ func (o *Sydney) AskStream(options AskStreamOptions) <-chan Message {
 		}
 		for msg := range ch {
 			if msg.Error != nil {
-				log.Println("error: " + msg.Error.Error())
+				slog.Error("Ask stream message", "error", msg.Error)
 				out <- Message{
 					Type:  MessageTypeError,
 					Text:  msg.Error.Error(),
@@ -71,7 +70,7 @@ func (o *Sydney) AskStream(options AskStreamOptions) <-chan Message {
 						continue
 					}
 					if !gjson.Valid(messageText) {
-						log.Println("Error when parsing InternalSearchResult: " + messageText)
+						slog.Error("Error when parsing InternalSearchResult", "messageText", messageText)
 						continue
 					}
 					arr := gjson.Parse(messageText).Array()
@@ -160,8 +159,8 @@ func (o *Sydney) AskStream(options AskStreamOptions) <-chan Message {
 						sendSuggestedResponses(message)
 					}
 				default:
-					log.Println("Unsupported message type: " + msgType.String())
-					log.Println("Triggered by " + options.Prompt + ", response: " + message.Raw)
+					slog.Warn("Unsupported message type",
+						"type", msgType.String(), "triggered-by", options.Prompt, "response", message.Raw)
 				}
 			} else if data.Get("type").Int() == 2 && data.Get("item.messages").Exists() {
 				message := data.Get("item.messages|@reverse|0")
