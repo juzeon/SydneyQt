@@ -2,7 +2,7 @@
 
 ![SydneyQt](https://socialify.git.ci/juzeon/SydneyQt/image?font=Inter&forks=1&logo=https%3A%2F%2Fupload.wikimedia.org%2Fwikipedia%2Fcommons%2F9%2F9c%2FBing_Fluent_Logo.svg&name=1&owner=1&pattern=Signal&stargazers=1&theme=Light)
 
-![Static Badge](https://img.shields.io/badge/project-SydneyQt-blue)![GitHub release (with filter)](https://img.shields.io/github/v/release/juzeon/SydneyQt)![GitHub all releases](https://img.shields.io/github/downloads/juzeon/SydneyQt/total)![GitHub Workflow Status (with event)](https://img.shields.io/github/actions/workflow/status/juzeon/SydneyQt/wails.yml)![GitHub License](https://img.shields.io/github/license/juzeon/SydneyQt)
+![Static Badge](https://img.shields.io/badge/project-SydneyQt-blue) ![GitHub release (with filter)](https://img.shields.io/github/v/release/juzeon/SydneyQt) ![GitHub all releases](https://img.shields.io/github/downloads/juzeon/SydneyQt/total) ![GitHub Workflow Status (with event)](https://img.shields.io/github/actions/workflow/status/juzeon/SydneyQt/wails.yml) ![GitHub License](https://img.shields.io/github/license/juzeon/SydneyQt)
 
 
 一个使用Go和[Wails](https://github.com/wailsapp/wails)构建的跨平台桌面客户端（[之前](https://github.com/juzeon/SydneyQt/tree/v1)基于Python和Qt），用于越狱新版Bing AI（Sydney版）。
