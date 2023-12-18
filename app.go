@@ -75,11 +75,11 @@ func (a *App) shutdown(ctx context.Context) {
 	os.Exit(0)
 }
 func (a *App) updateLogger(debug bool) {
-	slog.Info("Update logger", "debug", debug)
 	slog.SetDefault(slog.New(slog.NewTextHandler(a.logFile, &slog.HandlerOptions{
 		AddSource: true,
 		Level:     lo.Ternary(debug, slog.LevelDebug, slog.LevelInfo),
 	})))
+	slog.Info("Update logger", "debug", debug)
 }
 
 var tk *tiktoken.Tiktoken
