@@ -45,8 +45,6 @@ function onRevokeReplyCountChanged(v: string) {
   if (isNaN(i) || i < 0) return
   config.value.revoke_reply_count = i
 }
-
-let developerSettings = ref(false)
 </script>
 
 <template>
@@ -62,13 +60,17 @@ let developerSettings = ref(false)
     <template #default>
       <div v-if="!loading" class="fill-height overflow-y-auto">
         <v-container class="d-flex flex-column">
-          <p class="text-h4 mb-3" @dblclick="developerSettings=true">Settings</p>
+          <p class="text-h4 mb-3">Settings</p>
           <v-card title="Application" class="my-3">
             <v-card-text>
               <update-card></update-card>
-              <div v-if="developerSettings">
-                <v-switch v-model="config.debug" label="Debug Mode" color="primary"></v-switch>
-              </div>
+              <v-expansion-panels class="my-3">
+                <v-expansion-panel title="Developer Options">
+                  <v-expansion-panel-text>
+                    <v-switch v-model="config.debug" label="Debug Logging" color="primary"></v-switch>
+                  </v-expansion-panel-text>
+                </v-expansion-panel>
+              </v-expansion-panels>
             </v-card-text>
           </v-card>
           <v-card title="Network" class="my-3">
