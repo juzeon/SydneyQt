@@ -28,6 +28,10 @@ func (o *Conn) ReadWithTimeout() ([]string, error) {
 	defer cancel()
 	typ, v, err := o.Read(ctx)
 	if err != nil {
+		var closeErr websocket.CloseError
+		if errors.As(err, &closeErr) && closeErr.Code == websocket.StatusNormalClosure {
+			err = errors.Join(err, errors.New("please check if the chat context is too long"))
+		}
 		return nil, err
 	}
 	if typ != websocket.MessageText {

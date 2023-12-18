@@ -11,14 +11,14 @@ export let swal: ISwal = {
     success(text: string) {
         return Swal.fire({
             title: 'Success',
-            text,
+            html: plainTextToHTML(text),
             icon: 'success'
         })
     },
     error(text: string) {
         return Swal.fire({
             title: 'Error',
-            text,
+            html: plainTextToHTML(text),
             icon: 'error'
         })
     },
@@ -26,7 +26,7 @@ export let swal: ISwal = {
         return Swal.fire({
             title: 'Confirmation',
             icon: 'question',
-            text: text,
+            html: plainTextToHTML(text),
             confirmButtonText: 'Confirm',
             cancelButtonText: 'Cancel',
             showCancelButton: true
@@ -73,4 +73,17 @@ export function shadeColor(color: string, percent: number): string {
 
 export function generateRandomName() {
     return generate({maxLength: 6}) + '_' + generate({maxLength: 6})
+}
+
+export function plainTextToHTML(text: string) {
+    return '<p>' + escapeHtml(text.trim()).split('\n').join('</p><p>') + '</p>'
+}
+
+export function escapeHtml(unsafe: string) {
+    return unsafe
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;')
 }
