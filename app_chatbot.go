@@ -11,6 +11,7 @@ import (
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"io"
 	"log/slog"
+	"strings"
 	"sydneyqt/sydney"
 	"sydneyqt/util"
 )
@@ -332,7 +333,7 @@ func (a *App) GetConciseAnswer(req ConciseAnswerReq) (string, error) {
 			}
 			result.WriteString(msg.Text)
 		}
-		return result.String(), nil
+		return strings.TrimSpace(result.String()), nil
 	}
 	// openai backends
 	backend, ok := lo.Find(a.settings.config.OpenAIBackends, func(item OpenAIBackend) bool {
@@ -362,5 +363,5 @@ func (a *App) GetConciseAnswer(req ConciseAnswerReq) (string, error) {
 	if len(resp.Choices) == 0 {
 		return "", errors.New("openai len(choices) == 0")
 	}
-	return resp.Choices[0].Message.Content, nil
+	return strings.TrimSpace(resp.Choices[0].Message.Content), nil
 }
