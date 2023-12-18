@@ -47,6 +47,10 @@ func NewApp(settings *Settings) *App {
 func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
 }
+func (a *App) shutdown(ctx context.Context) {
+	a.settings.Exit <- struct{}{}
+	os.Exit(0)
+}
 
 var tk *tiktoken.Tiktoken
 var initTkFunc = sync.OnceFunc(func() {

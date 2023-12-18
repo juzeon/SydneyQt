@@ -133,6 +133,7 @@ type Settings struct {
 	version int
 	mu      sync.RWMutex
 	config  Config
+	Exit    chan struct{}
 }
 
 func NewSettings() *Settings {
@@ -156,7 +157,7 @@ func NewSettings() *Settings {
 		}
 	}
 	config.FillDefault()
-	settings := &Settings{config: config}
+	settings := &Settings{config: config, Exit: make(chan struct{})}
 	settings.checkMutex()
 	go settings.writer()
 	go settings.mutexWriter()
@@ -175,6 +176,7 @@ func (o *Settings) SetConfig(config Config) {
 }
 func (o *Settings) writer() {
 	localVersion := 0
+WriterFor:
 	for {
 		o.mu.RLock()
 		if o.version > localVersion {
@@ -189,7 +191,11 @@ func (o *Settings) writer() {
 			localVersion = o.version
 		}
 		o.mu.RUnlock()
-		time.Sleep(1 * time.Second)
+		select {
+		case <-o.Exit:
+			break WriterFor
+		case <-time.After(1 * time.Second):
+		}
 	}
 }
 func (o *Settings) mutexWriter() {
