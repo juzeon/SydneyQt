@@ -45,9 +45,7 @@ func (o *Sydney) CreateConversation() (CreateConversationResponse, error) {
 	if value := resp.Header.Get("X-Sydney-Encryptedconversationsignature"); value != "" {
 		response.SecAccessToken = value
 	}
-	if o.debug {
-		slog.Info("Create conversation", "response", response)
-	}
+	slog.Debug("Create conversation", "response", response)
 	slog.Info("Created Conversation")
 	return response, nil
 }

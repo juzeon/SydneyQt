@@ -266,9 +266,7 @@ func (a *App) askOpenAI(options AskOptions) {
 			handleErr(err)
 			return
 		}
-		if a.settings.config.Debug {
-			slog.Info("Received OpenAI delta", "v", response)
-		}
+		slog.Debug("Received OpenAI delta", "v", response)
 		if len(response.Choices) == 0 {
 			continue
 		}

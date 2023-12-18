@@ -18,9 +18,7 @@ func (o *Conn) WriteWithTimeout(v []byte) error {
 	ctx, cancel := util.CreateTimeoutContext(5 * time.Second)
 	defer cancel()
 	bytes := append(v, []byte(string(delimiter))...)
-	if o.debug {
-		slog.Info("WriteWithTimeout", "v", string(bytes))
-	}
+	slog.Debug("WriteWithTimeout", "v", string(bytes))
 	return o.Write(ctx, websocket.MessageText, bytes)
 }
 func (o *Conn) ReadWithTimeout() ([]string, error) {
@@ -42,10 +40,8 @@ func (o *Conn) ReadWithTimeout() ([]string, error) {
 	}
 	str := string(v)
 	arr := strings.Split(str, string(delimiter))
-	if o.debug {
-		for _, item := range arr {
-			slog.Info("ReadWithTimeout", "v", item)
-		}
+	for _, item := range arr {
+		slog.Debug("ReadWithTimeout", "v", item)
 	}
 	return arr, nil
 }

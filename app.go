@@ -35,6 +35,8 @@ var version string
 type App struct {
 	settings *Settings
 	ctx      context.Context
+	logFile  *os.File
+	logToStd bool
 }
 
 // NewApp creates a new App application struct
@@ -46,10 +48,38 @@ func NewApp(settings *Settings) *App {
 // so we can call the runtime methods
 func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
+	env := runtime.Environment(ctx)
+	a.logFile = os.Stderr
+	a.logToStd = true
+	if env.BuildType == "production" {
+		f, err := os.OpenFile("log_"+time.Now().Format("2006-01")+".log",
+			os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0644)
+		if err != nil {
+			util.GracefulPanic(err)
+		}
+		a.logFile = f
+		a.logToStd = false
+	}
+	a.updateLogger(a.settings.config.Debug)
+	go func() {
+		for debug := range a.settings.DebugChangeSignal {
+			a.updateLogger(debug)
+		}
+	}()
 }
 func (a *App) shutdown(ctx context.Context) {
+	if !a.logToStd {
+		a.logFile.Close()
+	}
 	a.settings.Exit <- struct{}{}
 	os.Exit(0)
+}
+func (a *App) updateLogger(debug bool) {
+	slog.Info("Update logger", "debug", debug)
+	slog.SetDefault(slog.New(slog.NewTextHandler(a.logFile, &slog.HandlerOptions{
+		AddSource: true,
+		Level:     lo.Ternary(debug, slog.LevelDebug, slog.LevelInfo),
+	})))
 }
 
 var tk *tiktoken.Tiktoken

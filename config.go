@@ -130,10 +130,11 @@ func (o *Config) FillDefault() {
 }
 
 type Settings struct {
-	version int
-	mu      sync.RWMutex
-	config  Config
-	Exit    chan struct{}
+	version           int
+	mu                sync.RWMutex
+	config            Config
+	Exit              chan struct{}
+	DebugChangeSignal chan bool
 }
 
 func NewSettings() *Settings {
@@ -157,7 +158,7 @@ func NewSettings() *Settings {
 		}
 	}
 	config.FillDefault()
-	settings := &Settings{config: config, Exit: make(chan struct{})}
+	settings := &Settings{config: config, Exit: make(chan struct{}), DebugChangeSignal: make(chan bool)}
 	settings.checkMutex()
 	go settings.writer()
 	go settings.mutexWriter()
@@ -171,6 +172,9 @@ func (o *Settings) GetConfig() Config {
 func (o *Settings) SetConfig(config Config) {
 	o.mu.Lock()
 	defer o.mu.Unlock()
+	if o.config.Debug != config.Debug {
+		o.DebugChangeSignal <- config.Debug
+	}
 	o.config = config
 	o.version++
 }
