@@ -343,6 +343,7 @@ function generateTitle() {
       'with no more than a few words.\n' +
       '- The first letter of all words should be capitalized.\n' +
       '- Exclude punctuation.\n' +
+      '- Use the same langauge as the user\'s message.\n' +
       '- Write just the title and nothing else. No introduction to yourself. No explanation. Just the title.\n'
   let req: ConciseAnswerReq
   if (workspace.backend === 'Sydney') {
