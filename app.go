@@ -149,8 +149,8 @@ func (a *App) UploadDocument() (UploadSydneyDocumentResult, error) {
 	file, err := runtime.OpenFileDialog(a.ctx, runtime.OpenDialogOptions{
 		Title: "Open a document to upload",
 		Filters: []runtime.FileFilter{{
-			DisplayName: "Document Files (*.pdf; *.pptx; *.docx)",
-			Pattern:     "*.pdf;*.pptx;*.docx",
+			DisplayName: "Document Files (*.pdf; *.pptx; *.docx; *.txt; *.md)",
+			Pattern:     "*.pdf;*.pptx;*.docx;*.txt;*.md",
 		}},
 	})
 	if err != nil {
@@ -168,6 +168,8 @@ func (a *App) UploadDocument() (UploadSydneyDocumentResult, error) {
 		docReader = util.DocxDocumentReader{}
 	case ".pptx":
 		docReader = util.PptxDocumentReader{}
+	case ".txt", ".md":
+		docReader = util.PlainDocumentReader{}
 	default:
 		return UploadSydneyDocumentResult{}, errors.New("file type " + ext + " not implemented")
 	}

@@ -18,7 +18,7 @@ A cross-platform desktop client for the jailbroken New Bing AI (Sydney ver.) bui
 - Craft, choose and send custom quick responses to the chat.
 - Display the rich or plain text of the chat context, supporting LaTeX formulas, tables, codes, etc.
 - Chat with webpages you browse.
-- Chat with documents you open (including pdf, docx and pptx).
+- Chat with documents you open (including pdf, docx, pptx, txt and md).
 - GPT-4 with vision that supports image search.
 - Generate images using the latest DALL·E 3 model.
 - Use OpenAI ChatGPT API with swichable different configurations.

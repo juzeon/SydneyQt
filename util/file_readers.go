@@ -189,3 +189,18 @@ func (p PptxDocumentReader) Read(filePath string) (string, error) {
 	}
 	return string(v), nil
 }
+
+type PlainDocumentReader struct {
+}
+
+func (p PlainDocumentReader) Read(filePath string) (string, error) {
+	v, err := os.ReadFile(filePath)
+	if err != nil {
+		return "", err
+	}
+	return string(v), nil
+}
+
+func (p PlainDocumentReader) WillSkipPostprocess() bool {
+	return false
+}

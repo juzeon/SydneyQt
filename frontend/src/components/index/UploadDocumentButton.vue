@@ -29,7 +29,7 @@ function uploadDocument() {
 </script>
 
 <template>
-  <user-input-tool-button @click="uploadDocument" tooltip="Upload a document (.pdf/.docx/.pptx)"
+  <user-input-tool-button @click="uploadDocument" tooltip="Upload a document (.pdf/.docx/.pptx/.txt/.md)"
                           icon="mdi-file-document"
                           :loading="uploadingDocument"
                           :disabled="isAsking"></user-input-tool-button>
