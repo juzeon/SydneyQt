@@ -81,7 +81,7 @@ func main() {
 	// add handlers
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		// set headers
-		w.Header().Set("Content-Type", "text/plain")
+		w.Header().Set("Content-Type", "text/plain; charset=UTF-8")
 
 		// write response
 		fmt.Fprint(w, "OK")
@@ -113,7 +113,7 @@ func main() {
 		}
 
 		// set headers
-		w.Header().Set("Content-Type", "application/json")
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
 		// write response
 		json.NewEncoder(w).Encode(conversation)
@@ -153,7 +153,7 @@ func main() {
 		}
 
 		// set headers
-		w.Header().Set("Content-Type", "text/plain")
+		w.Header().Set("Content-Type", "text/plain; charset=UTF-8")
 
 		// write response
 		fmt.Fprint(w, imgUrl)
@@ -185,7 +185,7 @@ func main() {
 		}
 
 		// set headers
-		w.Header().Set("Content-Type", "application/json")
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
 		// write response
 		json.NewEncoder(w).Encode(image)
@@ -238,7 +238,7 @@ func main() {
 		})
 
 		// set headers
-		w.Header().Set("Content-Type", "text/event-stream")
+		w.Header().Set("Content-Type", "text/event-stream; charset=UTF-8")
 		w.Header().Set("Cache-Control", "no-cache")
 		w.Header().Set("Connection", "keep-alive")
 
@@ -303,7 +303,7 @@ func main() {
 		// handle non-stream
 		if !request.Stream {
 			// set headers
-			w.Header().Set("Content-Type", "application/json")
+			w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
 			// write response
 			var replyBuilder strings.Builder
@@ -331,7 +331,7 @@ func main() {
 		}
 
 		// set headers
-		w.Header().Set("Content-Type", "text/event-stream")
+		w.Header().Set("Content-Type", "text/event-stream; charset=UTF-8")
 		w.Header().Set("Cache-Control", "no-cache")
 		w.Header().Set("Connection", "keep-alive")
 
@@ -431,7 +431,7 @@ func main() {
 		}
 
 		// set headers
-		w.Header().Set("Content-Type", "application/json")
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
 		// write response
 		json.NewEncoder(w).Encode(ToOpenAIImageGeneration(image))
