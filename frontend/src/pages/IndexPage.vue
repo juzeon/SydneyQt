@@ -414,9 +414,15 @@ function generateTitle() {
                     <v-select v-model="currentWorkspace.locale" :disabled="currentWorkspace.backend!=='Sydney'"
                               :items="localeList" color="primary" label="Locale"
                               density="compact"></v-select>
-                    <v-switch v-model="currentWorkspace.no_search" label="No Search" density="compact"
-                              :disabled="currentWorkspace.backend!=='Sydney'"
-                              color="primary"></v-switch>
+                    <v-tooltip text="Note that you will not be able to generate images when No Search is enabled."
+                               location="bottom">
+                      <template #activator="{props}">
+                        <v-switch v-bind="props" v-model="currentWorkspace.no_search" label="No Search"
+                                  density="compact"
+                                  :disabled="currentWorkspace.backend!=='Sydney'"
+                                  color="primary"></v-switch>
+                      </template>
+                    </v-tooltip>
                     <v-tooltip
                         text="Enable the latest gpt-4-turbo model will increase the speed of response,
                         reduce repeatability, but be harder to jailbreak."
