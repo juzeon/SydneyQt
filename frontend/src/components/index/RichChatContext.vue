@@ -25,7 +25,6 @@ function renderMD(content: string) {
   const math_expressions: any = {}
 
   function replace_math_with_ids(text: string) {
-    console.log(text)
     text = text.replace(/\n+/g, '\n\n')
     text = text.replace(/\|\n\n\|/g, '|\n|')
     text = text.replace(/\$\$([\s\S]+?)\$\$/g, (_match, expression) => {
