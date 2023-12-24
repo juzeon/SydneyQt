@@ -56,6 +56,13 @@ function renderMD(content: string) {
   renderer.text = function (text) {
     return original_text(replace_math_with_ids(text))
   }
+  const original_link = renderer.link
+  renderer.link = function (href, title, text) {
+    if (href === text) {
+      return '&lt;' + href + '&gt;'
+    }
+    return original_link(href, title, text)
+  }
   const rendered_md_only = marked.parse(content, {renderer: renderer}) as string
   try {
     return rendered_md_only.replace(/(__special_katext_id_\d+__)/g, (_match, capture) => {
