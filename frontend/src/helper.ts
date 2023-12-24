@@ -52,6 +52,10 @@ export function toChatMessages(context: string): ChatMessage[] {
         })
 }
 
+export function fromChatMessages(arr: ChatMessage[]): string {
+    return arr.map(v => `[${v.role}](#${v.type})\n${v.message}`).join('\n\n') + '\n\n'
+}
+
 export function shadeColor(color: string, percent: number): string {
     let R = parseInt(color.substring(1, 3), 16)
     let G = parseInt(color.substring(3, 5), 16)

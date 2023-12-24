@@ -1,7 +1,7 @@
 <script setup lang="ts">
 
 import UserInputToolButton from "./UserInputToolButton.vue"
-import {ChatMessage, swal, toChatMessages} from "../../helper"
+import {ChatMessage, fromChatMessages, swal, toChatMessages} from "../../helper"
 import {main} from "../../../wailsjs/go/models"
 import Workspace = main.Workspace
 
@@ -16,7 +16,7 @@ function getChatMessages(): ChatMessage[] {
 }
 
 function setChatMessages(arr: ChatMessage[]) {
-  props.currentWorkspace.context = arr.map(v => `[${v.role}](#${v.type})\n${v.message}`).join('\n\n') + '\n\n'
+  props.currentWorkspace.context = fromChatMessages(arr)
 }
 
 function handleRevoke() {

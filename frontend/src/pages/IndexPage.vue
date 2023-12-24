@@ -2,7 +2,7 @@
 import {computed, onMounted, onUnmounted, ref, watch} from "vue"
 import {main, sydney} from "../../wailsjs/go/models"
 import {EventsEmit, EventsOff, EventsOn} from "../../wailsjs/runtime"
-import {generateRandomName, shadeColor, swal} from "../helper"
+import {fromChatMessages, generateRandomName, shadeColor, swal, toChatMessages} from "../helper"
 import {AskAI, CountToken, GenerateImage, GetConciseAnswer} from "../../wailsjs/go/main/App"
 import {AskTypeOpenAI, AskTypeSydney} from "../constants"
 import Scaffold from "../components/Scaffold.vue"
@@ -345,18 +345,20 @@ function generateTitle() {
       '- Exclude punctuation.\n' +
       '- Use the same langauge as the user\'s message.\n' +
       '- Write just the title and nothing else. No introduction to yourself. No explanation. Just the title.\n'
+  let xContext = fromChatMessages(toChatMessages(workspace.context)
+      .filter(v => !(v.role === 'system' && v.type === 'additional_instructions')))
   let req: ConciseAnswerReq
   if (workspace.backend === 'Sydney') {
     req = {
       backend: workspace.backend,
-      context: '<x-text>\n' + workspace.context + '\n</x-text>',
+      context: '<x-text>\n' + xContext + '\n</x-text>',
       prompt: systemPrompt,
     }
   } else {
     req = {
       backend: workspace.backend,
       context: systemPrompt,
-      prompt: '<x-text>\n' + workspace.context + '\n</x-text>',
+      prompt: '<x-text>\n' + xContext + '\n</x-text>',
     }
   }
   GetConciseAnswer(req).then(title => {
