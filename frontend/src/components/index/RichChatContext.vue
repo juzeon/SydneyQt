@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {computed, onUpdated} from "vue"
-import {toChatMessages} from "../../helper"
+import {toChatMessages, unescapeHtml} from "../../helper"
 import {marked} from "marked"
 import katex from 'katex'
 
@@ -25,6 +25,7 @@ function renderMD(content: string) {
   const math_expressions: any = {}
 
   function replace_math_with_ids(text: string) {
+    console.log(text)
     text = text.replace(/\n+/g, '\n\n')
     text = text.replace(/\|\n\n\|/g, '|\n|')
     text = text.replace(/\$\$([\s\S]+?)\$\$/g, (_match, expression) => {
@@ -60,7 +61,7 @@ function renderMD(content: string) {
   try {
     return rendered_md_only.replace(/(__special_katext_id_\d+__)/g, (_match, capture) => {
       const {type, expression} = math_expressions[capture]
-      return katex.renderToString(expression, {displayMode: type === 'block'})
+      return katex.renderToString(unescapeHtml(expression), {displayMode: type === 'block'})
     })
   } catch (e) {
     console.log(e)
