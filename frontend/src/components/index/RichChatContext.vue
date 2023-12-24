@@ -138,4 +138,8 @@ th, td {
   padding: 8px;
 }
 
+li {
+  margin-left: 20px;
+}
+
 </style>
