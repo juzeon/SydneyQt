@@ -27,10 +27,6 @@ body::-webkit-scrollbar {
     display: none !important;
 }
 
-.katex-html[aria-hidden="true"] {
-    display: none;
-}
-
 img.loading-icon {
-    content:url("assets/images/90-ring-with-bg.svg");
+    content: url("assets/images/90-ring-with-bg.svg");
 }

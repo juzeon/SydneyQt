@@ -3,6 +3,7 @@ import {computed, onUpdated} from "vue"
 import {toChatMessages, unescapeHtml} from "../../helper"
 import {marked} from "marked"
 import katex from 'katex'
+import 'katex/dist/katex.min.css'
 
 let props = defineProps<{
   context: string,
@@ -28,6 +29,7 @@ function renderMD(content: string) {
     text = text.replace(/\n+/g, '\n\n')
     text = text.replace(/\|\n\n\|/g, '|\n|')
     text = text.replace(/\$\$([\s\S]+?)\$\$/g, (_match, expression) => {
+      expression = expression.replace(/\\+$/gm, '\\\\')
       const id = next_id()
       math_expressions[id] = {type: 'block', expression}
       return id
@@ -67,7 +69,7 @@ function renderMD(content: string) {
   try {
     return rendered_md_only.replace(/(__special_katext_id_\d+__)/g, (_match, capture) => {
       const {type, expression} = math_expressions[capture]
-      return katex.renderToString(unescapeHtml(expression), {displayMode: type === 'block'})
+      return katex.renderToString(unescapeHtml(expression), {displayMode: type === 'block', strict: false})
     })
   } catch (e) {
     console.log(e)
