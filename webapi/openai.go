@@ -18,10 +18,10 @@ var (
 
 func ParseOpenAIMessages(messages []OpenAIMessage) (OpenAIMessagesParseResult, error) {
 	if len(messages) == 0 {
-		return OpenAIMessagesParseResult{}, nil
+		return OpenAIMessagesParseResult{}, ErrMissingPrompt
 	}
 
-	// last message must be user prompt
+	// find the last user message
 	var promptIndex int
 	var promptMessage OpenAIMessage
 
