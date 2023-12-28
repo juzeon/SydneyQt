@@ -8,9 +8,12 @@ import (
 )
 
 var (
-	ErrMissingPrompt   = errors.New("user prompt is missing (last message is not sent by user)")
-	FinishReasonStop   = "stop"
-	FinishReasonLength = "length"
+	ErrMissingPrompt     = errors.New("user prompt is missing (last message is not sent by user)")
+	FinishReasonStop     = "stop"
+	FinishReasonLength   = "length"
+	MessageRoleUser      = "user"
+	MessageRoleAssistant = "assistant"
+	MessageRoleSystem    = "system"
 )
 
 func ParseOpenAIMessages(messages []OpenAIMessage) (OpenAIMessagesParseResult, error) {
@@ -19,22 +22,19 @@ func ParseOpenAIMessages(messages []OpenAIMessage) (OpenAIMessagesParseResult, e
 	}
 
 	// last message must be user prompt
-	var index int
-	var lastMessage OpenAIMessage
+	var promptIndex int
+	var promptMessage OpenAIMessage
 
 	for i := len(messages) - 1; i >= 0; i-- {
-		if messages[i].Role == "user" {
-			index = i
-			lastMessage = messages[i]
+		if messages[i].Role == MessageRoleUser {
+			promptIndex = i
+			promptMessage = messages[i]
 			break
 		}
 	}
-	// exclude the lastMessage from the array
-	messages = append(messages[:index], messages[index+1:]...)
-	
-	//lastMessage := messages[len(messages)-1]
-	prompt, imageUrl := ParseOpenAIMessageContent(lastMessage.Content)
-	
+
+	prompt, imageUrl := ParseOpenAIMessageContent(promptMessage.Content)
+
 	if prompt == "" {
 		return OpenAIMessagesParseResult{}, ErrMissingPrompt
 	}
@@ -46,21 +46,24 @@ func ParseOpenAIMessages(messages []OpenAIMessage) (OpenAIMessagesParseResult, e
 		}, nil
 	}
 
+	// exclude the promptMessage from the array
+	messages = append(messages[:promptIndex], messages[promptIndex+1:]...)
+
 	// construct context
 	var contextBuilder strings.Builder
 	contextBuilder.WriteString("\n\n")
-	
-	for i, message := range messages[:len(messages)] {
+
+	for i, message := range messages {
 		// assert types
 		text, _ := ParseOpenAIMessageContent(message.Content)
 
 		// append role to context
 		switch message.Role {
-		case "user":
+		case MessageRoleUser:
 			contextBuilder.WriteString("[user](#message)\n")
-		case "assistant":
+		case MessageRoleAssistant:
 			contextBuilder.WriteString("[assistant](#message)\n")
-		case "system":
+		case MessageRoleSystem:
 			contextBuilder.WriteString("[system](#additional_instructions)\n")
 		default:
 			continue // skip unknown roles
