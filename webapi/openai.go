@@ -19,10 +19,23 @@ func ParseOpenAIMessages(messages []OpenAIMessage) (OpenAIMessagesParseResult, e
 	}
 
 	// last message must be user prompt
-	lastMessage := messages[len(messages)-1]
-	prompt, imageUrl := ParseOpenAIMessageContent(lastMessage.Content)
+	var index int
+	var lastMessage OpenAIMessage
 
-	if lastMessage.Role != "user" || prompt == "" {
+	for i := len(messages) - 1; i >= 0; i-- {
+		if messages[i].Role == "user" {
+			index = i
+			lastMessage = messages[i]
+			break
+		}
+	}
+	// exclude the lastMessage from the array
+	messages = append(messages[:index], messages[index+1:]...)
+	
+	//lastMessage := messages[len(messages)-1]
+	prompt, imageUrl := ParseOpenAIMessageContent(lastMessage.Content)
+	
+	if prompt == "" {
 		return OpenAIMessagesParseResult{}, ErrMissingPrompt
 	}
 
@@ -36,8 +49,8 @@ func ParseOpenAIMessages(messages []OpenAIMessage) (OpenAIMessagesParseResult, e
 	// construct context
 	var contextBuilder strings.Builder
 	contextBuilder.WriteString("\n\n")
-
-	for i, message := range messages[:len(messages)-1] {
+	
+	for i, message := range messages[:len(messages)] {
 		// assert types
 		text, _ := ParseOpenAIMessageContent(message.Content)
 
@@ -55,7 +68,7 @@ func ParseOpenAIMessages(messages []OpenAIMessage) (OpenAIMessagesParseResult, e
 
 		// append content to context
 		contextBuilder.WriteString(text)
-		if i != len(messages)-2 {
+		if i != len(messages)-1 {
 			contextBuilder.WriteString("\n\n")
 		}
 	}
