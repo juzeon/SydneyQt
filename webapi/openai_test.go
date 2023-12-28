@@ -25,6 +25,21 @@ func TestParseOpenAIMessages(t *testing.T) {
 			Prompt: "Hello!",
 		}, result)
 	})
+	t.Run("not ending with user message", func(t *testing.T) {
+		messages := []OpenAIMessage{
+			{
+				Role:    "user",
+				Content: "Hello!",
+			},
+			{
+				Role:    "assistant",
+				Content: "Hi!",
+			},
+		}
+		result, err := ParseOpenAIMessages(messages)
+		assert.Nil(t, err)
+		assert.Equal(t, "Hello!", result.Prompt)
+	})
 	t.Run("valid with image", func(t *testing.T) {
 		messages := []OpenAIMessage{
 			{
