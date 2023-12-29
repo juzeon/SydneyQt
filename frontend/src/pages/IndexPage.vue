@@ -389,7 +389,7 @@ function generateTitle() {
         <div class="d-flex align-center top-action-bar mx-2">
           <p class="font-weight-bold">Chat Context:</p>
           <v-spacer></v-spacer>
-          <div class="d-flex">
+          <div class="d-flex align-center">
             <v-select v-model="currentWorkspace.backend" :items="backendList" color="primary" label="Backend"
                       density="compact"
                       class="mx-2"></v-select>
@@ -402,6 +402,17 @@ function generateTitle() {
                       label="Preset"
                       density="compact"
                       class="mx-2"></v-select>
+            <v-tooltip
+                text="Enable the latest gpt-4-turbo model will increase the speed of response,
+                        reduce repeatability, but be harder to jailbreak."
+                location="bottom">
+              <template #activator="{props}">
+                <v-switch v-bind="props" v-model="currentWorkspace.gpt_4_turbo" label="GPT-4-Turbo"
+                          density="compact"
+                          :disabled="currentWorkspace.backend!=='Sydney'" class="mx-2"
+                          color="primary"></v-switch>
+              </template>
+            </v-tooltip>
             <v-tooltip :text="additionalOptionPreview" location="bottom">
               <template #activator="{props}">
                 <v-btn @click="additionalOptionsDialog=true" v-bind="props" icon variant="text" color="primary">
@@ -420,17 +431,6 @@ function generateTitle() {
                                location="bottom">
                       <template #activator="{props}">
                         <v-switch v-bind="props" v-model="currentWorkspace.no_search" label="No Search"
-                                  density="compact"
-                                  :disabled="currentWorkspace.backend!=='Sydney'"
-                                  color="primary"></v-switch>
-                      </template>
-                    </v-tooltip>
-                    <v-tooltip
-                        text="Enable the latest gpt-4-turbo model will increase the speed of response,
-                        reduce repeatability, but be harder to jailbreak."
-                        location="bottom">
-                      <template #activator="{props}">
-                        <v-switch v-bind="props" v-model="currentWorkspace.gpt_4_turbo" label="GPT-4-Turbo"
                                   density="compact"
                                   :disabled="currentWorkspace.backend!=='Sydney'"
                                   color="primary"></v-switch>
