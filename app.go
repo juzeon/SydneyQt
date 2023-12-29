@@ -338,6 +338,7 @@ func (a *App) ExportWorkspace(id int) error {
 			Pattern:     "*.md",
 		}},
 		CanCreateDirectories: true,
+		DefaultFilename:      workspace.Title + ".md",
 	})
 	if err != nil {
 		return err
