@@ -35,7 +35,13 @@ func main() {
 
 	noLog := os.Getenv("NO_LOG") != ""
 
-	defaultCookies := ParseCookies(os.Getenv("DEFAULT_COOKIES"))
+	var defaultCookies map[string]string
+	var err error
+	defaultCookies, err = ReadCookiesFile()
+	if err != nil {
+		fmt.Println("NOTICE: Cookie file not found, using enviroment variable")
+		defaultCookies = ParseCookies(os.Getenv("DEFAULT_COOKIES"))
+	}
 
 	authToken := os.Getenv("AUTH_TOKEN")
 
