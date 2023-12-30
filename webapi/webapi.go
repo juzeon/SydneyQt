@@ -36,6 +36,9 @@ func main() {
 	noLog := os.Getenv("NO_LOG") != ""
 
 	defaultCookies := ParseCookies(os.Getenv("DEFAULT_COOKIES"))
+	if len(defaultCookies) == 0 {
+		defaultCookies, _ = util.ReadCookiesFile()
+	}
 
 	authToken := os.Getenv("AUTH_TOKEN")
 
