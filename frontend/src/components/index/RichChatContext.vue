@@ -151,4 +151,8 @@ li {
   margin-left: 20px;
 }
 
+p, table, li, code {
+  cursor: text;
+}
+
 </style>
