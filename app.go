@@ -296,12 +296,16 @@ func (a *App) GenerateImage(generativeImage sydney.GenerativeImage) (sydney.Gene
 	return syd.GenerateImage(generativeImage)
 }
 func (a *App) SaveRemoteJPEGImage(url string) error {
+	if strings.Contains(url, "?") {
+		url = strings.Split(url, "?")[0]
+	}
 	filePath, err := runtime.SaveFileDialog(a.ctx, runtime.SaveDialogOptions{
 		Title: "Choose a destination to save the image",
 		Filters: []runtime.FileFilter{{
 			DisplayName: "JPEG Image Files (*.jpg, *.jpeg)",
 			Pattern:     "*.jpg;*.jpeg",
 		}},
+		DefaultFilename:      "image.jpg",
 		CanCreateDirectories: true,
 	})
 	if err != nil {
