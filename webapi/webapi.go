@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"log/slog"
 	"net/http"
 	"os"
 	"strings"
@@ -37,7 +38,13 @@ func main() {
 
 	defaultCookies := ParseCookies(os.Getenv("DEFAULT_COOKIES"))
 	if len(defaultCookies) == 0 {
+		slog.Info("DEFAULT_COOKIES not set, reading from cookies.json")
 		defaultCookies, _ = util.ReadCookiesFile()
+		if len(defaultCookies) == 0 {
+			slog.Warn("cookies.json not found, using empty cookies")
+		}
+	} else {
+		slog.Info("DEFAULT_COOKIES set, cookies.json will be ignored")
 	}
 
 	authToken := os.Getenv("AUTH_TOKEN")
