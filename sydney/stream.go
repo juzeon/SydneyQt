@@ -7,6 +7,8 @@ import (
 	"log/slog"
 	"net/http"
 	"net/url"
+	"regexp"
+	"strconv"
 	"strings"
 	"sydneyqt/util"
 	"time"
@@ -133,9 +135,32 @@ func (o *Sydney) AskStream(options AskStreamOptions) <-chan Message {
 							}), func(item string, index int) bool {
 								return item != ""
 							})
-							out <- Message{ // TODO
+							re := regexp.MustCompile(`\[(\d+)]: (.*)`)
+							var resultSources []SourceAttribute
+							for _, line := range arr {
+								matches := re.FindStringSubmatch(line)
+								if len(matches) == 0 {
+									continue
+								}
+								ix := matches[1]
+								link := matches[2]
+								sourceAttribute, ok := lo.Find(sourceAttributes, func(item SourceAttribute) bool {
+									return item.Link == link
+								})
+								if !ok {
+									continue
+								}
+								sourceAttribute.Index, _ = strconv.Atoi(ix)
+								resultSources = append(resultSources, sourceAttribute)
+							}
+							var resultArr []string
+							for _, src := range resultSources {
+								v, _ := json.Marshal(&src)
+								resultArr = append(resultArr, "  "+string(v))
+							}
+							out <- Message{
 								Type: MessageTypeSearchResult,
-								Text: strings.Join(arr, "\n"),
+								Text: "[\n" + strings.Join(resultArr, ",\n") + "\n]",
 							}
 						}
 					}
