@@ -194,8 +194,8 @@ func (o *Sydney) AskStream(options AskStreamOptions) <-chan Message {
 						"type", msgType.String(), "triggered-by", options.Prompt, "response", message.Raw)
 				}
 			} else if data.Get("type").Int() == 2 && data.Get("item.messages").Exists() {
-				message := data.Get("item.messages|@reverse|0")
-				sendSuggestedResponses(message)
+				suggestedMessage := data.Get("item.messages|@reverse|0")
+				sendSuggestedResponses(suggestedMessage)
 			}
 		}
 	}(out, ch)
