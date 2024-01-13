@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import {ref} from "vue"
+import Vuedraggable from 'vuedraggable'
 
 let props = defineProps<{
   quick: string[],
@@ -12,24 +13,6 @@ let quickRespEditText = ref('')
 let quickRespEditDialog = ref(false)
 let quickRespEditError = ref('')
 let quickRespEditIndex = ref(-1)
-
-function moveQuickResponse(item: string, isUp: boolean) {
-  let index = props.quick.findIndex(v => v === item)
-  if (index === -1 || props.quick.length <= 1) {
-    return
-  }
-  if (isUp) {
-    if (index === 0) return
-    let tmp = props.quick[index]
-    props.quick[index] = props.quick[index - 1]
-    props.quick[index - 1] = tmp
-  } else {
-    if (index === props.quick.length - 1) return
-    let tmp = props.quick[index]
-    props.quick[index] = props.quick[index + 1]
-    props.quick[index + 1] = tmp
-  }
-}
 
 function createQuickResponse() {
   quickRespEditMode.value = 'create'
@@ -65,29 +48,25 @@ function confirmQuickResponse() {
     <v-card-title>Quick Responses</v-card-title>
     <v-card-text>
       <v-list density="compact">
-        <v-list-item v-for="(item,ix) in quick" :title="item">
-          <template #prepend>
-            <p style="color: #999" class="mr-2 text-no-wrap overflow-x-hidden">{{ ix + 1 }}.</p>
+        <vuedraggable :list="quick" handle=".handle">
+          <template #item="{ element:item,index:ix }">
+            <v-list-item :title="item">
+              <template #prepend>
+                <v-icon class="handle mr-1" style="cursor: grab" size="large">mdi-drag</v-icon>
+              </template>
+              <template #append>
+                <v-btn variant="text" icon density="compact" class="mx-1" color="red"
+                       @click="emit('update:quick',quick.filter(v=>v!==item))">
+                  <v-icon>mdi-delete</v-icon>
+                </v-btn>
+                <v-btn variant="text" icon density="compact" class="mx-1" color="primary"
+                       @click="editQuickResponse(ix)">
+                  <v-icon>mdi-pencil</v-icon>
+                </v-btn>
+              </template>
+            </v-list-item>
           </template>
-          <template #append>
-            <v-btn variant="text" icon density="compact" class="mx-1" color="red"
-                   @click="emit('update:quick',quick.filter(v=>v!==item))">
-              <v-icon>mdi-delete</v-icon>
-            </v-btn>
-            <v-btn variant="text" icon density="compact" class="mx-1" color="primary"
-                   @click="editQuickResponse(ix)">
-              <v-icon>mdi-pencil</v-icon>
-            </v-btn>
-            <v-btn variant="text" icon density="compact" class="mx-1" color="primary"
-                   @click="moveQuickResponse(item,true)">
-              <v-icon>mdi-menu-up</v-icon>
-            </v-btn>
-            <v-btn variant="text" icon density="compact" class="mx-1" color="primary"
-                   @click="moveQuickResponse(item,false)">
-              <v-icon>mdi-menu-down</v-icon>
-            </v-btn>
-          </template>
-        </v-list-item>
+        </vuedraggable>
       </v-list>
       <v-card-actions>
         <v-spacer></v-spacer>
