@@ -32,21 +32,12 @@ func NewSydney(options Options) *Sydney {
 	debugOptions.Cookies = nil
 	slog.Info("New Sydney", "v", debugOptions)
 	basicOptionsSet := []string{
-		"nlu_direct_response_filter",
-		"deepleo",
-		"disable_emoji_spoken_text",
-		"responsible_ai_policy_235",
-		"enablemm",
-		"dv3sugg",
+		"fluxsydney",
 		"iyxapbing",
 		"iycapbing",
-		"gptvprvc",
-		"fluxpcalc",
-		"eredirecturl",
+		"clgalileoall",
 		"gencontentv3",
-		"fluxv14l",
 		"nojbf",
-		"soedgeca",
 	}
 	if options.GPT4Turbo {
 		basicOptionsSet = append(basicOptionsSet, "dlgpt4t")
