@@ -57,7 +57,7 @@ func (o *Sydney) AskStream(options AskStreamOptions) <-chan Message {
 				case "InternalSearchQuery":
 					out <- Message{
 						Type: MessageTypeSearchQuery,
-						Text: messageHiddenText,
+						Text: messageText,
 					}
 				case "InternalSearchResult":
 					var links []string
@@ -73,6 +73,7 @@ func (o *Sydney) AskStream(options AskStreamOptions) <-chan Message {
 						slog.Error("Error when parsing InternalSearchResult", "messageText", messageText)
 						continue
 					}
+					slog.Info("internal search", "text", messageText, "hiddenText", messageHiddenText)
 					arr := gjson.Parse(messageText).Array()
 					for _, group := range arr {
 						srIndex := 1
