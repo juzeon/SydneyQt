@@ -19,6 +19,7 @@
     "uuid": "^9.0.1",
     "vue": "^3.2.37",
     "vue-router": "^4.2.5",
+    "vuedraggable": "^4.1.0",
     "vuetify": "^3.3.15"
   },
   "devDependencies": {

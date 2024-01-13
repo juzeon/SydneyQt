@@ -2,6 +2,7 @@
 import {ref} from "vue"
 import {v4 as uuidV4} from "uuid"
 import {main} from "../../../wailsjs/go/models"
+import Vuedraggable from 'vuedraggable'
 import Preset = main.Preset
 
 let props = defineProps<{
@@ -64,20 +65,27 @@ function confirmRenamePreset() {
       <div class="d-flex" style="max-height: 400px">
         <div class="d-flex flex-column">
           <v-list density="compact" width="200" class="flex-grow-1 overflow-y-auto">
-            <v-list-item :active="preset===activePreset" v-for="preset in presets">
-              <template #title>
-                <p style="cursor: pointer" class="overflow-x-hidden" @click="activePreset=preset">
-                  {{ preset.name }}</p>
+            <vuedraggable :list="presets" item-key="name" handle=".handle">
+              <template #item="{ element:preset }">
+                <v-list-item :active="preset===activePreset" class="px-1">
+                  <template #title>
+                    <div class="d-flex">
+                      <v-icon class="handle mr-1" style="cursor: grab">mdi-drag</v-icon>
+                      <p style="cursor: pointer" class="overflow-x-hidden flex-grow-1" @click="activePreset=preset">
+                        {{ preset.name }}</p>
+                    </div>
+                  </template>
+                  <template #append>
+                    <v-btn icon color="red" variant="text" density="compact" @click="deletePreset(preset)">
+                      <v-icon>mdi-delete</v-icon>
+                    </v-btn>
+                    <v-btn icon color="primary" variant="text" density="compact" @click="renamePreset(preset)">
+                      <v-icon>mdi-pencil</v-icon>
+                    </v-btn>
+                  </template>
+                </v-list-item>
               </template>
-              <template #append>
-                <v-btn icon color="red" variant="text" density="compact" @click="deletePreset(preset)">
-                  <v-icon>mdi-delete</v-icon>
-                </v-btn>
-                <v-btn icon color="primary" variant="text" density="compact" @click="renamePreset(preset)">
-                  <v-icon>mdi-pencil</v-icon>
-                </v-btn>
-              </template>
-            </v-list-item>
+            </vuedraggable>
           </v-list>
           <v-btn variant="text" color="primary" @click="addPreset">
             <v-icon>mdi-plus</v-icon>
