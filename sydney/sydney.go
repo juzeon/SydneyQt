@@ -1,11 +1,12 @@
 package sydney
 
 import (
-	"github.com/google/uuid"
-	"github.com/huandu/go-clone/generic"
 	"log/slog"
 	"strconv"
 	"sydneyqt/util"
+
+	"github.com/google/uuid"
+	clone "github.com/huandu/go-clone/generic"
 )
 
 type Sydney struct {
@@ -36,13 +37,16 @@ func NewSydney(options Options) *Sydney {
 		"disable_emoji_spoken_text",
 		"responsible_ai_policy_235",
 		"enablemm",
-		"iycapbing",
-		"iyxapbing",
 		"dv3sugg",
-		"iyoloxap",
-		"iyoloneutral",
+		"iyxapbing",
+		"iycapbing",
+		"gptvprvc",
+		"fluxpcalc",
+		"eredirecturl",
 		"gencontentv3",
+		"fluxv14l",
 		"nojbf",
+		"soedgeca",
 	}
 	if options.GPT4Turbo {
 		basicOptionsSet = append(basicOptionsSet, "dlgpt4t")
@@ -68,29 +72,7 @@ func NewSydney(options Options) *Sydney {
 			"Balanced": append(basicOptionsSet, "galileo"),
 			"Precise":  append(basicOptionsSet, "h3precise"),
 		},
-		sliceIDs: []string{
-			"winmuid1tf",
-			"newmma-prod",
-			"imgchatgptv2",
-			"tts2",
-			"voicelang2",
-			"anssupfotest",
-			"emptyoson",
-			"tempcacheread",
-			"temptacache",
-			"ctrlworkpay",
-			"winlongmsg2tf",
-			"628fabocs0",
-			"531rai268s0",
-			"602refusal",
-			"621alllocs0",
-			"621docxfmtho",
-			"621preclsvn",
-			"330uaug",
-			"529rweas0",
-			"0626snptrcs0",
-			"619dagslnv1nr",
-		},
+		sliceIDs: []string{},
 		locationHints: map[string][]LocationHint{
 			"zh-CN": {
 				{

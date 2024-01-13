@@ -257,7 +257,7 @@ func (o *Sydney) AskStreamRaw(options AskStreamOptions) <-chan RawMessage {
 			Arguments: []Argument{
 				{
 					OptionsSets:         optionsSets,
-					Source:              "cib",
+					Source:              "edge_coauthor_prod",
 					AllowedMessageTypes: o.allowedMessageTypes,
 					SliceIds:            o.sliceIDs,
 					Verbosity:           "verbose",
