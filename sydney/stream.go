@@ -3,7 +3,7 @@ package sydney
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
+	"github.com/samber/lo"
 	"log/slog"
 	"net/http"
 	"net/url"
@@ -37,6 +37,7 @@ func (o *Sydney) AskStream(options AskStreamOptions) <-chan Message {
 				}
 			}
 		}
+		var sourceAttributes []SourceAttribute
 		for msg := range ch {
 			if msg.Error != nil {
 				slog.Error("Ask stream message", "error", msg.Error)
@@ -60,35 +61,26 @@ func (o *Sydney) AskStream(options AskStreamOptions) <-chan Message {
 						Text: messageText,
 					}
 				case "InternalSearchResult":
-					var links []string
 					if strings.Contains(messageHiddenText,
 						"Web search returned no relevant result") {
-						out <- Message{
-							Type: MessageTypeSearchResult,
-							Text: messageHiddenText,
-						}
+						slog.Info("Web search returned no relevant result")
 						continue
 					}
 					if !gjson.Valid(messageText) {
 						slog.Error("Error when parsing InternalSearchResult", "messageText", messageText)
 						continue
 					}
-					slog.Info("internal search", "text", messageText, "hiddenText", messageHiddenText)
 					arr := gjson.Parse(messageText).Array()
 					for _, group := range arr {
-						srIndex := 1
 						group.ForEach(func(key, value gjson.Result) bool {
 							for _, subGroup := range value.Array() {
-								links = append(links, fmt.Sprintf("[^%d^][%s](%s)",
-									srIndex, subGroup.Get("title").String(), subGroup.Get("url").String()))
-								srIndex++
+								sourceAttributes = append(sourceAttributes, SourceAttribute{
+									Link:  subGroup.Get("url").String(),
+									Title: subGroup.Get("title").String(),
+								})
 							}
 							return true
 						})
-					}
-					out <- Message{
-						Type: MessageTypeSearchResult,
-						Text: strings.Join(links, "\n\n"),
 					}
 				case "InternalLoaderMessage":
 					if message.Get("hiddenText").Exists() {
@@ -131,6 +123,21 @@ func (o *Sydney) AskStream(options AskStreamOptions) <-chan Message {
 				case "":
 					if data.Get("arguments.0.cursor").Exists() {
 						wrote = 0
+						// extract search result from text block
+						if message.Get("adaptiveCards.0.body.0.type").String() == "TextBlock" {
+							text := strings.
+								TrimSuffix(message.Get("adaptiveCards.0.body.0.text").String(), messageText)
+							slog.Info("text", "v", text)
+							arr := lo.Filter(lo.Map(strings.Split(text, "\n"), func(item string, index int) string {
+								return strings.Trim(item, " \"")
+							}), func(item string, index int) bool {
+								return item != ""
+							})
+							out <- Message{ // TODO
+								Type: MessageTypeSearchResult,
+								Text: strings.Join(arr, "\n"),
+							}
+						}
 					}
 					if message.Get("contentOrigin").String() == "Apology" {
 						if wrote != 0 {
