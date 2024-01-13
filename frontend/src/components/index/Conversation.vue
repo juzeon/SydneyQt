@@ -19,7 +19,7 @@ let emit = defineEmits<{
 </script>
 
 <template>
-  <v-card style="margin: 1px" :class="{'bg-grey-lighten-3':active}">
+  <v-card class="ma-3" :class="{'bg-grey-lighten-3':active}">
     <v-card-text>
       <div @click="disabled?()=>{}:emit('click')" style="cursor: pointer">
         <p :class="{'font-weight-bold':active,'conversation-title':true}">{{ title }}</p>

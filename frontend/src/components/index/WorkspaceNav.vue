@@ -109,14 +109,14 @@ function exportWorkspace(workspace: Workspace) {
     <v-navigation-drawer :model-value="modelValue" @update:model-value="val => emit('update:modelValue',val)"
                          :permanent="true">
       <div class="d-flex flex-column fill-height">
-        <v-list class="overflow-y-auto flex-grow-1">
-          <v-list-item v-for="workspace in sortedWorkspaces">
+        <v-virtual-scroll :items="sortedWorkspaces">
+          <template #default="{item:workspace}">
             <conversation :title="workspace.title" :created-at="workspace.created_at"
                           :active="workspace.id===currentWorkspace.id" :disabled="isAsking"
                           @delete="onDeleteWorkspace(workspace)" @edit="onEditWorkspace(workspace)"
                           @click="switchWorkspace(workspace)" @export="exportWorkspace(workspace)"></conversation>
-          </v-list-item>
-        </v-list>
+          </template>
+        </v-virtual-scroll>
         <div class="d-flex ma-3">
           <v-btn :disabled="isAsking" @click="addWorkspace" variant="text" class="flex-grow-1" color="primary"
                  prepend-icon="mdi-plus">
