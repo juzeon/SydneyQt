@@ -102,6 +102,8 @@ function renderMessage(message: ChatMessage): string {
         for (let src of sourceAttributes) {
           content = content.replaceAll('[^' + src.index + '^]',
               '[[' + src.index + ']](' + src.link + ')')
+          content = content.replaceAll('(^' + src.index + '^)',
+              '(' + src.link + ')')
         }
       } catch (e) {
         console.log(e)
