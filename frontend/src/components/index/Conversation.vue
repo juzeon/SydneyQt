@@ -19,11 +19,12 @@ let emit = defineEmits<{
 </script>
 
 <template>
-  <v-card style="margin: 1px">
+  <v-card style="margin: 1px" :class="{'bg-grey-lighten-3':active}">
     <v-card-text>
       <div @click="disabled?()=>{}:emit('click')" style="cursor: pointer">
         <p :class="{'font-weight-bold':active,'conversation-title':true}">{{ title }}</p>
-        <p style="color: #999;font-size: 14px" class="text-no-wrap overflow-hidden">{{
+        <p style="color: #999;font-size: 14px" :class="{'font-weight-bold':active}"
+           class="text-no-wrap overflow-hidden">{{
             dayjs(createdAt).format('llll')
           }}</p>
       </div>
