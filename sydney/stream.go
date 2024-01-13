@@ -126,10 +126,8 @@ func (o *Sydney) AskStream(options AskStreamOptions) <-chan Message {
 					if data.Get("arguments.0.cursor").Exists() {
 						wrote = 0
 						// extract search result from text block
-						if message.Get("adaptiveCards.0.body.0.type").String() == "TextBlock" {
-							text := strings.
-								TrimSuffix(message.Get("adaptiveCards.0.body.0.text").String(), messageText)
-							slog.Info("text", "v", text)
+						if text := strings.TrimSuffix(message.Get("adaptiveCards.0.body.0.text").String(),
+							messageText); strings.TrimSpace(text) != "" {
 							arr := lo.Filter(lo.Map(strings.Split(text, "\n"), func(item string, index int) string {
 								return strings.Trim(item, " \"")
 							}), func(item string, index int) bool {
