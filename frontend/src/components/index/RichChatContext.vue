@@ -154,7 +154,7 @@ onUpdated(() => {
   box-sizing: border-box;
 }
 
-pre {
+#my-box pre {
   position: relative;
   overflow: auto;
   margin: 5px 0;
@@ -164,7 +164,7 @@ pre {
   color: white;
 }
 
-pre button {
+#my-box pre button {
   position: absolute;
   top: 5px;
   right: 5px;
@@ -177,29 +177,29 @@ pre button {
   text-shadow: #e8e8e8 0 0 2px;
 }
 
-pre button:hover {
+#my-box pre button:hover {
   cursor: pointer;
   background-color: #bcbabb;
 }
 
-table {
+#my-box table {
   border-collapse: collapse;
 }
 
-th, td {
+#my-box th, #my-box td {
   border: 1px solid black;
   padding: 8px;
 }
 
-li {
+#my-box li {
   margin-left: 20px;
 }
 
-p, table, li, code {
+#my-box p, table, li, code {
   cursor: text;
 }
 
-a {
+#my-box a {
   text-decoration: none;
 }
 
