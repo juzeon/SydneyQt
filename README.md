@@ -118,6 +118,21 @@ Here's the TL;DR version:
 3. Clone the project: `git clone https://github.com/juzeon/SydneyQt`.
 4. Run the building command: `wails build`.
 
+### Developer Notes
+
+Use `debug_options_sets.json` to overwrite optionsSets, e.g:
+
+```json
+[		
+    "fluxsydney",
+	"iyxapbing",
+	"iycapbing",
+	"clgalileoall",
+	"gencontentv3",
+	"nojbf"
+]
+```
+
 ## Web API
 
 Thanks to [@PeronGH](https://github.com/PeronGH) we now have a Web API. [Check out for more details.](webapi/README.md)

@@ -7,6 +7,7 @@ import (
 	"log/slog"
 	"net/http"
 	"net/url"
+	"os"
 	"regexp"
 	"strconv"
 	"strings"
@@ -275,6 +276,13 @@ func (o *Sydney) AskStreamRaw(options AskStreamOptions) <-chan RawMessage {
 		optionsSets := o.optionsSetMap[o.conversationStyle]
 		if o.noSearch {
 			optionsSets = append(optionsSets, "nosearchall")
+		}
+		debugOptionsSetsFile, _ := os.ReadFile("debug_options_sets.json")
+		var debugOptionsSets []string
+		_ = json.Unmarshal(debugOptionsSetsFile, &debugOptionsSets)
+		if len(debugOptionsSets) != 0 {
+			slog.Warn("Enable debug options sets", "v", debugOptionsSets)
+			optionsSets = debugOptionsSets
 		}
 		chatMessage := ChatMessage{
 			Arguments: []Argument{
