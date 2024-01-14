@@ -123,7 +123,7 @@ Bing禁止特定国家访问Bing AI（具体来说，是sydney.bing.com），所
 
 ```json
 [		
-    "fluxsydney",
+	"fluxsydney",
 	"iyxapbing",
 	"iycapbing",
 	"clgalileoall",

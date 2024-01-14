@@ -124,7 +124,7 @@ Use `debug_options_sets.json` to overwrite optionsSets, e.g:
 
 ```json
 [		
-    "fluxsydney",
+	"fluxsydney",
 	"iyxapbing",
 	"iycapbing",
 	"clgalileoall",
