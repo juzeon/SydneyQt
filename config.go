@@ -224,7 +224,7 @@ func (o *Settings) checkMutex() {
 	var timeRead time.Time
 	err = json.Unmarshal(v, &timeRead)
 	if err != nil {
-		util.GracefulPanic(err)
+		return
 	}
 	if time.Now().Sub(timeRead) <= 4*time.Second {
 		_, err = os.ReadFile("wails.json")
