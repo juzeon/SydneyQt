@@ -6,7 +6,6 @@ import (
 	"log/slog"
 	"net/http"
 	"net/url"
-	"os"
 	"regexp"
 	"strconv"
 	"strings"
@@ -18,6 +17,8 @@ import (
 	"github.com/tidwall/gjson"
 	"nhooyr.io/websocket"
 )
+
+var debugOptionSets = util.ReadDebugOptionSets()
 
 func (o *Sydney) AskStream(options AskStreamOptions) <-chan Message {
 	out := make(chan Message)
@@ -277,12 +278,8 @@ func (o *Sydney) AskStreamRaw(options AskStreamOptions) <-chan RawMessage {
 		if o.noSearch {
 			optionsSets = append(optionsSets, "nosearchall")
 		}
-		debugOptionsSetsFile, _ := os.ReadFile("debug_options_sets.json")
-		var debugOptionsSets []string
-		_ = json.Unmarshal(debugOptionsSetsFile, &debugOptionsSets)
-		if len(debugOptionsSets) != 0 {
-			slog.Warn("Enable debug options sets", "v", debugOptionsSets)
-			optionsSets = debugOptionsSets
+		if len(debugOptionSets) != 0 {
+			optionsSets = debugOptionSets
 		}
 		chatMessage := ChatMessage{
 			Arguments: []Argument{

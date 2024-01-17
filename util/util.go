@@ -8,7 +8,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/samber/lo"
 	"image"
 	_ "image/gif"
 	"image/jpeg"
@@ -16,6 +15,7 @@ import (
 	_ "image/png"
 	"io"
 	"log"
+	"log/slog"
 	"math/rand"
 	"net/http"
 	"net/url"
@@ -23,6 +23,8 @@ import (
 	"os/exec"
 	"runtime"
 	"time"
+
+	"github.com/samber/lo"
 
 	"github.com/ncruces/zenity"
 	getproxy "github.com/rapid7/go-get-proxied/proxy"
@@ -217,4 +219,15 @@ func OpenURL(url string) error {
 	}
 	args = append(args, url)
 	return exec.Command(cmd, args...).Start()
+}
+func ReadDebugOptionSets() (debugOptionsSets []string) {
+	debugOptionsSetsFile, err := os.ReadFile("debug_options_sets.json")
+	if err != nil {
+		return
+	}
+	json.Unmarshal(debugOptionsSetsFile, &debugOptionsSets)
+	if len(debugOptionsSets) != 0 {
+		slog.Warn("Enable debug options sets", "v", debugOptionsSets)
+	}
+	return
 }
