@@ -3,7 +3,6 @@ package sydney
 import (
 	"encoding/json"
 	"errors"
-	"github.com/samber/lo"
 	"log/slog"
 	"net/http"
 	"net/url"
@@ -15,6 +14,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/samber/lo"
 	"github.com/tidwall/gjson"
 	"nhooyr.io/websocket"
 )
@@ -292,7 +292,7 @@ func (o *Sydney) AskStreamRaw(options AskStreamOptions) <-chan RawMessage {
 					AllowedMessageTypes: o.allowedMessageTypes,
 					SliceIds:            o.sliceIDs,
 					Verbosity:           "verbose",
-					Scenario:            "SERP",
+					Scenario:            "Underside",
 					TraceId:             util.MustGenerateRandomHex(16),
 					RequestId:           messageID.String(),
 					IsStartOfSession:    true,
@@ -304,7 +304,7 @@ func (o *Sydney) AskStreamRaw(options AskStreamOptions) <-chan RawMessage {
 						Author:        "user",
 						InputMethod:   "Keyboard",
 						Text:          options.Prompt,
-						MessageType:   []string{"Chat", "SearchQuery"}[util.RandIntInclusive(0, 1)],
+						MessageType:   []string{"Chat", "SearchQuery", "CurrentWebpageContextRequest"}[util.RandIntInclusive(0, 2)],
 						RequestId:     messageID.String(),
 						MessageId:     messageID.String(),
 						ImageUrl:      util.Ternary[any](options.ImageURL == "", nil, options.ImageURL),
@@ -321,7 +321,6 @@ func (o *Sydney) AskStreamRaw(options AskStreamOptions) <-chan RawMessage {
 							Description: options.WebpageContext,
 							ContextType: "WebPage",
 							MessageType: "Context",
-							MessageId:   "discover-web--page-ping-mriduna-----",
 						},
 					},
 				},

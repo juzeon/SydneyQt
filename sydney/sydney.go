@@ -32,24 +32,19 @@ func NewSydney(options Options) *Sydney {
 	debugOptions.Cookies = nil
 	slog.Info("New Sydney", "v", debugOptions)
 	basicOptionsSet := []string{
-		"nlu_direct_response_filter",
-		"deepleo",
-		"disable_emoji_spoken_text",
-		"responsible_ai_policy_235",
-		"enablemm",
-		"dv3sugg",
+		"flux_365_copilot",
+		"deepleo_harmony_365_copilot",
 		"iyxapbing",
 		"iycapbing",
-		"gptvprvc",
-		"fluxpcalc",
-		"eredirecturl",
-		"gencontentv3",
-		"fluxv14l",
+		"dgencontentv3",
+		"nointernalsugg",
 		"nojbf",
-		"soedgeca",
+		"disable_telemetry",
+		"machine_affinity",
+		"streamf",
 	}
 	if options.GPT4Turbo {
-		basicOptionsSet = append(basicOptionsSet, "dlgpt4t")
+		basicOptionsSet = append(basicOptionsSet, "dlgpt4t", "fluxsydney")
 	}
 	uuidObj, err := uuid.NewUUID()
 	if err != nil {
@@ -68,7 +63,7 @@ func NewSydney(options Options) *Sydney {
 		createConversationURL: util.Ternary(options.CreateConversationURL == "",
 			"https://edgeservices.bing.com/edgesvc/turing/conversation/create", options.CreateConversationURL),
 		optionsSetMap: map[string][]string{
-			"Creative": append(basicOptionsSet, "h3imaginative"),
+			"Creative": append(basicOptionsSet, "soedgeca"),
 			"Balanced": append(basicOptionsSet, "galileo"),
 			"Precise":  append(basicOptionsSet, "h3precise"),
 		},
