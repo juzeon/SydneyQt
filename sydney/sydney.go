@@ -32,19 +32,18 @@ func NewSydney(options Options) *Sydney {
 	debugOptions.Cookies = nil
 	slog.Info("New Sydney", "v", debugOptions)
 	basicOptionsSet := []string{
-		"flux_365_copilot",
-		"deepleo_harmony_365_copilot",
+		"fluxcopilot",
+		"nojbf",
 		"iyxapbing",
 		"iycapbing",
 		"dgencontentv3",
 		"nointernalsugg",
-		"nojbf",
 		"disable_telemetry",
 		"machine_affinity",
 		"streamf",
 	}
 	if options.GPT4Turbo {
-		basicOptionsSet = append(basicOptionsSet, "dlgpt4t", "fluxsydney")
+		basicOptionsSet = append(basicOptionsSet, "dlgpt4t", "gpt4tmnc")
 	}
 	uuidObj, err := uuid.NewUUID()
 	if err != nil {
@@ -63,7 +62,7 @@ func NewSydney(options Options) *Sydney {
 		createConversationURL: util.Ternary(options.CreateConversationURL == "",
 			"https://edgeservices.bing.com/edgesvc/turing/conversation/create", options.CreateConversationURL),
 		optionsSetMap: map[string][]string{
-			"Creative": append(basicOptionsSet, "soedgeca"),
+			"Creative": append(basicOptionsSet, "h3imaginative"),
 			"Balanced": append(basicOptionsSet, "galileo"),
 			"Precise":  append(basicOptionsSet, "h3precise"),
 		},
@@ -106,12 +105,8 @@ func NewSydney(options Options) *Sydney {
 			"Context",
 			"InternalSearchQuery",
 			"InternalSearchResult",
-			"Disengaged",
 			"InternalLoaderMessage",
 			"Progress",
-			"RenderCardRequest",
-			"AdsQuery",
-			"SemanticSerp",
 			"GenerateContentQuery",
 			"SearchQuery",
 		},
