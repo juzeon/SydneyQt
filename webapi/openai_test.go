@@ -1,12 +1,27 @@
 package main
 
 import (
+	"encoding/json"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
 func TestParseOpenAIMessages(t *testing.T) {
+	t.Run("parse json", func(t *testing.T) {
+		jsonString := "{\n  \"model\": \"gpt-3.5-turbo\",\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": [\n        {\n          \"type\": \"text\",\n          \"text\": \"What's in the image?\"\n        },\n        {\n          \"type\": \"image_url\",\n          \"image_url\": {\n            \"url\": \"https://th.bing.com/th/id/OIP.S2vzW4WYmmR0Fq54jCJ5WAAAAA?&rs=1&pid=ImgDetMain\"\n          }\n        }\n      ]\n    }\n  ],\n  \"stream\": true\n}"
+		var request OpenAIChatCompletionRequest
+		err := json.Unmarshal([]byte(jsonString), &request)
+		assert.Nil(t, err)
+
+		result, err := ParseOpenAIMessages(request.Messages)
+		assert.Nil(t, err)
+		assert.Equal(t, OpenAIMessagesParseResult{
+			Prompt:         "What's in the image?",
+			WebpageContext: "",
+			ImageURL:       "https://th.bing.com/th/id/OIP.S2vzW4WYmmR0Fq54jCJ5WAAAAA?&rs=1&pid=ImgDetMain",
+		}, result)
+	})
 	t.Run("empty", func(t *testing.T) {
 		result, err := ParseOpenAIMessages([]OpenAIMessage{})
 		assert.Equal(t, ErrMissingPrompt, err)

@@ -88,17 +88,21 @@ func ParseOpenAIMessageContent(content interface{}) (text, imageUrl string) {
 	case string:
 		// content is string, and it automatically becomes prompt
 		text = content
-	case []map[string]interface{}:
+	case []interface{}:
 		// content is array of objects, and it contains prompt and optional image url
 		for _, content := range content {
+			content, ok := content.(map[string]interface{})
+			if !ok {
+				continue
+			}
 			switch content["type"] {
 			case "text":
 				if contentText, ok := content["text"].(string); ok {
 					text = contentText
 				}
 			case "image_url":
-				if url, ok := content["image_url"].(map[string]string); ok {
-					imageUrl = url["url"]
+				if url, ok := content["image_url"].(map[string]interface{}); ok {
+					imageUrl, _ = url["url"].(string)
 				}
 			}
 		}
