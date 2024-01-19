@@ -191,6 +191,30 @@ func (o *Sydney) AskStream(options AskStreamOptions) <-chan Message {
 						}
 						sendSuggestedResponses(message)
 					}
+				case "Progress":
+					contentOrigin := message.Get("contentOrigin").String()
+					if contentOrigin == "CodeInterpreter" {
+						var loadingMessage string
+
+						message.Get("adaptiveCards.0.body.0.columns.#.items.#.text").
+							ForEach(func(key, value gjson.Result) bool {
+								value.ForEach(
+									func(key, value gjson.Result) bool {
+										loadingMessage += value.String()
+										return true
+									})
+								return true
+							})
+
+						out <- Message{
+							Type: MessageTypeLoading,
+							Text: loadingMessage,
+						}
+
+						continue
+					}
+
+					fallthrough
 				default:
 					slog.Warn("Unsupported message type",
 						"type", msgType.String(), "triggered-by", options.Prompt, "response", message.Raw)
