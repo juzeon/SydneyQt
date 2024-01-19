@@ -43,6 +43,7 @@ const (
 	MessageTypeSearchResult       = "search_result"
 	MessageTypeLoading            = "loading"
 	MessageTypeGenerativeImage    = "generative_image"
+	MessageTypeExecutingTask      = "executing_task"
 	MessageTypeMessageText        = "message"
 	MessageTypeSuggestedResponses = "suggested_responses"
 	MessageTypeError              = "error"

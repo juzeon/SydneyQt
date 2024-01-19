@@ -194,21 +194,21 @@ func (o *Sydney) AskStream(options AskStreamOptions) <-chan Message {
 				case "Progress":
 					contentOrigin := message.Get("contentOrigin").String()
 					if contentOrigin == "CodeInterpreter" {
-						var loadingMessage string
+						var loadingMessages []string
 
 						message.Get("adaptiveCards.0.body.0.columns.#.items.#.text").
 							ForEach(func(key, value gjson.Result) bool {
 								value.ForEach(
 									func(key, value gjson.Result) bool {
-										loadingMessage += value.String()
+										loadingMessages = append(loadingMessages, value.String())
 										return true
 									})
 								return true
 							})
 
 						out <- Message{
-							Type: MessageTypeLoading,
-							Text: loadingMessage,
+							Type: MessageTypeExecutingTask,
+							Text: strings.Join(loadingMessages, " "),
 						}
 
 						continue
