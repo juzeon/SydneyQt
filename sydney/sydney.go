@@ -41,6 +41,7 @@ func NewSydney(options Options) *Sydney {
 		"disable_telemetry",
 		"machine_affinity",
 		"streamf",
+		"codeint",
 	}
 	if options.GPT4Turbo {
 		basicOptionsSet = append(basicOptionsSet, "dlgpt4t", "gpt4tmnc")
