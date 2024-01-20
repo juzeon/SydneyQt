@@ -58,6 +58,7 @@ func (o *Sydney) AskStream(options AskStreamOptions) <-chan Message {
 				msgType := message.Get("messageType")
 				messageText := message.Get("text").String()
 				messageHiddenText := message.Get("hiddenText").String()
+				contentOrigin := message.Get("contentOrigin").String()
 				switch msgType.String() {
 				case "InternalSearchQuery":
 					out <- Message{
@@ -124,6 +125,23 @@ func (o *Sydney) AskStream(options AskStreamOptions) <-chan Message {
 						Type: MessageTypeGenerativeImage,
 						Text: string(v),
 					}
+				case "Progress":
+					switch contentOrigin {
+					case "CodeInterpreter":
+						//fmt.Println("code interpreter: " + message.Raw)
+						invocation := message.Get("invocation").String()
+						if invocation == "" {
+							continue
+						}
+						out <- Message{
+							Type: MessageTypeExecutingTask,
+							Text: invocation,
+						}
+					default:
+						slog.Warn("Unsupported progress type",
+							"contentOrigin", contentOrigin,
+							"triggered-by", options.Prompt, "response", message.Raw)
+					}
 				case "":
 					if data.Get("arguments.0.cursor").Exists() {
 						wrote = 0
@@ -164,7 +182,7 @@ func (o *Sydney) AskStream(options AskStreamOptions) <-chan Message {
 							}
 						}
 					}
-					if message.Get("contentOrigin").String() == "Apology" {
+					if contentOrigin == "Apology" {
 						if wrote != 0 {
 							out <- Message{
 								Type:  MessageTypeError,
@@ -191,30 +209,6 @@ func (o *Sydney) AskStream(options AskStreamOptions) <-chan Message {
 						}
 						sendSuggestedResponses(message)
 					}
-				case "Progress":
-					contentOrigin := message.Get("contentOrigin").String()
-					if contentOrigin == "CodeInterpreter" {
-						var loadingMessages []string
-
-						message.Get("adaptiveCards.0.body.0.columns.#.items.#.text").
-							ForEach(func(key, value gjson.Result) bool {
-								value.ForEach(
-									func(key, value gjson.Result) bool {
-										loadingMessages = append(loadingMessages, value.String())
-										return true
-									})
-								return true
-							})
-
-						out <- Message{
-							Type: MessageTypeExecutingTask,
-							Text: strings.Join(loadingMessages, " "),
-						}
-
-						continue
-					}
-
-					fallthrough
 				default:
 					slog.Warn("Unsupported message type",
 						"type", msgType.String(), "triggered-by", options.Prompt, "response", message.Raw)
