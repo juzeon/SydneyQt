@@ -23,6 +23,8 @@ export function GetUser():Promise<string>;
 
 export function SaveRemoteJPEGImage(arg1:string):Promise<void>;
 
+export function ShareWorkspace(arg1:number):Promise<void>;
+
 export function UploadDocument():Promise<main.UploadSydneyDocumentResult>;
 
 export function UploadSydneyImage():Promise<main.UploadSydneyImageResult>;

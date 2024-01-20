@@ -6,7 +6,7 @@ import {main, sydney} from "../../../wailsjs/go/models"
 import {generateRandomName, swal} from "../../helper"
 import dayjs from "dayjs"
 import {computed, ref} from "vue"
-import {ExportWorkspace} from "../../../wailsjs/go/main/App"
+import {ExportWorkspace, ShareWorkspace} from "../../../wailsjs/go/main/App"
 import Workspace = main.Workspace
 import Preset = main.Preset
 import GenerateImageResult = sydney.GenerateImageResult
@@ -102,6 +102,12 @@ function exportWorkspace(workspace: Workspace) {
     swal.error(err)
   })
 }
+
+function shareWorkspace(workspace: Workspace) {
+  ShareWorkspace(workspace.id).catch(err => {
+    swal.error(err)
+  })
+}
 </script>
 
 <template>
@@ -114,7 +120,8 @@ function exportWorkspace(workspace: Workspace) {
             <conversation :title="workspace.title" :created-at="workspace.created_at"
                           :active="workspace.id===currentWorkspace.id" :disabled="isAsking"
                           @delete="onDeleteWorkspace(workspace)" @edit="onEditWorkspace(workspace)"
-                          @click="switchWorkspace(workspace)" @export="exportWorkspace(workspace)"></conversation>
+                          @click="switchWorkspace(workspace)" @export="exportWorkspace(workspace)"
+                          @share="shareWorkspace(workspace)"></conversation>
           </template>
         </v-virtual-scroll>
         <div class="d-flex ma-3">

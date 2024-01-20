@@ -42,6 +42,10 @@ export function SaveRemoteJPEGImage(arg1) {
   return window['go']['main']['App']['SaveRemoteJPEGImage'](arg1);
 }
 
+export function ShareWorkspace(arg1) {
+  return window['go']['main']['App']['ShareWorkspace'](arg1);
+}
+
 export function UploadDocument() {
   return window['go']['main']['App']['UploadDocument']();
 }

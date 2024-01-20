@@ -15,6 +15,7 @@ let emit = defineEmits<{
   (e: 'edit'): void,
   (e: 'click'): void,
   (e: 'export'): void
+  (e: 'share'): void
 }>()
 </script>
 
@@ -31,6 +32,7 @@ let emit = defineEmits<{
     </v-card-text>
     <v-card-actions>
       <v-spacer></v-spacer>
+      <v-btn @click="emit('share')" color="primary" density="comfortable" icon="mdi-share-variant"></v-btn>
       <v-btn @click="emit('export')" color="primary" density="comfortable" icon="mdi-export"></v-btn>
       <v-btn @click="emit('edit')" color="primary" density="compact" icon="mdi-pencil"></v-btn>
       <v-btn @click="emit('delete')" color="primary" :disabled="disabled ?? false" density="compact"

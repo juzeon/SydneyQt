@@ -364,3 +364,59 @@ func (a *App) ExportWorkspace(id int) error {
 	}
 	return os.WriteFile(filePath, out.Bytes(), 0644)
 }
+
+type ShareGPTRequest struct {
+	Title string         `json:"title"`
+	Items []ShareGPTItem `json:"items"`
+}
+type ShareGPTItem struct {
+	From  string `json:"from"`
+	Value string `json:"value"`
+}
+type ShareGPTResponse struct {
+	Message string `json:"message"` // on error
+	ID      string `json:"id"`      // on success
+}
+
+func (a *App) ShareWorkspace(id int) error {
+	workspace, ok := lo.Find(a.settings.config.Workspaces, func(item Workspace) bool {
+		return item.ID == id
+	})
+	if !ok {
+		return errors.New("workspace not exist by id: " + strconv.Itoa(id))
+	}
+	hClient, err := util.MakeHTTPClient(a.settings.config.Proxy, 0)
+	if err != nil {
+		return err
+	}
+	client := resty.New().SetTimeout(5 * time.Second).SetTransport(hClient.Transport)
+	resp, err := client.R().SetBody(ShareGPTRequest{
+		Title: workspace.Title,
+		Items: lo.Map(util.GetChatMessage(workspace.Context), func(item util.ChatMessage, index int) ShareGPTItem {
+			from := "gpt"
+			if item.Role == "user" {
+				from = "human"
+			}
+			return ShareGPTItem{
+				From:  from,
+				Value: fmt.Sprintf("[%s](#%s)\n%s", item.Role, item.Type, item.Content),
+			}
+		}),
+	}).Post("https://sharegpt.com/api/conversations")
+	if err != nil {
+		return err
+	}
+	if resp.IsError() {
+		return errors.New("error status code: " + resp.Status())
+	}
+	var response ShareGPTResponse
+	err = json.Unmarshal(resp.Body(), &response)
+	if err != nil {
+		return err
+	}
+	if response.Message != "" {
+		return errors.New("error posting conversation: " + response.Message)
+	}
+	err = util.OpenURL("https://sharegpt.com/c/" + response.ID)
+	return nil
+}
