@@ -117,6 +117,7 @@ func (a *App) askSydney(options AskOptions) {
 	runtime.EventsOn(a.ctx, EventChatStop, func(optionalData ...interface{}) {
 		slog.Info("Received EventChatStop")
 		cancel()
+		runtime.EventsOff(a.ctx, EventChatStop)
 	})
 	ch := sydneyIns.AskStream(sydney.AskStreamOptions{
 		StopCtx:        stopCtx,
@@ -207,6 +208,12 @@ func (a *App) askOpenAI(options AskOptions) {
 		slog.Info("invoke EventChatFinish", "result", chatFinishResult)
 		runtime.EventsEmit(a.ctx, EventChatFinish, chatFinishResult)
 	}()
+	stopCtx, cancel := context.WithCancel(context.Background())
+	runtime.EventsOn(a.ctx, EventChatStop, func(optionalData ...interface{}) {
+		slog.Info("Received EventChatStop")
+		cancel()
+		runtime.EventsOff(a.ctx, EventChatStop)
+	})
 	backend, err := slices.Find(a.settings.config.OpenAIBackends, func(el OpenAIBackend) bool {
 		return el.Name == options.OpenAIBackend
 	})
@@ -241,7 +248,7 @@ func (a *App) askOpenAI(options AskOptions) {
 			}},
 		})
 	}
-	stream, err := client.CreateChatCompletionStream(context.Background(), openai.ChatCompletionRequest{
+	stream, err := client.CreateChatCompletionStream(stopCtx, openai.ChatCompletionRequest{
 		Model:            backend.OpenaiShortModel,
 		Messages:         messages,
 		Temperature:      backend.OpenaiTemperature,
@@ -261,6 +268,9 @@ func (a *App) askOpenAI(options AskOptions) {
 		response, err := stream.Recv()
 		if errors.Is(err, io.EOF) {
 			slog.Info("openai chat completed")
+			return
+		}
+		if errors.Is(err, context.Canceled) {
 			return
 		}
 		if err != nil {
