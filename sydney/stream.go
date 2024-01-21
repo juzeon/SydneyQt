@@ -292,7 +292,10 @@ func (o *Sydney) AskStreamRaw(options AskStreamOptions) <-chan RawMessage {
 			}
 			return
 		}
-		optionsSets := o.optionsSetMap[o.conversationStyle]
+		optionsSets, ok := o.optionsSetMap[o.conversationStyle]
+		if !ok {
+			optionsSets = basicOptionsSet
+		}
 		if o.noSearch {
 			optionsSets = append(optionsSets, "nosearchall")
 		}
@@ -303,11 +306,11 @@ func (o *Sydney) AskStreamRaw(options AskStreamOptions) <-chan RawMessage {
 			Arguments: []Argument{
 				{
 					OptionsSets:         optionsSets,
-					Source:              "edge_coauthor_prod",
+					Source:              "cib-ccp",
 					AllowedMessageTypes: o.allowedMessageTypes,
 					SliceIds:            o.sliceIDs,
 					Verbosity:           "verbose",
-					Scenario:            "Underside",
+					Scenario:            "SERP",
 					TraceId:             util.MustGenerateRandomHex(16),
 					RequestId:           messageID.String(),
 					IsStartOfSession:    true,
