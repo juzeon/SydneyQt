@@ -55,9 +55,6 @@ func NewSydney(options Options) *Sydney {
 		util.GracefulPanic(err)
 	}
 	basicOptionsSet := defaultOptionsSet[:]
-	if options.GPT4Turbo {
-		basicOptionsSet = append(basicOptionsSet, "dlgpt4t", "gpt4tmnc")
-	}
 	forwardedIP := "1.0.0." + strconv.Itoa(util.RandIntInclusive(1, 255))
 	cookies := util.Ternary(options.Cookies == nil, map[string]string{}, options.Cookies)
 	tone := options.ConversationStyle

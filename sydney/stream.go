@@ -322,7 +322,7 @@ func (o *Sydney) AskStreamRaw(options AskStreamOptions) <-chan RawMessage {
 						Author:        "user",
 						InputMethod:   "Keyboard",
 						Text:          options.Prompt,
-						MessageType:   []string{"Chat", "SearchQuery", "CurrentWebpageContextRequest"}[util.RandIntInclusive(0, 2)],
+						MessageType:   []string{"Chat", "CurrentWebpageContextRequest"}[util.RandIntInclusive(0, 1)],
 						RequestId:     messageID.String(),
 						MessageId:     messageID.String(),
 						ImageUrl:      util.Ternary[any](options.ImageURL == "", nil, options.ImageURL),
