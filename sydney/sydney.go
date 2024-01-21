@@ -27,7 +27,7 @@ type Sydney struct {
 	headersCreateImage        map[string]string
 }
 
-var basicOptionsSet = []string{
+var defaultOptionsSet = [...]string{
 	"fluxcopilot",
 	"nojbf",
 	"iyxapbing",
@@ -54,6 +54,7 @@ func NewSydney(options Options) *Sydney {
 	if err != nil {
 		util.GracefulPanic(err)
 	}
+	basicOptionsSet := defaultOptionsSet[:]
 	if options.GPT4Turbo {
 		basicOptionsSet = append(basicOptionsSet, "gpt4tmnc")
 	}

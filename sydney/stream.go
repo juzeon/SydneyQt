@@ -294,7 +294,7 @@ func (o *Sydney) AskStreamRaw(options AskStreamOptions) <-chan RawMessage {
 		}
 		optionsSets, ok := o.optionsSetMap[o.conversationStyle]
 		if !ok {
-			optionsSets = basicOptionsSet
+			optionsSets = defaultOptionsSet[:]
 		}
 		if o.noSearch {
 			optionsSets = append(optionsSets, "nosearchall")
