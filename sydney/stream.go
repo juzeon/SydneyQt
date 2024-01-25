@@ -18,8 +18,6 @@ import (
 	"nhooyr.io/websocket"
 )
 
-var debugOptionSets = util.ReadDebugOptionSets()
-
 func (o *Sydney) AskStream(options AskStreamOptions) <-chan Message {
 	out := make(chan Message)
 	ch := o.AskStreamRaw(options)
@@ -296,7 +294,7 @@ func (o *Sydney) AskStreamRaw(options AskStreamOptions) <-chan RawMessage {
 		if o.noSearch {
 			optionsSets = append(optionsSets, "nosearchall")
 		}
-		if len(debugOptionSets) != 0 {
+		if debugOptionSets := util.ReadDebugOptionSets(); len(debugOptionSets) != 0 {
 			optionsSets = debugOptionSets
 		}
 		chatMessage := ChatMessage{

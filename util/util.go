@@ -225,7 +225,10 @@ func ReadDebugOptionSets() (debugOptionsSets []string) {
 	if err != nil {
 		return
 	}
-	json.Unmarshal(debugOptionsSetsFile, &debugOptionsSets)
+	err = json.Unmarshal(debugOptionsSetsFile, &debugOptionsSets)
+	if err != nil {
+		GracefulPanic(err)
+	}
 	if len(debugOptionsSets) != 0 {
 		slog.Warn("Enable debug options sets", "v", debugOptionsSets)
 	}
