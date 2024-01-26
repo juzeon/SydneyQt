@@ -30,6 +30,7 @@ func main() {
 			app,
 			settings,
 		},
+		EnableDefaultContextMenu: true,
 	})
 
 	if err != nil {
