@@ -82,6 +82,7 @@ type Argument struct {
 	SpokenTextMode        string            `json:"spokenTextMode"`
 	ConversationId        string            `json:"conversationId"`
 	PreviousMessages      []PreviousMessage `json:"previousMessages"`
+	GptId                 string            `json:"gptId"`
 }
 type ArgumentMessage struct {
 	Locale        string         `json:"locale"`
