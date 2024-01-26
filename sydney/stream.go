@@ -341,7 +341,7 @@ func (o *Sydney) AskStreamRaw(options AskStreamOptions) <-chan RawMessage {
 					GptId: "copilot",
 				},
 			},
-			InvocationId: "2",
+			InvocationId: "0",
 			Target:       "chat",
 			Type:         4,
 		}
