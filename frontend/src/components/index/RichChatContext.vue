@@ -4,6 +4,7 @@ import {ChatMessage, toChatMessages, unescapeHtml} from "../../helper"
 import {marked} from "marked"
 import katex from 'katex'
 import 'katex/dist/katex.min.css'
+import {v4 as uuidV4} from "uuid"
 
 let props = defineProps<{
   context: string,
@@ -65,7 +66,17 @@ function renderMD(content: string) {
     }
     return original_link(href, title, text)
   }
-  const rendered_md_only = marked.parse(content, {renderer: renderer}) as string
+  const original_code = renderer.code
+  renderer.code = (code, infostring, escaped) => {
+    let content = original_code(code, infostring, escaped)
+    let uuid = uuidV4()
+    content = '<div id="' + uuid + '" style="position: relative">' + content + '' +
+        '<div class="copy-btn" ' +
+        'onclick="fallbackCopyTextToClipboard(getTextFromSelector(\'#' + uuid + ' code\'))">Copy</div>' +
+        '</div>'
+    return content
+  }
+  let rendered_md_only = marked.parse(content, {renderer: renderer}) as string
   try {
     return rendered_md_only.replace(/(__special_katext_id_\d+__)/g, (_match, capture) => {
       const {type, expression} = math_expressions[capture]
@@ -203,4 +214,19 @@ onUpdated(() => {
   text-decoration: none;
 }
 
+#my-box .copy-btn {
+  position: absolute;
+  right: 5px;
+  top: 5px;
+  background-color: #999;
+  border-radius: 8px;
+  font-size: 16px;
+  padding: 3px 5px;
+  color: #333;
+  cursor: pointer;
+}
+
+#my-box .copy-btn:hover {
+  color: #666;
+}
 </style>
