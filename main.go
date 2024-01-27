@@ -13,6 +13,8 @@ var assets embed.FS
 func main() {
 	// Create an instance of the app structure
 	settings := NewSettings()
+	ipcServer := NewIPCServer(settings)
+	go ipcServer.Serve()
 	app := NewApp(settings)
 
 	// Create application with options
