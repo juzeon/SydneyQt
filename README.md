@@ -49,6 +49,8 @@ Platform information:
    - **Note: make sure you can use the web chat before exporting the cookie.**
 2. Run the program.
 
+**(NEW) Give a try to [our new browser extension](https://github.com/juzeon/SydneyQt-browser-extension) with the abilities of automatically resolving CAPTCHA, exporting cookies, etc!**
+
 Please follow the instructions in the next section to solve common issues.
 
 ## Common issues

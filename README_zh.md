@@ -48,6 +48,8 @@
    - **注意：在导出cookie之前，确保你可以使用网页聊天。**
 2. 运行程序。
 
+**(新) 试试[我们的新浏览器扩展](https://github.com/juzeon/SydneyQt-browser-extension)，它具有自动解决验证码、导出cookie等功能！**
+
 请按照下一节的说明解决常见问题。
 
 ## 常见问题
