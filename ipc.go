@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/cors"
 	"log/slog"
 	"net/http"
 	"os"
@@ -27,6 +28,11 @@ func NewIPCServer(settings *Settings) *IPCServer {
 func (o *IPCServer) registerRouters(mux *chi.Mux) {
 	mux.Use(middleware.Logger)
 	mux.Use(middleware.Recoverer)
+	mux.Use(cors.Handler(cors.Options{
+		AllowOriginFunc: func(r *http.Request, origin string) bool { return true },
+		AllowedMethods:  []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:  []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+	}))
 	mux.Post("/cookies", func(writer http.ResponseWriter, request *http.Request) {
 		var cookies []util.FileCookie
 		err := json.NewDecoder(request.Body).Decode(&cookies)
