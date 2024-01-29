@@ -2,10 +2,12 @@
 import dayjs from "dayjs"
 import LocalizedFormat from "dayjs/plugin/localizedFormat"
 import ActionIconButton from "./ActionIconButton.vue"
+import {computed} from "vue"
+import {useTheme} from "vuetify"
 
 dayjs.extend(LocalizedFormat)
 
-defineProps<{
+let props = defineProps<{
   disabled?: boolean
   active?: boolean,
   title: string,
@@ -18,10 +20,21 @@ let emit = defineEmits<{
   (e: 'export'): void
   (e: 'share'): void
 }>()
+
+let theme = useTheme()
+let cardBg = computed(() => {
+  let obj: any = {}
+  if (theme.current.value.dark) {
+    obj['bg-grey-darken-3'] = props.active
+  } else {
+    obj['bg-grey-lighten-3'] = props.active
+  }
+  return obj
+})
 </script>
 
 <template>
-  <v-card class="ma-3" :class="{'bg-grey-lighten-3':active}">
+  <v-card class="ma-3" :class="cardBg">
     <v-card-text>
       <div @click="disabled?()=>{}:emit('click')" style="cursor: pointer">
         <p :class="{'font-weight-bold':active,'conversation-title':true}">{{ title }}</p>
