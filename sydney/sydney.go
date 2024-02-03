@@ -73,7 +73,7 @@ func NewSydney(options Options) *Sydney {
 		createConversationURL: util.Ternary(options.CreateConversationURL == "",
 			"https://edgeservices.bing.com/edgesvc/turing/conversation/create", options.CreateConversationURL),
 		optionsSetMap: map[string][]string{
-			"Balanced":        append(basicOptionsSet, "galileo"),
+			"Balanced":        append(basicOptionsSet, "galileo", "gldcl1p"),
 			"Precise":         append(basicOptionsSet, "h3precise"),
 			"Creative":        basicOptionsSet,
 			"CreativeClassic": basicOptionsSet,
