@@ -126,7 +126,6 @@ func (o *Sydney) AskStream(options AskStreamOptions) <-chan Message {
 				case "Progress":
 					switch contentOrigin {
 					case "CodeInterpreter":
-						//fmt.Println("code interpreter: " + message.Raw)
 						invocation := message.Get("invocation").String()
 						if invocation == "" {
 							continue
@@ -139,6 +138,11 @@ func (o *Sydney) AskStream(options AskStreamOptions) <-chan Message {
 						slog.Warn("Unsupported progress type",
 							"contentOrigin", contentOrigin,
 							"triggered-by", options.Prompt, "response", message.Raw)
+					}
+				case "GeneratedCode":
+					out <- Message{
+						Type: MessageTypeGeneratedCode,
+						Text: messageText,
 					}
 				case "":
 					if data.Get("arguments.0.cursor").Exists() {

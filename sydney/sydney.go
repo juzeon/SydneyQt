@@ -120,6 +120,7 @@ func NewSydney(options Options) *Sydney {
 			"Progress",
 			"GenerateContentQuery",
 			"SearchQuery",
+			"GeneratedCode",
 		},
 		headers: map[string]string{
 			"accept":                      "application/json",

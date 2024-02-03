@@ -44,6 +44,7 @@ const (
 	MessageTypeLoading            = "loading"
 	MessageTypeGenerativeImage    = "generative_image"
 	MessageTypeExecutingTask      = "executing_task"
+	MessageTypeGeneratedCode      = "generated_code"
 	MessageTypeMessageText        = "message"
 	MessageTypeSuggestedResponses = "suggested_responses"
 	MessageTypeError              = "error"
