@@ -22,6 +22,7 @@ import (
 	"os"
 	"os/exec"
 	"runtime"
+	"strings"
 	"time"
 
 	"github.com/samber/lo"
@@ -215,6 +216,9 @@ func OpenURL(url string) error {
 func ReadDebugOptionSets() (debugOptionsSets []string) {
 	debugOptionsSetsFile, err := os.ReadFile("debug_options_sets.json")
 	if err != nil {
+		return
+	}
+	if strings.TrimSpace(string(debugOptionsSetsFile)) == "" {
 		return
 	}
 	err = json.Unmarshal(debugOptionsSetsFile, &debugOptionsSets)
