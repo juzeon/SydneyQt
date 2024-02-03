@@ -58,9 +58,10 @@ func NewSydney(options Options) *Sydney {
 	cookies := util.Ternary(options.Cookies == nil, map[string]string{}, options.Cookies)
 	options.ConversationStyle = lo.Ternary(options.ConversationStyle == "",
 		"Creative", options.ConversationStyle)
-	if options.ConversationStyle == "Creative" && !options.GPT4Turbo {
-		options.ConversationStyle = "CreativeClassic"
-	}
+	// TODO find ways to enable turbo for non-pro users
+	//if options.ConversationStyle == "Creative" && !options.GPT4Turbo {
+	//	options.ConversationStyle = "CreativeClassic"
+	//}
 	return &Sydney{
 		debug:             options.Debug,
 		proxy:             options.Proxy,
