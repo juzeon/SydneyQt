@@ -11,6 +11,7 @@ A cross-platform desktop client for the jailbroken New Bing AI (Sydney ver.) bui
 ## Features
 
 - Jailbreak New Bing with parameter tweaks and prompt injection.
+- Access features in the gray-scale test in advance.
 - Region restriction unlocking with proxy and Cloudflare Workers.
 - Edit the chat context freely, including the AI's previous responses.
 - Prevent Bing AI's message revoking, and automatically send custom text to continue the generation.
