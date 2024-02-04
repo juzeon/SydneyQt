@@ -4,6 +4,8 @@
 
 ![Static Badge](https://img.shields.io/badge/project-SydneyQt-blue) ![GitHub release (with filter)](https://img.shields.io/github/v/release/juzeon/SydneyQt) ![GitHub all releases](https://img.shields.io/github/downloads/juzeon/SydneyQt/total) ![GitHub Workflow Status (with event)](https://img.shields.io/github/actions/workflow/status/juzeon/SydneyQt/wails.yml) ![GitHub License](https://img.shields.io/github/license/juzeon/SydneyQt)
 
+[![SydneyQt - A desktop client for the jailbroken New Bing AI | Product Hunt](https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=438079&theme=light)](https://www.producthunt.com/posts/sydneyqt?utm_source=badge-featured&utm_medium=badge&utm_souce=badge-sydneyqt)
+
 A cross-platform desktop client for the jailbroken New Bing AI (Sydney ver.) built with Go and [Wails](https://github.com/wailsapp/wails) ([previously](https://github.com/juzeon/SydneyQt/tree/v1) based on Python and Qt).
 
 [简体中文](README_zh.md)
