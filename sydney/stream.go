@@ -83,9 +83,13 @@ func (o *Sydney) AskStream(options AskStreamOptions) (<-chan Message, error) {
 						}
 						return
 					}
-					slog.Info("New Cookie", "v", cookies) // TODO persist this cookie
-					for k, v := range cookies {           // keep the map pointer
+					slog.Info("New Cookie", "v", cookies)
+					for k, v := range cookies { // keep the map pointer
 						o.cookies[k] = v
+					}
+					err = util.UpdateCookiesFile(cookies)
+					if err != nil {
+						slog.Warn("Cannot update cookies file: ", "err", err)
 					}
 					newOptions := options
 					newOptions.disableCaptchaBypass = true

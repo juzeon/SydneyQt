@@ -137,24 +137,65 @@ func MustGenerateRandomHex(length int) string {
 type FileCookie struct {
 	Name   string `json:"name"`
 	Value  string `json:"value"`
-	Domain string `json:"domain"`
+	Domain string `json:"domain,omitempty"`
+	Note   string `json:"note,omitempty"`
 }
 
-func ReadCookiesFile() (map[string]string, error) {
-	res := map[string]string{}
+func ReadCookiesFileRaw() ([]FileCookie, error) {
 	v, err := os.ReadFile("cookies.json")
 	if err != nil {
-		return res, nil
+		return nil, nil
 	}
 	var cookies []FileCookie
 	err = json.Unmarshal(v, &cookies)
 	if err != nil {
-		return res, errors.New("failed to json.Unmarshal content of cookie file")
+		return nil, errors.New("failed to json.Unmarshal content of cookie file")
+	}
+	return cookies, nil
+}
+func ReadCookiesFile() (map[string]string, error) {
+	res := map[string]string{}
+	cookies, err := ReadCookiesFileRaw()
+	if err != nil {
+		return nil, err
 	}
 	for _, cookie := range cookies {
 		res[cookie.Name] = cookie.Value
 	}
 	return res, nil
+}
+func UpdateCookiesFile(newCookies map[string]string) error {
+	cookies, err := ReadCookiesFileRaw()
+	if err != nil {
+		return err
+	}
+	for k, v := range newCookies {
+		cookie, index, ok := lo.FindIndexOf(cookies, func(item FileCookie) bool {
+			return item.Name == k
+		})
+		if ok {
+			if v != cookie.Value {
+				cookie.Note = "modified_by_captcha_resolver"
+				cookie.Value = v
+				cookies[index] = cookie
+			}
+		} else {
+			cookies = append(cookies, FileCookie{
+				Name:  k,
+				Value: v,
+				Note:  "introduced_by_captcha_resolver",
+			})
+		}
+	}
+	v, err := json.MarshalIndent(&cookies, "", "  ")
+	if err != nil {
+		return err
+	}
+	err = os.WriteFile("cookies.json", v, 0644)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 func Map[T any, E any](arr []T, function func(value T) E) []E {
 	var result []E
