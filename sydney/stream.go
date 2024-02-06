@@ -1,6 +1,7 @@
 package sydney
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"log/slog"
@@ -76,10 +77,12 @@ func (o *Sydney) AskStream(options AskStreamOptions) (<-chan Message, error) {
 					cookies, err := o.BypassCaptcha(options.StopCtx, conversation.ConversationId,
 						options.messageID)
 					if err != nil {
-						out <- Message{
-							Type:  MessageTypeError,
-							Text:  err.Error(),
-							Error: err,
+						if !errors.Is(err, context.Canceled) {
+							out <- Message{
+								Type:  MessageTypeError,
+								Text:  err.Error(),
+								Error: err,
+							}
 						}
 						return
 					}
