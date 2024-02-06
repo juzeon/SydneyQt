@@ -8,6 +8,7 @@ import (
 	"github.com/go-resty/resty/v2"
 	"github.com/google/uuid"
 	"log/slog"
+	"strings"
 	"sydneyqt/sydney/internal/hex"
 	"sydneyqt/util"
 	"time"
@@ -46,6 +47,11 @@ func (o *Sydney) BypassCaptcha(
 		return nil, errors.New("bypass captcha error: " + response.Error)
 	}
 	cookies = util.ParseCookiesFromString(response.Result.Cookies)
+	if _, ok := cookies["cct"]; !ok {
+		return nil, errors.New("bypass captcha error: no cookie named cct found; screenshot: " +
+			strings.TrimSuffix(o.bypassServer, "/") +
+			response.Result.ScreenShot)
+	}
 	// new cookies: cct, GC, _C_ETH=1, _C_Auth=
 	return cookies, nil
 }

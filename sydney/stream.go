@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"log/slog"
 	"net/http"
 	"net/url"
@@ -78,6 +79,8 @@ func (o *Sydney) AskStream(options AskStreamOptions) (<-chan Message, error) {
 						options.messageID)
 					if err != nil {
 						if !errors.Is(err, context.Canceled) {
+							err = fmt.Errorf("cannot resolve CAPTCHA automatically; "+
+								"please resolve it manually on Bing's website: %w", err)
 							out <- Message{
 								Type:  MessageTypeError,
 								Text:  err.Error(),
