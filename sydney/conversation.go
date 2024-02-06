@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-func (o *Sydney) CreateConversation() (CreateConversationResponse, error) {
+func (o *Sydney) createConversation() (CreateConversationResponse, error) {
 	client, err := util.MakeHTTPClient(o.proxy, 10*time.Second)
 	if err != nil {
 		return CreateConversationResponse{}, err

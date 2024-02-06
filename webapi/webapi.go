@@ -97,38 +97,6 @@ func main() {
 		fmt.Fprint(w, "OK")
 	})
 
-	r.Post("/conversation/new", func(w http.ResponseWriter, r *http.Request) {
-		// parse request
-		var request CreateConversationRequest
-
-		err := json.NewDecoder(r.Body).Decode(&request)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
-
-		cookies := util.Ternary(request.Cookies == "", defaultCookies, ParseCookies(request.Cookies))
-
-		// create conversation
-		conversation, err := sydney.
-			NewSydney(sydney.Options{
-				Cookies: cookies,
-				Proxy:   proxy,
-			}).
-			CreateConversation()
-
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-
-		// set headers
-		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-
-		// write response
-		json.NewEncoder(w).Encode(conversation)
-	})
-
 	r.Post("/image/upload", func(w http.ResponseWriter, r *http.Request) {
 		// parse request
 		r.ParseMultipartForm(16 << 20)

@@ -293,7 +293,7 @@ func (o *Sydney) AskStream(options AskStreamOptions) (<-chan Message, error) {
 }
 func (o *Sydney) AskStreamRaw(options AskStreamOptions) (CreateConversationResponse, <-chan RawMessage, error) {
 	slog.Info("AskStreamRaw called, creating conversation...")
-	conversation, err := o.CreateConversation()
+	conversation, err := o.createConversation()
 	if err != nil {
 		return CreateConversationResponse{}, nil, err
 	}
