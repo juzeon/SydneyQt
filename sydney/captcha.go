@@ -25,7 +25,7 @@ func (o *Sydney) BypassCaptcha(
 	client := resty.New().SetTransport(hClient.Transport).SetTimeout(60 * time.Second)
 	req := BypassCaptchaRequest{
 		IG:       hex.NewUpperHex(32),
-		Cookies:  o.formattedCookies,
+		Cookies:  util.FormatCookieString(o.cookies),
 		IFrameID: "local-gen-" + uuid.New().String(),
 		ConvID:   conversationID,
 		RID:      messageID,

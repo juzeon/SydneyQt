@@ -229,23 +229,17 @@ func main() {
 			GPT4Turbo:         request.UseGPT4Turbo,
 		})
 
-		// create new conversation if not provided
-		if request.Conversation.ConversationId == "" {
-			request.Conversation, err = sydneyAPI.CreateConversation()
-			if err != nil {
-				http.Error(w, "error creating conversation: "+err.Error(), http.StatusInternalServerError)
-				return
-			}
-		}
-
 		// stream chat
-		messageCh := sydneyAPI.AskStream(sydney.AskStreamOptions{
+		messageCh, err := sydneyAPI.AskStream(sydney.AskStreamOptions{
 			StopCtx:        r.Context(),
-			Conversation:   request.Conversation,
 			Prompt:         request.Prompt,
 			WebpageContext: request.WebpageContext,
 			ImageURL:       request.ImageURL,
 		})
+		if err != nil {
+			http.Error(w, "error creating conversation: "+err.Error(), http.StatusInternalServerError)
+			return
+		}
 
 		// set headers
 		w.Header().Set("Content-Type", "text/event-stream; charset=UTF-8")
@@ -293,22 +287,16 @@ func main() {
 			GPT4Turbo:         true,
 		})
 
-		// create new conversation if not provided
-		if request.Conversation.ConversationId == "" {
-			request.Conversation, err = sydneyAPI.CreateConversation()
-			if err != nil {
-				http.Error(w, "error creating conversation: "+err.Error(), http.StatusInternalServerError)
-				return
-			}
-		}
-
-		messageCh := sydneyAPI.AskStream(sydney.AskStreamOptions{
+		messageCh, err := sydneyAPI.AskStream(sydney.AskStreamOptions{
 			StopCtx:        r.Context(),
-			Conversation:   request.Conversation,
 			Prompt:         parsedMessages.Prompt,
 			WebpageContext: parsedMessages.WebpageContext,
 			ImageURL:       parsedMessages.ImageURL,
 		})
+		if err != nil {
+			http.Error(w, "error creating conversation: "+err.Error(), http.StatusInternalServerError)
+			return
+		}
 
 		// handle non-stream
 		if !request.Stream {
@@ -399,22 +387,19 @@ func main() {
 			Locale:            "en-US",
 		})
 
-		// create conversation
-		conversation, err := sydneyAPI.CreateConversation()
+		// ask stream
+		newContext, cancel := context.WithCancel(r.Context())
+		defer cancel()
+
+		messageCh, err := sydneyAPI.AskStream(sydney.AskStreamOptions{
+			StopCtx:        newContext,
+			Prompt:         request.Prompt,
+			WebpageContext: ImageGeneratorContext,
+		})
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-
-		// ask stream
-		newContext, cancel := context.WithCancel(r.Context())
-
-		messageCh := sydneyAPI.AskStream(sydney.AskStreamOptions{
-			StopCtx:        newContext,
-			Conversation:   conversation,
-			Prompt:         request.Prompt,
-			WebpageContext: ImageGeneratorContext,
-		})
 
 		var generativeImage sydney.GenerativeImage
 

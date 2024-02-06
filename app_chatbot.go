@@ -102,16 +102,7 @@ func (a *App) askSydney(options AskOptions) {
 		}
 		return
 	}
-	conversation, err := sydneyIns.CreateConversation()
-	if err != nil {
-		chatFinishResult = ChatFinishResult{
-			Success: false,
-			ErrType: ChatFinishResultErrTypeOthers,
-			ErrMsg:  err.Error(),
-		}
-		return
-	}
-	runtime.EventsEmit(a.ctx, EventConversationCreated)
+
 	stopCtx, cancel := util.CreateCancelContext()
 	defer cancel()
 	runtime.EventsOn(a.ctx, EventChatStop, func(optionalData ...interface{}) {
@@ -119,13 +110,25 @@ func (a *App) askSydney(options AskOptions) {
 		cancel()
 		runtime.EventsOff(a.ctx, EventChatStop)
 	})
-	ch := sydneyIns.AskStream(sydney.AskStreamOptions{
+
+	ch, err := sydneyIns.AskStream(sydney.AskStreamOptions{
 		StopCtx:        stopCtx,
-		Conversation:   conversation,
 		Prompt:         options.Prompt,
 		WebpageContext: options.ChatContext,
 		ImageURL:       options.ImageURL,
 	})
+	if err != nil {
+		if !errors.Is(err, context.Canceled) {
+			chatFinishResult = ChatFinishResult{
+				Success: false,
+				ErrType: ChatFinishResultErrTypeOthers,
+				ErrMsg:  err.Error(),
+			}
+		}
+		return
+	}
+	runtime.EventsEmit(a.ctx, EventConversationCreated)
+
 	chatAppend := func(text string) {
 		runtime.EventsEmit(a.ctx, EventChatAppend, text)
 	}
@@ -320,19 +323,14 @@ func (a *App) GetConciseAnswer(req ConciseAnswerReq) (string, error) {
 			NoSearch:              true,
 			GPT4Turbo:             true,
 		})
-		if err != nil {
-			return "", err
-		}
-		conversation, err := syd.CreateConversation()
-		if err != nil {
-			return "", err
-		}
-		ch := syd.AskStream(sydney.AskStreamOptions{
+		ch, err := syd.AskStream(sydney.AskStreamOptions{
 			StopCtx:        context.Background(),
-			Conversation:   conversation,
 			Prompt:         req.Prompt,
 			WebpageContext: req.Context,
 		})
+		if err != nil {
+			return "", err
+		}
 		var result bytes.Buffer
 		for msg := range ch {
 			if msg.Type == sydney.MessageTypeError {

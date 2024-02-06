@@ -18,9 +18,12 @@ import (
 	"nhooyr.io/websocket"
 )
 
-func (o *Sydney) AskStream(options AskStreamOptions) <-chan Message {
+func (o *Sydney) AskStream(options AskStreamOptions) (<-chan Message, error) {
 	out := make(chan Message)
-	ch := o.AskStreamRaw(options)
+	conversation, ch, err := o.AskStreamRaw(options)
+	if err != nil {
+		return nil, err
+	}
 	go func(out chan Message, ch <-chan RawMessage) {
 		defer func() {
 			slog.Info("AskStream is closing out message channel")
@@ -43,12 +46,31 @@ func (o *Sydney) AskStream(options AskStreamOptions) <-chan Message {
 		for msg := range ch {
 			if msg.Error != nil {
 				slog.Error("Ask stream message", "error", msg.Error)
-				out <- Message{
-					Type:  MessageTypeError,
-					Text:  msg.Error.Error(),
-					Error: msg.Error,
+				if strings.Contains(msg.Error.Error(), "CAPTCHA") && o.bypassServer != "" {
+					slog.Info("Start to bypass the captcha", "server", o.bypassServer)
+					out <- Message{
+						Type: MessageTypeSolvingCaptcha,
+						Text: "Please wait patiently while we are solving the CAPTCHA...",
+					}
+					cookies, err := o.BypassCaptcha(options.StopCtx, conversation.ConversationId,
+						options.MessageID)
+					if err != nil {
+						out <- Message{
+							Type:  MessageTypeError,
+							Text:  msg.Error.Error(),
+							Error: msg.Error,
+						}
+					}
+					slog.Info("New Cookie", "v", cookies) // TODO resend conversation
+					return
+				} else {
+					out <- Message{
+						Type:  MessageTypeError,
+						Text:  msg.Error.Error(),
+						Error: msg.Error,
+					}
+					return
 				}
-				return
 			}
 			data := gjson.Parse(msg.Data)
 			if data.Get("type").Int() == 1 && data.Get("arguments.0.messages").Exists() {
@@ -223,10 +245,19 @@ func (o *Sydney) AskStream(options AskStreamOptions) <-chan Message {
 			}
 		}
 	}(out, ch)
-	return out
+	return out, nil
 }
-func (o *Sydney) AskStreamRaw(options AskStreamOptions) <-chan RawMessage {
-	slog.Info("AskStreamRaw called")
+func (o *Sydney) AskStreamRaw(options AskStreamOptions) (CreateConversationResponse, <-chan RawMessage, error) {
+	slog.Info("AskStreamRaw called, creating conversation...")
+	conversation, err := o.CreateConversation()
+	if err != nil {
+		return CreateConversationResponse{}, nil, err
+	}
+	select {
+	case <-options.StopCtx.Done():
+		return conversation, nil, options.StopCtx.Err()
+	default:
+	}
 	msgChan := make(chan RawMessage)
 	go func(msgChan chan RawMessage) {
 		defer func(msgChan chan RawMessage) {
@@ -252,14 +283,14 @@ func (o *Sydney) AskStreamRaw(options AskStreamOptions) <-chan RawMessage {
 			messageID = msgID.String()
 		}
 		httpHeaders := http.Header{}
-		for k, v := range o.headers {
+		for k, v := range o.headers() {
 			httpHeaders.Set(k, v)
 		}
 		ctx, cancel := util.CreateTimeoutContext(10 * time.Second)
 		defer cancel()
 		connRaw, resp, err := websocket.Dial(ctx,
-			o.wssURL+util.Ternary(options.Conversation.SecAccessToken != "", "?sec_access_token="+
-				url.QueryEscape(options.Conversation.SecAccessToken), ""),
+			o.wssURL+util.Ternary(conversation.SecAccessToken != "", "?sec_access_token="+
+				url.QueryEscape(conversation.SecAccessToken), ""),
 			&websocket.DialOptions{
 				HTTPClient: client,
 				HTTPHeader: httpHeaders,
@@ -333,11 +364,11 @@ func (o *Sydney) AskStreamRaw(options AskStreamOptions) <-chan RawMessage {
 						ImageUrl:      util.Ternary[any](options.ImageURL == "", nil, options.ImageURL),
 					},
 					Tone: o.conversationStyle,
-					ConversationSignature: util.Ternary[any](options.Conversation.ConversationSignature == "",
-						nil, options.Conversation.ConversationSignature),
-					Participant:    Participant{Id: options.Conversation.ClientId},
+					ConversationSignature: util.Ternary[any](conversation.ConversationSignature == "",
+						nil, conversation.ConversationSignature),
+					Participant:    Participant{Id: conversation.ClientId},
 					SpokenTextMode: "None",
-					ConversationId: options.Conversation.ConversationId,
+					ConversationId: conversation.ConversationId,
 					PreviousMessages: []PreviousMessage{
 						{
 							Author:      "user",
@@ -419,5 +450,5 @@ func (o *Sydney) AskStreamRaw(options AskStreamOptions) <-chan RawMessage {
 			}
 		}
 	}(msgChan)
-	return msgChan
+	return conversation, msgChan, nil
 }

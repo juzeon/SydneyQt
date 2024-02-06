@@ -19,7 +19,7 @@ func (o *Sydney) GenerateImage(generativeImage GenerativeImage) (GenerateImageRe
 		return empty, err
 	}
 	client := resty.New().SetTransport(hClient.Transport).
-		SetHeaders(o.headersCreateImage).
+		SetHeaders(o.headersCreateImage()).
 		SetTimeout(15 * time.Second)
 	resp, err := client.R().Get(generativeImage.URL)
 	if err != nil && !errors.Is(err, resty.ErrAutoRedirectDisabled) {

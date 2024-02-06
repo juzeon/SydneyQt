@@ -19,7 +19,7 @@ func (o *Sydney) CreateConversation() (CreateConversationResponse, error) {
 	if err != nil {
 		return CreateConversationResponse{}, err
 	}
-	for k, v := range o.headersCreateConversation {
+	for k, v := range o.headersCreateConversation() {
 		req.Header.Set(k, v)
 	}
 	resp, err := client.Do(req)

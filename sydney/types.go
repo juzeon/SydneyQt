@@ -45,6 +45,7 @@ const (
 	MessageTypeGenerativeImage    = "generative_image"
 	MessageTypeExecutingTask      = "executing_task"
 	MessageTypeGeneratedCode      = "generated_code"
+	MessageTypeSolvingCaptcha     = "solving_captcha"
 	MessageTypeMessageText        = "message"
 	MessageTypeSuggestedResponses = "suggested_responses"
 	MessageTypeError              = "error"
@@ -122,7 +123,6 @@ type Options struct {
 }
 type AskStreamOptions struct {
 	StopCtx        context.Context
-	Conversation   CreateConversationResponse
 	Prompt         string
 	WebpageContext string
 	ImageURL       string
