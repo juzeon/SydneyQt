@@ -49,6 +49,10 @@ func (o *Sydney) ResolveCaptcha(stopCtx context.Context) (err error) {
 	page := stealth.MustPage(browser)
 	page.MustNavigate("https://www.bing.com/turing/captcha/challenge?" +
 		"q=&iframeid=local-gen-" + iframeID)
+	page.MustElement("body")
+	page.MustEval("()=>{let info=document.createElement('h3');" +
+		"info.textContent='↑ Please help click if this cannot be processed automatically!';" +
+		"document.body.appendChild(info);}")
 	router := page.HijackRequests()
 	waitCh := make(chan struct{}, 16)
 	defer close(waitCh)

@@ -62,7 +62,7 @@ func (o *Sydney) AskStream(options AskStreamOptions) (<-chan Message, error) {
 					}
 					slog.Info("Start to resolve the captcha", "server", o.bypassServer)
 					out <- Message{
-						Type: MessageTypeSolvingCaptcha,
+						Type: MessageTypeResolvingCaptcha,
 						Text: "Please wait patiently while we are resolving the CAPTCHA...",
 					}
 					if o.bypassServer == "" {

@@ -45,7 +45,7 @@ const (
 	MessageTypeGenerativeImage    = "generative_image"
 	MessageTypeExecutingTask      = "executing_task"
 	MessageTypeGeneratedCode      = "generated_code"
-	MessageTypeSolvingCaptcha     = "solving_captcha"
+	MessageTypeResolvingCaptcha   = "resolving_captcha"
 	MessageTypeMessageText        = "message"
 	MessageTypeSuggestedResponses = "suggested_responses"
 	MessageTypeError              = "error"

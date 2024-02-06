@@ -104,7 +104,8 @@ function onRevokeReplyCountChanged(v: string) {
                          location="bottom">
                 <template #activator="{props}">
                   <v-text-field color="primary" label="CAPTCHA Bypass Server" v-model="config.bypass_server"
-                                v-bind="props" hint="Leave empty to disable CAPTCHA bypass"></v-text-field>
+                                v-bind="props"
+                                hint="Leave empty to use a local browser for resolving the CAPTCHA."></v-text-field>
                 </template>
               </v-tooltip>
             </v-card-text>
