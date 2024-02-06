@@ -50,19 +50,9 @@ func (o *Sydney) AskStream(options AskStreamOptions) (<-chan Message, error) {
 			if msg.Error != nil {
 				slog.Error("Ask stream message", "error", msg.Error)
 				if strings.Contains(msg.Error.Error(), "CAPTCHA") {
-					if o.bypassServer == "" {
-						err0 := errors.New("encountered CAPTCHA challenge; " +
-							"please resolve it manually on Bing's website or configure a Bypass Server")
-						out <- Message{
-							Type:  MessageTypeError,
-							Text:  err0.Error(),
-							Error: err0,
-						}
-						return
-					}
 					if options.disableCaptchaBypass {
 						err0 := errors.New("infinite CAPTCHA detected; " +
-							"please resolve it manually on Bing's website")
+							"please resolve it manually on Bing's website or mobile client")
 						out <- Message{
 							Type:  MessageTypeError,
 							Text:  err0.Error(),
@@ -70,17 +60,21 @@ func (o *Sydney) AskStream(options AskStreamOptions) (<-chan Message, error) {
 						}
 						return
 					}
-					slog.Info("Start to bypass the captcha", "server", o.bypassServer)
+					slog.Info("Start to resolve the captcha", "server", o.bypassServer)
 					out <- Message{
 						Type: MessageTypeSolvingCaptcha,
-						Text: "Please wait patiently while we are automatically resolving the CAPTCHA...",
+						Text: "Please wait patiently while we are resolving the CAPTCHA...",
 					}
-					cookies, err := o.BypassCaptcha(options.StopCtx, conversation.ConversationId,
-						options.messageID)
+					if o.bypassServer == "" {
+						err = o.ResolveCaptcha(options.StopCtx)
+					} else {
+						err = o.BypassCaptcha(options.StopCtx, conversation.ConversationId,
+							options.messageID)
+					}
 					if err != nil {
 						if !errors.Is(err, context.Canceled) {
 							err = fmt.Errorf("cannot resolve CAPTCHA automatically; "+
-								"please resolve it manually on Bing's website: %w", err)
+								"please resolve it manually on Bing's website or mobile client: %w", err)
 							out <- Message{
 								Type:  MessageTypeError,
 								Text:  err.Error(),
@@ -88,14 +82,6 @@ func (o *Sydney) AskStream(options AskStreamOptions) (<-chan Message, error) {
 							}
 						}
 						return
-					}
-					slog.Info("New Cookie", "v", cookies)
-					for k, v := range cookies { // keep the map pointer
-						o.cookies[k] = v
-					}
-					err = util.UpdateCookiesFile(cookies)
-					if err != nil {
-						slog.Warn("Cannot update cookies file: ", "err", err)
 					}
 					newOptions := options
 					newOptions.disableCaptchaBypass = true
