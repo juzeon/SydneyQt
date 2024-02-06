@@ -100,6 +100,13 @@ function onRevokeReplyCountChanged(v: string) {
                                   v-model="config.create_conversation_url"></v-autocomplete>
                 </template>
               </v-tooltip>
+              <v-tooltip text="Full URL of the CAPTCHA-bypass server."
+                         location="bottom">
+                <template #activator="{props}">
+                  <v-text-field color="primary" label="CAPTCHA Bypass Server" v-model="config.bypass_server"
+                                v-bind="props" hint="Leave empty to disable CAPTCHA bypass"></v-text-field>
+                </template>
+              </v-tooltip>
             </v-card-text>
           </v-card>
           <v-card title="Display" class="my-3">

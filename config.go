@@ -65,6 +65,7 @@ type Config struct {
 	CreateConversationURL   string          `json:"create_conversation_url"`
 	ThemeColor              string          `json:"theme_color"`
 	DisableNoSearchLoader   bool            `json:"disable_no_search_loader"`
+	BypassServer            string          `json:"bypass_server"`
 }
 
 func fillDefault[T comparable](pointer *T, defaultValue T) {

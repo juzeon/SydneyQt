@@ -194,6 +194,7 @@ export namespace main {
 	    create_conversation_url: string;
 	    theme_color: string;
 	    disable_no_search_loader: boolean;
+	    bypass_server: string;
 	
 	    static createFrom(source: any = {}) {
 	        return new Config(source);
@@ -223,6 +224,7 @@ export namespace main {
 	        this.create_conversation_url = source["create_conversation_url"];
 	        this.theme_color = source["theme_color"];
 	        this.disable_no_search_loader = source["disable_no_search_loader"];
+	        this.bypass_server = source["bypass_server"];
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {

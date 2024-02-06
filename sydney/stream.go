@@ -20,6 +20,7 @@ import (
 
 func (o *Sydney) AskStream(options AskStreamOptions) (<-chan Message, error) {
 	out := make(chan Message)
+	options.messageID = uuid.New().String()
 	conversation, ch, err := o.AskStreamRaw(options)
 	if err != nil {
 		return nil, err
@@ -46,22 +47,61 @@ func (o *Sydney) AskStream(options AskStreamOptions) (<-chan Message, error) {
 		for msg := range ch {
 			if msg.Error != nil {
 				slog.Error("Ask stream message", "error", msg.Error)
-				if strings.Contains(msg.Error.Error(), "CAPTCHA") && o.bypassServer != "" {
+				if strings.Contains(msg.Error.Error(), "CAPTCHA") {
+					if o.bypassServer == "" {
+						err0 := errors.New("encountered CAPTCHA challenge; " +
+							"please resolve it manually on Bing's website or configure a Bypass Server")
+						out <- Message{
+							Type:  MessageTypeError,
+							Text:  err0.Error(),
+							Error: err0,
+						}
+						return
+					}
+					if options.disableCaptchaBypass {
+						err0 := errors.New("infinite CAPTCHA detected; " +
+							"please resolve it manually on Bing's website")
+						out <- Message{
+							Type:  MessageTypeError,
+							Text:  err0.Error(),
+							Error: err0,
+						}
+						return
+					}
 					slog.Info("Start to bypass the captcha", "server", o.bypassServer)
 					out <- Message{
 						Type: MessageTypeSolvingCaptcha,
 						Text: "Please wait patiently while we are solving the CAPTCHA...",
 					}
 					cookies, err := o.BypassCaptcha(options.StopCtx, conversation.ConversationId,
-						options.MessageID)
+						options.messageID)
 					if err != nil {
 						out <- Message{
 							Type:  MessageTypeError,
-							Text:  msg.Error.Error(),
-							Error: msg.Error,
+							Text:  err.Error(),
+							Error: err,
 						}
+						return
 					}
-					slog.Info("New Cookie", "v", cookies) // TODO resend conversation
+					slog.Info("New Cookie", "v", cookies) // TODO persist this cookie
+					for k, v := range cookies {           // keep the map pointer
+						o.cookies[k] = v
+					}
+					newOptions := options
+					newOptions.disableCaptchaBypass = true
+					newOptions.messageID = ""
+					newCh, err := o.AskStream(newOptions)
+					if err != nil {
+						out <- Message{
+							Type:  MessageTypeError,
+							Text:  err.Error(),
+							Error: err,
+						}
+						return
+					}
+					for newMsg := range newCh { // proxy messages from recursive AskStream
+						out <- newMsg
+					}
 					return
 				} else {
 					out <- Message{
@@ -271,7 +311,7 @@ func (o *Sydney) AskStreamRaw(options AskStreamOptions) (CreateConversationRespo
 			}
 			return
 		}
-		messageID := options.MessageID
+		messageID := options.messageID
 		if messageID == "" {
 			msgID, err := uuid.NewUUID()
 			if err != nil {

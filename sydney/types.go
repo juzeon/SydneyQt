@@ -127,7 +127,8 @@ type AskStreamOptions struct {
 	WebpageContext string
 	ImageURL       string
 
-	MessageID string // A random uuid. Optional.
+	messageID            string // A random uuid. Optional.
+	disableCaptchaBypass bool
 }
 type UploadImagePayload struct {
 	ImageInfo        map[string]any   `json:"imageInfo"`

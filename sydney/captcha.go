@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/go-resty/resty/v2"
 	"github.com/google/uuid"
 	"log/slog"
@@ -33,14 +34,14 @@ func (o *Sydney) BypassCaptcha(
 	slog.Debug("Bypass CAPTCHA request", "v", req)
 	resp, err := client.R().SetContext(stopCtx).SetBody(req).Post(o.bypassServer)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("cannot communicate with captcha bypass server: %w", err)
 	}
+	slog.Debug("Bypass captcha response body", "v", string(resp.Body()))
 	var response BypassCaptchaResponse
 	err = json.Unmarshal(resp.Body(), &response)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("cannot unmarshal json from captcha bypass server: %w", err)
 	}
-	slog.Debug("Bypass captcha response", "v", response)
 	if response.Error != "" {
 		return nil, errors.New("bypass captcha error: " + response.Error)
 	}
