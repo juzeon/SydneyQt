@@ -18,6 +18,7 @@ type Sydney struct {
 	wssURL                string
 	createConversationURL string
 	noSearch              bool
+	bypassServer          string
 
 	optionsSetMap             map[string][]string
 	sliceIDs                  []string
@@ -26,6 +27,8 @@ type Sydney struct {
 	headers                   map[string]string
 	headersCreateConversation map[string]string
 	headersCreateImage        map[string]string
+	cookies                   map[string]string
+	formattedCookies          string
 }
 
 func NewSydney(options Options) *Sydney {
@@ -56,6 +59,7 @@ func NewSydney(options Options) *Sydney {
 	}
 	forwardedIP := "1.0.0." + strconv.Itoa(util.RandIntInclusive(1, 255))
 	cookies := util.Ternary(options.Cookies == nil, map[string]string{}, options.Cookies)
+	formattedCookies := util.FormatCookieString(cookies)
 	options.ConversationStyle = lo.Ternary(options.ConversationStyle == "",
 		"Creative", options.ConversationStyle)
 	// TODO find ways to enable turbo for non-pro users
@@ -72,6 +76,7 @@ func NewSydney(options Options) *Sydney {
 		noSearch: options.NoSearch,
 		createConversationURL: util.Ternary(options.CreateConversationURL == "",
 			"https://edgeservices.bing.com/edgesvc/turing/conversation/create", options.CreateConversationURL),
+		bypassServer: options.BypassServer,
 		optionsSetMap: map[string][]string{
 			"Balanced":        append(basicOptionsSet, "galileo", "gldcl1p"),
 			"Precise":         append(basicOptionsSet, "h3precise"),
@@ -147,7 +152,7 @@ func NewSydney(options Options) *Sydney {
 			"Referer":                     "https://www.bing.com/search?q=Bing+AI&showconv=1",
 			"Referrer-Policy":             "origin-when-cross-origin",
 			"x-forwarded-for":             forwardedIP,
-			"Cookie":                      util.FormatCookieString(cookies),
+			"Cookie":                      formattedCookies,
 		},
 		headersCreateConversation: map[string]string{
 			"authority":                   "www.bing.com",
@@ -167,7 +172,7 @@ func NewSydney(options Options) *Sydney {
 			"user-agent":                  "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36 Edg/112.0.1722.46",
 			"x-edge-shopping-flag":        "1",
 			"x-forwarded-for":             forwardedIP,
-			"Cookie":                      util.FormatCookieString(cookies),
+			"Cookie":                      formattedCookies,
 		},
 		headersCreateImage: map[string]string{
 			"authority":                 "www.bing.com",
@@ -179,7 +184,9 @@ func NewSydney(options Options) *Sydney {
 			"user-agent":                "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36 Edg/112.0.1722.46",
 			"x-forwarded-for":           forwardedIP,
 			"Sec-Fetch-Dest":            "iframe",
-			"Cookie":                    util.FormatCookieString(cookies),
+			"Cookie":                    formattedCookies,
 		},
+		cookies:          cookies,
+		formattedCookies: formattedCookies,
 	}
 }

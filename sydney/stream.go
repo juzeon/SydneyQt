@@ -240,12 +240,16 @@ func (o *Sydney) AskStreamRaw(options AskStreamOptions) <-chan RawMessage {
 			}
 			return
 		}
-		messageID, err := uuid.NewUUID()
-		if err != nil {
-			msgChan <- RawMessage{
-				Error: err,
+		messageID := options.MessageID
+		if messageID == "" {
+			msgID, err := uuid.NewUUID()
+			if err != nil {
+				msgChan <- RawMessage{
+					Error: err,
+				}
+				return
 			}
-			return
+			messageID = msgID.String()
 		}
 		httpHeaders := http.Header{}
 		for k, v := range o.headers {
@@ -313,7 +317,7 @@ func (o *Sydney) AskStreamRaw(options AskStreamOptions) <-chan RawMessage {
 					Verbosity:           "verbose",
 					Scenario:            "SERP",
 					TraceId:             util.MustGenerateRandomHex(16),
-					RequestId:           messageID.String(),
+					RequestId:           messageID,
 					IsStartOfSession:    true,
 					Message: ArgumentMessage{
 						Locale:        o.locale,
@@ -324,8 +328,8 @@ func (o *Sydney) AskStreamRaw(options AskStreamOptions) <-chan RawMessage {
 						InputMethod:   "Keyboard",
 						Text:          options.Prompt,
 						MessageType:   []string{"Chat", "CurrentWebpageContextRequest"}[util.RandIntInclusive(0, 1)],
-						RequestId:     messageID.String(),
-						MessageId:     messageID.String(),
+						RequestId:     messageID,
+						MessageId:     messageID,
 						ImageUrl:      util.Ternary[any](options.ImageURL == "", nil, options.ImageURL),
 					},
 					Tone: o.conversationStyle,

@@ -118,6 +118,7 @@ type Options struct {
 	CreateConversationURL string
 	NoSearch              bool
 	GPT4Turbo             bool
+	BypassServer          string
 }
 type AskStreamOptions struct {
 	StopCtx        context.Context
@@ -125,6 +126,8 @@ type AskStreamOptions struct {
 	Prompt         string
 	WebpageContext string
 	ImageURL       string
+
+	MessageID string // A random uuid. Optional.
 }
 type UploadImagePayload struct {
 	ImageInfo        map[string]any   `json:"imageInfo"`
@@ -160,4 +163,18 @@ type SourceAttribute struct {
 	Index int    `json:"index"`
 	Link  string `json:"link"`
 	Title string `json:"title"`
+}
+type BypassCaptchaRequest struct {
+	IG       string `json:"IG"`
+	Cookies  string `json:"cookies"`
+	IFrameID string `json:"iframeid"`
+	ConvID   string `json:"convId"`
+	RID      string `json:"rid"`
+}
+type BypassCaptchaResponse struct {
+	Result struct {
+		Cookies    string `json:"cookies"`
+		ScreenShot string `json:"screenshot"`
+	} `json:"result"`
+	Error string `json:"error"`
 }
