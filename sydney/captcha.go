@@ -30,7 +30,7 @@ func (o *Sydney) BypassCaptcha(
 		ConvID:   conversationID,
 		RID:      messageID,
 	}
-	slog.Info("Bypass CAPTCHA request", "v", req)
+	slog.Debug("Bypass CAPTCHA request", "v", req)
 	resp, err := client.R().SetContext(stopCtx).SetBody(req).Post(o.bypassServer)
 	if err != nil {
 		return nil, err
@@ -40,7 +40,7 @@ func (o *Sydney) BypassCaptcha(
 	if err != nil {
 		return nil, err
 	}
-	slog.Info("Bypass captcha response", "v", response)
+	slog.Debug("Bypass captcha response", "v", response)
 	if response.Error != "" {
 		return nil, errors.New("bypass captcha error: " + response.Error)
 	}
