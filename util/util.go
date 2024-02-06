@@ -22,6 +22,7 @@ import (
 	"os"
 	"os/exec"
 	"runtime"
+	"slices"
 	"strings"
 	"time"
 
@@ -169,8 +170,9 @@ func UpdateCookiesFile(newCookies map[string]string) error {
 	if err != nil {
 		return err
 	}
+	oldCookies := slices.Clone(cookies)
 	for k, v := range newCookies {
-		cookie, index, ok := lo.FindIndexOf(cookies, func(item FileCookie) bool {
+		cookie, index, ok := lo.FindIndexOf(oldCookies, func(item FileCookie) bool {
 			return item.Name == k
 		})
 		if ok {
