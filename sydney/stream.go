@@ -403,8 +403,9 @@ func (o *Sydney) AskStreamRaw(options AskStreamOptions) <-chan RawMessage {
 				result := gjson.Parse(msg)
 				if result.Get("type").Int() == 2 && result.Get("item.result.value").String() != "Success" {
 					msgChan <- RawMessage{
-						Error: errors.New(result.Get("item.result.value").Raw + ": " +
-							result.Get("item.result.message").Raw),
+						Error: errors.New("bing explicit error: value: " +
+							result.Get("item.result.value").String() + "; message: " +
+							result.Get("item.result.message").String()),
 					}
 					return
 				}
