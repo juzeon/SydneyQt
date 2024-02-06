@@ -45,5 +45,6 @@ func (o *Sydney) BypassCaptcha(
 		return nil, errors.New("bypass captcha error: " + response.Error)
 	}
 	cookies = util.ParseCookiesFromString(response.Result.Cookies)
+	// new cookies: cct, GC, _C_ETH=1, _C_Auth=
 	return cookies, nil
 }
