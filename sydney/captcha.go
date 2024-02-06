@@ -12,13 +12,15 @@ import (
 	"time"
 )
 
-func (o *Sydney) BypassCaptcha(stopCtx context.Context, conversationID string, messageID string) error {
+func (o *Sydney) BypassCaptcha(
+	stopCtx context.Context, conversationID string, messageID string,
+) (cookies map[string]string, err error) {
 	if o.bypassServer == "" {
-		return errors.New("no bypass server specified")
+		return nil, errors.New("no bypass server specified")
 	}
 	hClient, err := util.MakeHTTPClient(o.proxy, 0)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	client := resty.New().SetTransport(hClient.Transport).SetTimeout(60 * time.Second)
 	req := BypassCaptchaRequest{
@@ -31,16 +33,17 @@ func (o *Sydney) BypassCaptcha(stopCtx context.Context, conversationID string, m
 	slog.Info("Bypass CAPTCHA request", "v", req)
 	resp, err := client.R().SetContext(stopCtx).SetBody(req).Post(o.bypassServer)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	var response BypassCaptchaResponse
 	err = json.Unmarshal(resp.Body(), &response)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	slog.Info("Bypass captcha response", "v", response)
 	if response.Error != "" {
-		return errors.New("bypass captcha error: " + response.Error)
+		return nil, errors.New("bypass captcha error: " + response.Error)
 	}
-	return nil
+	cookies = util.ParseCookiesFromString(response.Result.Cookies)
+	return cookies, nil
 }

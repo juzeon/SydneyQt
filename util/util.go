@@ -96,6 +96,21 @@ func FormatCookieString(cookies map[string]string) string {
 	}
 	return str
 }
+func ParseCookiesFromString(cookiesStr string) map[string]string {
+	cookies := map[string]string{}
+	for _, cookie := range strings.Split(cookiesStr, ";") {
+		parts := strings.Split(cookie, "=")
+		if len(parts) != 2 {
+			continue
+		}
+		unescape, err := url.PathUnescape(strings.TrimSpace(parts[1]))
+		if err != nil {
+			unescape = parts[1]
+		}
+		cookies[strings.TrimSpace(parts[0])] = unescape
+	}
+	return cookies
+}
 func CopyMap[T comparable, E any](source map[T]E) map[T]E {
 	res := map[T]E{}
 	for k, v := range source {
