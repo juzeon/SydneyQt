@@ -73,7 +73,7 @@ func (o *Sydney) AskStream(options AskStreamOptions) (<-chan Message, error) {
 					slog.Info("Start to bypass the captcha", "server", o.bypassServer)
 					out <- Message{
 						Type: MessageTypeSolvingCaptcha,
-						Text: "Please wait patiently while we are solving the CAPTCHA...",
+						Text: "Please wait patiently while we are automatically resolving the CAPTCHA...",
 					}
 					cookies, err := o.BypassCaptcha(options.StopCtx, conversation.ConversationId,
 						options.messageID)
