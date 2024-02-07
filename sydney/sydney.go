@@ -18,7 +18,6 @@ type Sydney struct {
 	locale                string
 	wssURL                string
 	createConversationURL string
-	noSearch              bool
 	bypassServer          string
 
 	optionsSetMap             map[string][]string
@@ -69,6 +68,9 @@ func NewSydney(options Options) *Sydney {
 	if options.ConversationStyle == "Creative" && options.UseClassic {
 		options.ConversationStyle = "CreativeClassic"
 	}
+	if options.NoSearch {
+		basicOptionsSet = append(basicOptionsSet, "nosearchall")
+	}
 	return &Sydney{
 		debug:             options.Debug,
 		proxy:             options.Proxy,
@@ -76,7 +78,6 @@ func NewSydney(options Options) *Sydney {
 		locale:            util.Ternary(options.Locale == "", "en-US", options.Locale),
 		wssURL: util.Ternary(options.WssDomain == "", "wss://sydney.bing.com/sydney/ChatHub",
 			"wss://"+options.WssDomain+"/sydney/ChatHub"),
-		noSearch: options.NoSearch,
 		createConversationURL: util.Ternary(options.CreateConversationURL == "",
 			"https://edgeservices.bing.com/edgesvc/turing/conversation/create", options.CreateConversationURL),
 		bypassServer: options.BypassServer,

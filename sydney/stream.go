@@ -368,9 +368,6 @@ func (o *Sydney) AskStreamRaw(options AskStreamOptions) (CreateConversationRespo
 			return
 		}
 		optionsSets := o.optionsSetMap[o.conversationStyle]
-		if o.noSearch {
-			optionsSets = append(optionsSets, "nosearchall")
-		}
 		if debugOptionSets := util.ReadDebugOptionSets(); len(debugOptionSets) != 0 {
 			optionsSets = debugOptionSets
 		}
