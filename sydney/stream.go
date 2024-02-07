@@ -469,6 +469,11 @@ func (o *Sydney) AskStreamRaw(options AskStreamOptions) (CreateConversationRespo
 				}
 				result := gjson.Parse(msg)
 				if result.Get("type").Int() == 2 && result.Get("item.result.value").String() != "Success" {
+					if result.Get("item.result.message").String() == "Unhandled Exception" {
+						slog.Warn("Suppressed Unhandled Exception", "v",
+							result.Get("item.result").Raw)
+						return
+					}
 					msgChan <- RawMessage{
 						Error: errors.New("bing explicit error: value: " +
 							result.Get("item.result.value").String() + "; message: " +
