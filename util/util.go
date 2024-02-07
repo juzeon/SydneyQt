@@ -22,7 +22,6 @@ import (
 	"os"
 	"os/exec"
 	"runtime"
-	"slices"
 	"strings"
 	"time"
 
@@ -136,10 +135,8 @@ func MustGenerateRandomHex(length int) string {
 }
 
 type FileCookie struct {
-	Name   string `json:"name"`
-	Value  string `json:"value"`
-	Domain string `json:"domain,omitempty"`
-	Note   string `json:"note,omitempty"`
+	Name  string `json:"name"`
+	Value string `json:"value"`
 }
 
 func ReadCookiesFileRaw() ([]FileCookie, error) {
@@ -165,31 +162,15 @@ func ReadCookiesFile() (map[string]string, error) {
 	}
 	return res, nil
 }
-func UpdateCookiesFile(newCookies map[string]string) error {
-	cookies, err := ReadCookiesFileRaw()
-	if err != nil {
-		return err
-	}
-	oldCookies := slices.Clone(cookies)
-	for k, v := range newCookies {
-		cookie, index, ok := lo.FindIndexOf(oldCookies, func(item FileCookie) bool {
-			return item.Name == k
+func UpdateCookiesFile(cookies map[string]string) error {
+	var arr []FileCookie
+	for k, v := range cookies {
+		arr = append(arr, FileCookie{
+			Name:  k,
+			Value: v,
 		})
-		if ok {
-			if v != cookie.Value {
-				cookie.Note = "modified_by_captcha_resolver"
-				cookie.Value = v
-				cookies[index] = cookie
-			}
-		} else {
-			cookies = append(cookies, FileCookie{
-				Name:  k,
-				Value: v,
-				Note:  "introduced_by_captcha_resolver",
-			})
-		}
 	}
-	v, err := json.MarshalIndent(&cookies, "", "  ")
+	v, err := json.MarshalIndent(&arr, "", "  ")
 	if err != nil {
 		return err
 	}
