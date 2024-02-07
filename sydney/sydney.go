@@ -56,6 +56,9 @@ func NewSydney(options Options) *Sydney {
 		"fluxprod",
 		"eredirecturl",
 		"deuct3",
+		// may related to image search
+		"gptvnodesc",
+		"gptvnoex",
 	}
 	forwardedIP := "1.0.0." + strconv.Itoa(util.RandIntInclusive(1, 255))
 	cookies := util.Ternary(options.Cookies == nil, map[string]string{}, options.Cookies)
