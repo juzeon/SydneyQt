@@ -14,6 +14,7 @@ A cross-platform desktop client for the jailbroken New Bing AI (Sydney ver.) bui
 
 - Jailbreak New Bing with parameter tweaks and prompt injection.
 - Access features in the gray-scale test in advance.
+- Resolve CAPTCHA automatically via a local Selenium browser or a Bypass Server.
 - Region restriction unlocking with proxy and Cloudflare Workers.
 - Edit the chat context freely, including the AI's previous responses.
 - Prevent Bing AI's message revoking, and automatically send custom text to continue the generation.
@@ -95,7 +96,9 @@ The cookies you set up before may expire from time to time. You can check the st
 
 ### CAPTCHA
 
-To solve the `User needs to solve CAPTCHA to continue` error, please follow these steps:
+Starting from v2.4.0, SydneyQt will launch a local Selenium browser to try resolving the CAPTCHA automatically, and use a [Bypass Server](https://github.com/Harry-zklcdc/go-proxy-bingai#%E4%BA%BA%E6%9C%BA%E9%AA%8C%E8%AF%81%E6%9C%8D%E5%8A%A1%E5%99%A8) instead if configured.
+
+If this does not work, please follow these steps:
 
 1. Check if the cookies have expired. If so, re-importing them.
 2. After making sure the cookies are valid, open Bing Web in your browser and sending a random message. You should see a CAPTCHA challenge. If not, verify that the current user matches the cookies.json file. Complete the CAPTCHA and go back to the software. It should work fine now.

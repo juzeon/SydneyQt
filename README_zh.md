@@ -12,6 +12,7 @@
 
 - 通过参数调整和提示注入越狱新版Bing。
 - 提前使用灰度测试中的功能。
+- 通过本地Selenium浏览器或远程Bypass Server自动解决CAPTCHA验证码。
 - 使用代理和Cloudflare Workers解锁地区限制。
 - 自由编辑聊天上下文，包括AI的之前的回复。
 - 阻止Bing AI撤回消息，并自动发送自定义文本继续生成。
@@ -93,7 +94,9 @@ Bing禁止特定国家访问Bing AI（具体来说，是sydney.bing.com），所
 
 ### 验证码
 
-要解决`User needs to solve CAPTCHA to continue`错误，请按照以下步骤操作：
+从v2.4.0开始，SydneyQt将启动本地Selenium浏览器尝试自动解决验证码，并在配置了的情况下使用[Bypass服务器](https://github.com/Harry-zklcdc/go-proxy-bingai#%E4%BA%BA%E6%9C%BA%E9%AA%8C%E8%AF%81%E6%9C%8D%E5%8A%A1%E5%99%A8)。
+
+如果不起作用，请按照以下步骤：
 
 1. 检查cookies是否过期。如果是的话，重新导入它们。
 2. 在确保cookies有效后，在你的浏览器中打开Bing Web并发送一个随机消息。你应该看到一个验证码挑战。如果没有，验证当前用户是否与cookies.json文件匹配。完成验证码后，回到软件。它应该可以正常工作了。
