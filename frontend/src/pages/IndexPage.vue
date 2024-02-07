@@ -45,7 +45,7 @@ let currentWorkspace = ref(<Workspace>{
   no_search: false,
   image_packs: <GenerateImageResult[]>[],
   created_at: dayjs().format(),
-  gpt_4_turbo: false,
+  use_classic: false,
   persistent_input: false,
 })
 
@@ -329,7 +329,7 @@ let additionalOptionsDialog = ref(false)
 let additionalOptionPreview = computed(() => {
   return 'Locale: ' + currentWorkspace.value.locale +
       '; No Search: ' + currentWorkspace.value.no_search +
-      '; GPT-4-Turbo: ' + currentWorkspace.value.gpt_4_turbo
+      '; Use Classic: ' + currentWorkspace.value.use_classic
 })
 
 function generateTitle() {
@@ -402,17 +402,6 @@ function generateTitle() {
                       label="Preset"
                       density="compact"
                       class="mx-2"></v-select>
-            <v-tooltip
-                text="Enable the latest gpt-4-turbo model will increase the speed of response,
-                        reduce repeatability, but be harder to jailbreak."
-                location="bottom">
-              <template #activator="{props}">
-                <v-switch v-bind="props" v-model="currentWorkspace.gpt_4_turbo" label="GPT-4-Turbo"
-                          density="compact"
-                          :disabled="currentWorkspace.backend!=='Sydney'" class="mx-2"
-                          color="primary"></v-switch>
-              </template>
-            </v-tooltip>
             <v-tooltip :text="additionalOptionPreview" location="bottom">
               <template #activator="{props}">
                 <v-btn @click="additionalOptionsDialog=true" v-bind="props" icon variant="text" color="primary">
@@ -440,6 +429,17 @@ function generateTitle() {
                       <template #activator="{props}">
                         <v-switch v-bind="props" v-model="currentWorkspace.persistent_input" label="Persistent Input"
                                   density="compact" color="primary"></v-switch>
+                      </template>
+                    </v-tooltip>
+                    <v-tooltip
+                        text="Classic Creative mode will not enable gpt-4-turbo forever.
+                          Turn off this to enable gpt-4-turbo for Creative mode when available."
+                        location="bottom">
+                      <template #activator="{props}">
+                        <v-switch v-bind="props" v-model="currentWorkspace.use_classic" label="Use Classic Creative"
+                                  density="compact"
+                                  :disabled="currentWorkspace.backend!=='Sydney'"
+                                  color="primary"></v-switch>
                       </template>
                     </v-tooltip>
                   </div>

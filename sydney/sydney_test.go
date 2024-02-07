@@ -21,7 +21,6 @@ func TestSydney(t *testing.T) {
 		WssDomain:             "",
 		CreateConversationURL: "",
 		NoSearch:              false,
-		GPT4Turbo:             false,
 	})
 	log.Println("Stage 1")
 	_, ch, err := sydney.AskStreamRaw(AskStreamOptions{

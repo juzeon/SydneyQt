@@ -27,7 +27,7 @@ type Workspace struct {
 	NoSearch          bool                         `json:"no_search"`
 	ImagePacks        []sydney.GenerateImageResult `json:"image_packs"`
 	CreatedAt         time.Time                    `json:"created_at"`
-	GPT4Turbo         bool                         `json:"gpt_4_turbo"`
+	UseClassic        bool                         `json:"use_classic"`
 	PersistentInput   bool                         `json:"persistent_input"`
 }
 type OpenAIBackend struct {

@@ -118,7 +118,7 @@ type Options struct {
 	WssDomain             string
 	CreateConversationURL string
 	NoSearch              bool
-	GPT4Turbo             bool
+	UseClassic            bool
 	BypassServer          string
 }
 type AskStreamOptions struct {

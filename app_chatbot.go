@@ -78,7 +78,7 @@ func (a *App) createSydney() (*sydney.Sydney, error) {
 		WssDomain:             a.settings.config.WssDomain,
 		CreateConversationURL: a.settings.config.CreateConversationURL,
 		NoSearch:              currentWorkspace.NoSearch,
-		GPT4Turbo:             currentWorkspace.GPT4Turbo,
+		UseClassic:            currentWorkspace.UseClassic,
 		BypassServer:          a.settings.config.BypassServer,
 	}), nil
 }
@@ -322,7 +322,7 @@ func (a *App) GetConciseAnswer(req ConciseAnswerReq) (string, error) {
 			WssDomain:             a.settings.config.WssDomain,
 			CreateConversationURL: a.settings.config.CreateConversationURL,
 			NoSearch:              true,
-			GPT4Turbo:             true,
+			UseClassic:            false,
 		})
 		ch, err := syd.AskStream(sydney.AskStreamOptions{
 			StopCtx:        context.Background(),
