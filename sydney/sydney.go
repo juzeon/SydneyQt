@@ -78,8 +78,8 @@ func NewSydney(options Options) *Sydney {
 		optionsSetMap: map[string][]string{
 			"Balanced":        append(slices.Clone(basicOptionsSet), "galileo", "gldcl1p"),
 			"Precise":         append(slices.Clone(basicOptionsSet), "h3precise"),
-			"Creative":        slices.Clone(basicOptionsSet),
-			"CreativeClassic": slices.Clone(basicOptionsSet),
+			"Creative":        append(slices.Clone(basicOptionsSet), "h3imaginative"),
+			"CreativeClassic": append(slices.Clone(basicOptionsSet), "h3imaginative"),
 		},
 		sliceIDs: []string{},
 		locationHints: map[string][]LocationHint{
