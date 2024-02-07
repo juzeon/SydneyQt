@@ -3,6 +3,7 @@ package sydney
 import (
 	"github.com/samber/lo"
 	"log/slog"
+	"slices"
 	"strconv"
 	"sydneyqt/util"
 
@@ -75,10 +76,10 @@ func NewSydney(options Options) *Sydney {
 			"https://edgeservices.bing.com/edgesvc/turing/conversation/create", options.CreateConversationURL),
 		bypassServer: options.BypassServer,
 		optionsSetMap: map[string][]string{
-			"Balanced":        append(basicOptionsSet, "galileo", "gldcl1p"),
-			"Precise":         append(basicOptionsSet, "h3precise"),
-			"Creative":        basicOptionsSet,
-			"CreativeClassic": basicOptionsSet,
+			"Balanced":        append(slices.Clone(basicOptionsSet), "galileo", "gldcl1p"),
+			"Precise":         append(slices.Clone(basicOptionsSet), "h3precise"),
+			"Creative":        slices.Clone(basicOptionsSet),
+			"CreativeClassic": slices.Clone(basicOptionsSet),
 		},
 		sliceIDs: []string{},
 		locationHints: map[string][]LocationHint{
