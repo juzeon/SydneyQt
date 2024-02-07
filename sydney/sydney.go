@@ -42,6 +42,7 @@ func NewSydney(options Options) *Sydney {
 	}
 	basicOptionsSet := []string{
 		"fluxcopilot",
+		// no jailbreak filter
 		"nojbf",
 		"iyxapbing",
 		"iycapbing",
@@ -50,6 +51,7 @@ func NewSydney(options Options) *Sydney {
 		"disable_telemetry",
 		"machine_affinity",
 		"streamf",
+		// code interpreter
 		"codeint",
 		"langdtwb",
 		"fdwtlst",
