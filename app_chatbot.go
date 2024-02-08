@@ -51,6 +51,7 @@ const (
 	EventChatSuggestedResponses = "chat_suggested_responses"
 	EventChatToken              = "chat_token"
 	EventChatGenerateImage      = "chat_generate_image"
+	EventChatResolvingCaptcha   = "chat_resolving_captcha"
 )
 
 const (
@@ -183,6 +184,8 @@ func (a *App) askSydney(options AskOptions) {
 				}
 			}
 			textToAppend = msg.Text + "\n\n"
+		case sydney.MessageTypeResolvingCaptcha:
+			runtime.EventsEmit(a.ctx, EventChatResolvingCaptcha, msg.Text)
 		default:
 			textToAppend = msg.Text + "\n\n"
 		}

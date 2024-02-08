@@ -78,6 +78,7 @@ let suggestedResponses = ref<string[]>([])
 let isAsking = ref(false)
 let replied = ref(false)
 let lockScroll = ref(false)
+let captchaDialog = ref(false)
 
 let askEventMap = {
   "chat_append": (data: string) => {
@@ -95,6 +96,9 @@ let askEventMap = {
       replied.value = true
     }
     currentWorkspace.value.context += data
+    if (captchaDialog.value) {
+      captchaDialog.value = false
+    }
     scrollChatContextToBottom()
   },
   "chat_finish": (result: ChatFinishResult) => {
@@ -103,6 +107,9 @@ let askEventMap = {
     isAsking.value = false
     replied.value = false
     hiddenPrompt.value = ''
+    if (captchaDialog.value) {
+      captchaDialog.value = false
+    }
     if (result.success) {
       statusBarText.value = 'Ready.'
       if (!config.value.no_image_removal_after_chat) {
@@ -151,6 +158,9 @@ let askEventMap = {
   },
   "chat_generate_image": (req: GenerativeImage) => {
     generateImage(req)
+  },
+  "chat_resolving_captcha": (msg: string) => {
+    captchaDialog.value = true
   }
 }
 
@@ -550,6 +560,16 @@ function generateTitle() {
           <v-spacer></v-spacer>
           <p class="text-no-wrap ml-2">{{ statusTokenCountText }}</p>
         </div>
+        <v-dialog max-width="500" v-model="captchaDialog" :persistent="true">
+          <v-card>
+            <v-card-text>
+              <div class="d-flex justify-center align-center flex-column">
+                <v-progress-circular indeterminate color="primary"></v-progress-circular>
+                <div class="mt-3">Please wait patiently while we are resolving the CAPTCHA...</div>
+              </div>
+            </v-card-text>
+          </v-card>
+        </v-dialog>
       </div>
     </template>
   </scaffold>
