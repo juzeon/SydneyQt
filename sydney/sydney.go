@@ -3,7 +3,6 @@ package sydney
 import (
 	"github.com/samber/lo"
 	"log/slog"
-	"slices"
 	"strconv"
 	"sydneyqt/util"
 
@@ -20,7 +19,7 @@ type Sydney struct {
 	createConversationURL string
 	bypassServer          string
 
-	optionsSetMap             map[string][]string
+	optionsSet                []string
 	sliceIDs                  []string
 	locationHints             map[string][]LocationHint
 	allowedMessageTypes       []string
@@ -39,7 +38,7 @@ func NewSydney(options Options) *Sydney {
 	if err != nil {
 		util.GracefulPanic(err)
 	}
-	basicOptionsSet := []string{
+	optionsSet := []string{
 		"fluxcopilot",
 		// no jailbreak filter
 		"nojbf",
@@ -68,9 +67,21 @@ func NewSydney(options Options) *Sydney {
 	if options.ConversationStyle == "Creative" && options.UseClassic {
 		options.ConversationStyle = "CreativeClassic"
 	}
-	if options.NoSearch {
-		basicOptionsSet = append(basicOptionsSet, "nosearchall")
+	switch options.ConversationStyle {
+	case "Balanced":
+		optionsSet = append(optionsSet, "galileo", "gldcl1p")
+	case "Precise":
+		optionsSet = append(optionsSet, "h3precise")
+	case "Creative", "CreativeClassic":
+		optionsSet = append(optionsSet)
 	}
+	if options.NoSearch {
+		optionsSet = append(optionsSet, "nosearchall")
+	}
+	if debugOptionSets := util.ReadDebugOptionSets(); len(debugOptionSets) != 0 {
+		optionsSet = debugOptionSets
+	}
+	slog.Info("Final conversation options", "options", optionsSet, "tone", options.ConversationStyle)
 	return &Sydney{
 		debug:             options.Debug,
 		proxy:             options.Proxy,
@@ -81,13 +92,8 @@ func NewSydney(options Options) *Sydney {
 		createConversationURL: util.Ternary(options.CreateConversationURL == "",
 			"https://edgeservices.bing.com/edgesvc/turing/conversation/create", options.CreateConversationURL),
 		bypassServer: options.BypassServer,
-		optionsSetMap: map[string][]string{
-			"Balanced":        append(slices.Clone(basicOptionsSet), "galileo", "gldcl1p"),
-			"Precise":         append(slices.Clone(basicOptionsSet), "h3precise"),
-			"Creative":        append(slices.Clone(basicOptionsSet), "h3imaginative"),
-			"CreativeClassic": append(slices.Clone(basicOptionsSet), "h3imaginative"),
-		},
-		sliceIDs: []string{},
+		optionsSet:   optionsSet,
+		sliceIDs:     []string{},
 		locationHints: map[string][]LocationHint{
 			"zh-CN": {
 				{

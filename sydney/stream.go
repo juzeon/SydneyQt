@@ -367,14 +367,10 @@ func (o *Sydney) AskStreamRaw(options AskStreamOptions) (CreateConversationRespo
 			}
 			return
 		}
-		optionsSets := o.optionsSetMap[o.conversationStyle]
-		if debugOptionSets := util.ReadDebugOptionSets(); len(debugOptionSets) != 0 {
-			optionsSets = debugOptionSets
-		}
 		chatMessage := ChatMessage{
 			Arguments: []Argument{
 				{
-					OptionsSets:         optionsSets,
+					OptionsSets:         o.optionsSet,
 					Source:              "cib-ccp",
 					AllowedMessageTypes: o.allowedMessageTypes,
 					SliceIds:            o.sliceIDs,
