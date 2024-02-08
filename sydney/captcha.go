@@ -28,11 +28,13 @@ func (o *Sydney) ResolveCaptcha(stopCtx context.Context) (err error) {
 		}
 	}()
 	iframeID := uuid.New().String()
-	u := launcher.NewUserMode().Context(stopCtx).
+	l := launcher.NewUserMode().Context(stopCtx).
 		Leakless(true).
 		UserDataDir(filepath.Join(os.TempDir(), "rod-user-data-"+uuid.New().String())).
 		Set("disable-default-apps").
-		Set("no-first-run").Headless(false).MustLaunch()
+		Set("no-first-run").Headless(false)
+	defer l.Cleanup()
+	u := l.MustLaunch()
 	browser := rod.New().Context(stopCtx).NoDefaultDevice().ControlURL(u).MustConnect()
 	defer browser.MustClose()
 	var cookies []*proto.NetworkCookie
