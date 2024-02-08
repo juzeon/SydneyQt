@@ -568,6 +568,10 @@ function generateTitle() {
                 <div class="mt-3">Please wait patiently while we are resolving the CAPTCHA...</div>
               </div>
             </v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn variant="text" color="primary" @click="captchaDialog=false">Dismiss</v-btn>
+            </v-card-actions>
           </v-card>
         </v-dialog>
       </div>
