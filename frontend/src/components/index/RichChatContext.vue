@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {computed, onUpdated} from "vue"
+import {computed, onUpdated, ref} from "vue"
 import {ChatMessage, toChatMessages, unescapeHtml} from "../../helper"
 import {marked} from "marked"
 import katex from 'katex'
@@ -19,6 +19,7 @@ let iconMap = {
   'user': 'mdi-account',
   'system': 'mdi-laptop'
 }
+let showSystemPrompt = ref(false)
 
 function renderMD(content: string) {
   const renderer = new marked.Renderer()
@@ -151,8 +152,14 @@ onUpdated(() => {
         <v-icon>{{ iconMap?.[message.role as keyof typeof iconMap] ?? 'mdi-account-multiple' }}</v-icon>
         <p class="ml-3" style="text-transform: uppercase!important;">{{ message.role }}</p>
         <p class="ml-3 text-caption" style="color: #999">{{ message.type }}</p>
+        <v-btn class="ml-3" v-if="message.role==='system' && message.type==='additional_instructions'"
+               size="small" variant="text" @click="showSystemPrompt=!showSystemPrompt">
+          {{ showSystemPrompt ? 'Hide' : 'Show' }}
+        </v-btn>
       </div>
-      <div v-html="renderMessage(message)" class="my-1"></div>
+      <div v-if="showSystemPrompt || !(message.role==='system' && message.type==='additional_instructions')"
+           v-html="renderMessage(message)" class="my-1"></div>
+      <div v-else class="text-caption">...(omitted)</div>
       <v-divider class="my-3" v-if="index!==chatMessages.length-1"></v-divider>
     </div>
   </div>
