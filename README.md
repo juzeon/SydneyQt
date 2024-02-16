@@ -44,7 +44,7 @@ Platform information:
 ## Usage
 
 1. Put your `cookies.json` in the same folder as the executable file:
-   - Install the Cookie-Editor extension for [Chrome](https://chrome.google.com/webstore/detail/cookie-editor/hlkenndednhfkekhgcdicdfddnkalmdm) or [Firefox](https://addons.mozilla.org/en-US/firefox/addon/cookie-editor/)
+   - Install the Cookie-Editor extension for [Chrome](https://chrome.google.com/webstore/detail/cookie-editor/hlkenndednhfkekhgcdicdfddnkalmdm) or [Firefox](https://addons.mozilla.org/en-US/firefox/addon/cookie-editor/) (Recommend Chrome rather than Firefox since we use Chrome's network stack to bypass Bing's firewall and CAPTCHA)
    - Go to `bing.com`
    - Open the extension
    - Grant permission for All sites
