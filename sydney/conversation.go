@@ -16,7 +16,8 @@ func (o *Sydney) createConversation() (CreateConversationResponse, error) {
 	if err != nil {
 		return empty, err
 	}
-	resp, err := client.R().SetHeader("Cookie", util.FormatCookieString(o.cookies)).Get(o.createConversationURL)
+	resp, err := client.R().SetHeader("Accept", "application/json").
+		SetHeader("Cookie", util.FormatCookieString(o.cookies)).Get(o.createConversationURL)
 	if err != nil {
 		return empty, err
 	}
