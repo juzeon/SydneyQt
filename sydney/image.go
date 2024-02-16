@@ -17,7 +17,8 @@ func (o *Sydney) GenerateImage(generativeImage GenerativeImage) (GenerateImageRe
 	if err != nil {
 		return empty, err
 	}
-	client.SetCommonHeader("Cookie", util.FormatCookieString(o.cookies))
+	client.SetCommonHeader("Referer", "https://www.bing.com/search?q=Bing+AI&showconv=1&wlexpsignin=1").
+		SetCommonHeader("Cookie", util.FormatCookieString(o.cookies))
 	resp, err := client.R().Get(generativeImage.URL)
 	if err != nil {
 		return empty, err

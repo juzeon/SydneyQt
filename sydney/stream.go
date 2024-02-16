@@ -169,7 +169,7 @@ func (o *Sydney) AskStream(options AskStreamOptions) (<-chan Message, error) {
 					generativeImage := GenerativeImage{
 						Text: messageText,
 						URL: "https://www.bing.com/images/create?" +
-							"partner=sydney&re=1&showselective=1&sude=1&kseed=8500&SFX=4" +
+							"partner=sydney&re=1&showselective=1&sude=1&kseed=7500&SFX=2&gptexp=unknown" +
 							"&q=" + url.QueryEscape(messageText) + "&iframeid=" +
 							message.Get("messageId").String(),
 					}
