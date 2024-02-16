@@ -55,7 +55,6 @@ func NewSydney(options Options) *Sydney {
 		"fdwtlst",
 		"fluxprod",
 		"eredirecturl",
-		"deuct3",
 		// may related to image search
 		"gptvnodesc",
 		"gptvnoex",
