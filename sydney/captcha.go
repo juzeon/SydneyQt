@@ -126,10 +126,7 @@ func (o *Sydney) BypassCaptcha(stopCtx context.Context, conversationID string, m
 	}
 	return nil
 }
-func (o *Sydney) postprocessCaptchaCookies(modifiedCookies map[string]string) error {
-	if _, ok := modifiedCookies["cct"]; !ok {
-		return errors.New("captcha cookies not valid: no cookie named cct found")
-	}
+func (o *Sydney) UpdateModifiedCookies(modifiedCookies map[string]string) {
 	for k, v := range modifiedCookies { // keep the map pointer
 		o.cookies[k] = v
 	}
@@ -137,5 +134,11 @@ func (o *Sydney) postprocessCaptchaCookies(modifiedCookies map[string]string) er
 	if err != nil {
 		slog.Warn("Cannot update cookies file: ", "err", err)
 	}
+}
+func (o *Sydney) postprocessCaptchaCookies(modifiedCookies map[string]string) error {
+	if _, ok := modifiedCookies["cct"]; !ok {
+		return errors.New("captcha cookies not valid: no cookie named cct found")
+	}
+	o.UpdateModifiedCookies(modifiedCookies)
 	return nil
 }

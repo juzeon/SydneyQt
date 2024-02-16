@@ -7,6 +7,7 @@ import (
 	"log/slog"
 	"net/http"
 	"strconv"
+	"strings"
 	"sydneyqt/util"
 	"time"
 )
@@ -49,6 +50,13 @@ func (o *Sydney) createConversation() (CreateConversationResponse, error) {
 	if value := resp.Header.Get("X-Sydney-Encryptedconversationsignature"); value != "" {
 		response.SecAccessToken = value
 	}
+	var cookieFields []string
+	for _, field := range resp.Header.Values("set-cookie") {
+		cookieFields = append(cookieFields, strings.Split(field, ";")[0])
+	}
+	newCookies := util.ParseCookiesFromString(strings.Join(cookieFields, "; "))
+	slog.Info("Cookies to update when creating conversation", "diff", newCookies)
+	o.UpdateModifiedCookies(newCookies)
 	slog.Debug("Create conversation", "response", response)
 	slog.Info("Created Conversation")
 	return response, nil

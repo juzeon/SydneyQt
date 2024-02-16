@@ -92,22 +92,19 @@ func MakeHTTPClient(proxy string, timeout time.Duration) (*http.Client, error) {
 func FormatCookieString(cookies map[string]string) string {
 	str := ""
 	for k, v := range cookies {
-		str += k + "=" + url.PathEscape(v) + "; "
+		str += k + "=" + v + "; "
 	}
 	return str
 }
 func ParseCookiesFromString(cookiesStr string) map[string]string {
 	cookies := map[string]string{}
 	for _, cookie := range strings.Split(cookiesStr, ";") {
+		cookie = strings.TrimSpace(cookie)
 		parts := strings.Split(cookie, "=")
-		if len(parts) != 2 {
+		if len(parts) < 2 {
 			continue
 		}
-		unescape, err := url.PathUnescape(strings.TrimSpace(parts[1]))
-		if err != nil {
-			unescape = parts[1]
-		}
-		cookies[strings.TrimSpace(parts[0])] = unescape
+		cookies[parts[0]] = strings.Join(parts[1:], "=")
 	}
 	return cookies
 }
