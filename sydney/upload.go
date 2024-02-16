@@ -1,13 +1,10 @@
 package sydney
 
 import (
-	"bytes"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
-	"github.com/imroc/req/v3"
-	"io"
-	"strings"
+	"fmt"
 	"sydneyqt/util"
 	"time"
 )
@@ -35,25 +32,19 @@ func (o *Sydney) UploadImage(jpgImgData []byte) (string, error) {
 	}
 	payload, err := json.Marshal(uploadImagePayload)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("cannot marshal uploadImagePayload: %w", err)
 	}
-	resp, err := client.R().SetFileUpload(req.FileUpload{
-		ParamName: "knowledgeRequest",
-		GetFileContent: func() (io.ReadCloser, error) {
-			return io.NopCloser(bytes.NewReader(payload)), nil
-		},
-		ContentType: "application/json",
-	}, req.FileUpload{
-		ParamName: "imageBase64",
-		GetFileContent: func() (io.ReadCloser, error) {
-			return io.NopCloser(strings.NewReader(imageBase64)), nil
-		},
-		ContentType: "application/octet-stream",
+	resp, err := client.R().EnableForceMultipart().SetFormData(map[string]string{
+		"knowledgeRequest": string(payload),
+		"imageBase64":      imageBase64,
 	}).Post("https://www.bing.com/images/kblob")
+	if err != nil {
+		return "", fmt.Errorf("cannot fire upload request: %w", err)
+	}
 	var result UploadImageResponse
 	err = json.Unmarshal(resp.Bytes(), &result)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("cannot unmarshal upload response: %w", err)
 	}
 	if result.BlobId == "" {
 		return "", errors.New("blobId is empty")
