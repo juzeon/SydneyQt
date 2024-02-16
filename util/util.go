@@ -3,7 +3,6 @@ package util
 import (
 	"bytes"
 	"context"
-	"crypto/tls"
 	"encoding/hex"
 	"encoding/json"
 	"errors"
@@ -30,7 +29,6 @@ import (
 
 	"github.com/ncruces/zenity"
 	getproxy "github.com/rapid7/go-get-proxied/proxy"
-	tlsx "github.com/refraction-networking/utls"
 )
 
 func RandIntInclusive(min int, max int) int {
@@ -45,18 +43,6 @@ func Ternary[T any](expression bool, trueResult T, falseResult T) T {
 }
 func MakeHTTPClient(proxy string, timeout time.Duration) (*http.Client, *req.Client, error) {
 	transport := http.DefaultTransport.(*http.Transport).Clone()
-	c, err := tlsx.UTLSIdToSpec(tlsx.HelloChrome_102)
-	if err != nil {
-		return nil, nil, err
-	}
-	transport.DisableKeepAlives = false
-	transport.TLSClientConfig = &tls.Config{
-		InsecureSkipVerify: true,
-		MinVersion:         c.TLSVersMin,
-		MaxVersion:         c.TLSVersMax,
-		CipherSuites:       c.CipherSuites,
-		ClientSessionCache: tls.NewLRUClientSessionCache(32),
-	}
 	reqClient := req.C().SetProxyURL(proxy).ImpersonateChrome()
 	if proxy != "" { // user filled proxy
 		proxyURL, err := url.Parse(proxy)

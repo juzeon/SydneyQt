@@ -22,7 +22,6 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/pkoukk/tiktoken-go v0.1.6
 	github.com/rapid7/go-get-proxied v0.0.0-20231004143307-7280e84105fa
-	github.com/refraction-networking/utls v1.6.2
 	github.com/samber/lo v1.39.0
 	github.com/sashabaranov/go-openai v1.19.3
 	github.com/stretchr/testify v1.8.4
@@ -67,6 +66,7 @@ require (
 	github.com/quic-go/qpack v0.4.0 // indirect
 	github.com/quic-go/quic-go v0.41.0 // indirect
 	github.com/randall77/makefat v0.0.0-20210315173500-7ddd0e42c844 // indirect
+	github.com/refraction-networking/utls v1.6.2 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/rogpeppe/go-internal v1.11.0 // indirect
 	github.com/tetratelabs/wazero v1.6.0 // indirect
