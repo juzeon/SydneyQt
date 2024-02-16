@@ -5,21 +5,19 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"errors"
-	"github.com/go-resty/resty/v2"
+	"github.com/imroc/req/v3"
+	"io"
 	"strings"
 	"sydneyqt/util"
 	"time"
 )
 
 func (o *Sydney) UploadImage(jpgImgData []byte) (string, error) {
-	httpClient, err := util.MakeHTTPClient(o.proxy, 0)
+	_, client, err := util.MakeHTTPClient(o.proxy, 60*time.Second)
 	if err != nil {
 		return "", err
 	}
-	client := resty.New().
-		SetTransport(httpClient.Transport).
-		SetTimeout(60*time.Second).
-		SetHeader("Referer", "https://www.bing.com/search?q=Bing+AI&showconv=1&FORM=hpcodx")
+	client.SetCommonHeader("Referer", "https://www.bing.com/search?q=Bing+AI&showconv=1&FORM=hpcodx")
 	imageBase64 := base64.StdEncoding.EncodeToString(jpgImgData)
 	uploadImagePayload := UploadImagePayload{
 		ImageInfo: map[string]any{},
@@ -39,17 +37,21 @@ func (o *Sydney) UploadImage(jpgImgData []byte) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	resp, err := client.R().SetMultipartFields(&resty.MultipartField{
-		Param:       "knowledgeRequest",
+	resp, err := client.R().SetFileUpload(req.FileUpload{
+		ParamName: "knowledgeRequest",
+		GetFileContent: func() (io.ReadCloser, error) {
+			return io.NopCloser(bytes.NewReader(payload)), nil
+		},
 		ContentType: "application/json",
-		Reader:      bytes.NewReader(payload),
-	}, &resty.MultipartField{
-		Param:       "imageBase64",
+	}, req.FileUpload{
+		ParamName: "imageBase64",
+		GetFileContent: func() (io.ReadCloser, error) {
+			return io.NopCloser(strings.NewReader(imageBase64)), nil
+		},
 		ContentType: "application/octet-stream",
-		Reader:      strings.NewReader(imageBase64),
 	}).Post("https://www.bing.com/images/kblob")
 	var result UploadImageResponse
-	err = json.Unmarshal(resp.Body(), &result)
+	err = json.Unmarshal(resp.Bytes(), &result)
 	if err != nil {
 		return "", err
 	}

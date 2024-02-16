@@ -56,7 +56,7 @@ func GetChatMessage(chatContext string) []ChatMessage {
 	return result
 }
 func CreateOpenAIClient(proxy string, key string, endpoint string) (*openai.Client, error) {
-	hClient, err := MakeHTTPClient(proxy, 0)
+	hClient, _, err := MakeHTTPClient(proxy, 0)
 	if err != nil {
 		return nil, err
 	}

@@ -2,7 +2,6 @@ package sydney
 
 import (
 	"errors"
-	"github.com/go-resty/resty/v2"
 	"log/slog"
 	"net/url"
 	"regexp"
@@ -14,18 +13,16 @@ import (
 func (o *Sydney) GenerateImage(generativeImage GenerativeImage) (GenerateImageResult, error) {
 	start := time.Now()
 	var empty GenerateImageResult
-	hClient, err := util.MakeHTTPClient(o.proxy, 0)
+	_, client, err := util.MakeHTTPClient(o.proxy, 15*time.Second)
 	if err != nil {
 		return empty, err
 	}
-	client := resty.New().SetTransport(hClient.Transport).
-		SetHeaders(o.headersCreateImage()).
-		SetTimeout(15 * time.Second)
+	client.SetCommonHeader("Cookie", util.FormatCookieString(o.cookies))
 	resp, err := client.R().Get(generativeImage.URL)
-	if err != nil && !errors.Is(err, resty.ErrAutoRedirectDisabled) {
+	if err != nil {
 		return empty, err
 	}
-	arr := regexp.MustCompile("/images/create/async/results/(.*?)\\?").FindStringSubmatch(string(resp.Body()))
+	arr := regexp.MustCompile("/images/create/async/results/(.*?)\\?").FindStringSubmatch(resp.String())
 	if len(arr) < 2 {
 		return empty, errors.New("cannot find image creation result")
 	}
@@ -40,7 +37,7 @@ func (o *Sydney) GenerateImage(generativeImage GenerativeImage) (GenerateImageRe
 		if err != nil {
 			return empty, err
 		}
-		bodyStr := string(resp.Body())
+		bodyStr := resp.String()
 		if strings.Contains(bodyStr, "Please try again or come back later") {
 			return empty, errors.New("the prompt for image creation has been rejected by Bing")
 		}

@@ -9,7 +9,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/PuerkitoBio/goquery"
-	"github.com/go-resty/resty/v2"
 	goversion "github.com/hashicorp/go-version"
 	"github.com/life4/genesis/slices"
 	"github.com/microcosm-cc/bluemonday"
@@ -201,16 +200,15 @@ type FetchWebpageResult struct {
 
 func (a *App) FetchWebpage(url string) (FetchWebpageResult, error) {
 	empty := FetchWebpageResult{}
-	rawClient, err := util.MakeHTTPClient(a.settings.config.Proxy, 0)
+	_, client, err := util.MakeHTTPClient(a.settings.config.Proxy, 15*time.Second)
 	if err != nil {
 		return empty, err
 	}
-	client := resty.New().SetTransport(rawClient.Transport).SetTimeout(15 * time.Second)
 	resp, err := client.R().Get(url)
 	if err != nil {
 		return empty, err
 	}
-	content := string(resp.Body())
+	content := resp.String()
 	title := ""
 	if doc, err := goquery.NewDocumentFromReader(strings.NewReader(content)); err == nil {
 		title = doc.Find("title").Text()
@@ -247,17 +245,16 @@ type CheckUpdateResult struct {
 
 func (a *App) CheckUpdate() (CheckUpdateResult, error) {
 	empty := CheckUpdateResult{}
-	hClient, err := util.MakeHTTPClient(a.settings.config.Proxy, 0)
+	_, client, err := util.MakeHTTPClient(a.settings.config.Proxy, 15*time.Second)
 	if err != nil {
 		return empty, err
 	}
-	client := resty.New().SetTimeout(15 * time.Second).SetTransport(hClient.Transport)
 	resp, err := client.R().Get("https://api.github.com/repos/juzeon/SydneyQt/releases")
 	if err != nil {
 		return empty, err
 	}
 	var githubRelease []GithubReleaseResponse
-	err = json.Unmarshal(resp.Body(), &githubRelease)
+	err = json.Unmarshal(resp.Bytes(), &githubRelease)
 	if err != nil {
 		return empty, err
 	}
@@ -314,11 +311,10 @@ func (a *App) SaveRemoteJPEGImage(url string) error {
 	if filePath == "" { // cancelled
 		return nil
 	}
-	hClient, err := util.MakeHTTPClient(a.settings.config.Proxy, 0)
+	_, client, err := util.MakeHTTPClient(a.settings.config.Proxy, 30*time.Second)
 	if err != nil {
 		return err
 	}
-	client := resty.New().SetTimeout(30 * time.Second).SetTransport(hClient.Transport)
 	resp, err := client.R().Get(url)
 	if err != nil {
 		return err
@@ -326,7 +322,7 @@ func (a *App) SaveRemoteJPEGImage(url string) error {
 	if !strings.HasSuffix(filePath, ".jpg") && !strings.HasSuffix(filePath, ".jpeg") {
 		filePath += ".jpg"
 	}
-	return os.WriteFile(filePath, resp.Body(), 0644)
+	return os.WriteFile(filePath, resp.Bytes(), 0644)
 }
 func (a *App) ExportWorkspace(id int) error {
 	workspace, ok := lo.Find(a.settings.config.Workspaces, func(item Workspace) bool {
@@ -385,11 +381,10 @@ func (a *App) ShareWorkspace(id int) error {
 	if !ok {
 		return errors.New("workspace not exist by id: " + strconv.Itoa(id))
 	}
-	hClient, err := util.MakeHTTPClient(a.settings.config.Proxy, 0)
+	_, client, err := util.MakeHTTPClient(a.settings.config.Proxy, 5*time.Second)
 	if err != nil {
 		return err
 	}
-	client := resty.New().SetTimeout(5 * time.Second).SetTransport(hClient.Transport)
 	resp, err := client.R().SetBody(ShareGPTRequest{
 		Title: workspace.Title,
 		Items: lo.Map(util.GetChatMessage(workspace.Context), func(item util.ChatMessage, index int) ShareGPTItem {
@@ -406,11 +401,11 @@ func (a *App) ShareWorkspace(id int) error {
 	if err != nil {
 		return err
 	}
-	if resp.IsError() {
-		return errors.New("error status code: " + resp.Status())
+	if resp.IsErrorState() {
+		return errors.New("error status code: " + resp.GetStatus())
 	}
 	var response ShareGPTResponse
-	err = json.Unmarshal(resp.Body(), &response)
+	err = json.Unmarshal(resp.Bytes(), &response)
 	if err != nil {
 		return err
 	}

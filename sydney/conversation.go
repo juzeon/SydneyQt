@@ -3,9 +3,7 @@ package sydney
 import (
 	"encoding/json"
 	"errors"
-	"io"
 	"log/slog"
-	"net/http"
 	"strconv"
 	"strings"
 	"sydneyqt/util"
@@ -13,39 +11,28 @@ import (
 )
 
 func (o *Sydney) createConversation() (CreateConversationResponse, error) {
-	client, err := util.MakeHTTPClient(o.proxy, 10*time.Second)
-	emptyResponse := CreateConversationResponse{}
+	var empty CreateConversationResponse
+	_, client, err := util.MakeHTTPClient(o.proxy, 10*time.Second)
 	if err != nil {
-		return emptyResponse, err
+		return empty, err
 	}
-	req, err := http.NewRequest("GET", o.createConversationURL, nil)
+	resp, err := client.R().SetHeader("Cookie", util.FormatCookieString(o.cookies)).Get(o.createConversationURL)
 	if err != nil {
-		return emptyResponse, err
+		return empty, err
 	}
-	for k, v := range o.headersCreateConversation() {
-		req.Header.Set(k, v)
-	}
-	resp, err := client.Do(req)
-	if err != nil {
-		return emptyResponse, err
-	}
-	defer resp.Body.Close()
-	bodyV, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return emptyResponse, err
-	}
-	if resp.StatusCode != 200 {
+	bodyV := resp.Bytes()
+	if resp.GetStatusCode() != 200 {
 		slog.Error("Failed body", "v", string(bodyV))
-		return emptyResponse, errors.New("failed to create the conversation, code: " +
+		return empty, errors.New("failed to create the conversation, code: " +
 			strconv.Itoa(resp.StatusCode) + "; please check your proxy settings and your account")
 	}
 	var response CreateConversationResponse
 	err = json.Unmarshal(bodyV, &response)
 	if err != nil {
-		return emptyResponse, err
+		return empty, err
 	}
 	if response.Result.Value != "Success" {
-		return emptyResponse, errors.New("failed to create the conversation: message: " + response.Result.Message)
+		return empty, errors.New("failed to create the conversation: message: " + response.Result.Message)
 	}
 	if value := resp.Header.Get("X-Sydney-Encryptedconversationsignature"); value != "" {
 		response.SecAccessToken = value

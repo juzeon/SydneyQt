@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/imroc/req/v3"
 	"image"
 	_ "image/gif"
 	"image/jpeg"
@@ -42,11 +43,11 @@ func Ternary[T any](expression bool, trueResult T, falseResult T) T {
 		return falseResult
 	}
 }
-func MakeHTTPClient(proxy string, timeout time.Duration) (*http.Client, error) {
+func MakeHTTPClient(proxy string, timeout time.Duration) (*http.Client, *req.Client, error) {
 	transport := http.DefaultTransport.(*http.Transport).Clone()
 	c, err := tlsx.UTLSIdToSpec(tlsx.HelloChrome_102)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	transport.DisableKeepAlives = false
 	transport.TLSClientConfig = &tls.Config{
@@ -56,12 +57,14 @@ func MakeHTTPClient(proxy string, timeout time.Duration) (*http.Client, error) {
 		CipherSuites:       c.CipherSuites,
 		ClientSessionCache: tls.NewLRUClientSessionCache(32),
 	}
+	reqClient := req.C().SetProxyURL(proxy).ImpersonateChrome()
 	if proxy != "" { // user filled proxy
 		proxyURL, err := url.Parse(proxy)
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
 		transport.Proxy = http.ProxyURL(proxyURL)
+		reqClient.SetProxyURL(proxy)
 	} else { // try to get system proxy
 		log.SetOutput(io.Discard) // FIXME this is a dirty fix that may result in concurrency problems
 		proxies := []getproxy.Proxy{
@@ -80,14 +83,16 @@ func MakeHTTPClient(proxy string, timeout time.Duration) (*http.Client, error) {
 		}
 		if sysProxy != nil { // valid system proxy
 			transport.Proxy = http.ProxyURL(sysProxy.URL())
+			reqClient.SetProxyURL(sysProxy.URL().String())
 		}
 	}
 	client := &http.Client{}
 	client.Transport = transport
 	if timeout != time.Duration(0) {
 		client.Timeout = timeout
+		reqClient.SetTimeout(timeout)
 	}
-	return client, nil
+	return client, reqClient, nil
 }
 func FormatCookieString(cookies map[string]string) string {
 	str := ""

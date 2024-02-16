@@ -300,7 +300,7 @@ func (o *Sydney) AskStreamRaw(options AskStreamOptions) (CreateConversationRespo
 			slog.Info("AskStreamRaw is closing raw message channel")
 			close(msgChan)
 		}(msgChan)
-		client, err := util.MakeHTTPClient(o.proxy, 0)
+		client, _, err := util.MakeHTTPClient(o.proxy, 0)
 		if err != nil {
 			msgChan <- RawMessage{
 				Error: err,

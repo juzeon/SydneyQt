@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/go-resty/resty/v2"
 	"github.com/go-rod/rod"
 	"github.com/go-rod/rod/lib/launcher"
 	"github.com/go-rod/rod/lib/proto"
@@ -92,11 +91,10 @@ func (o *Sydney) BypassCaptcha(stopCtx context.Context, conversationID string, m
 	if o.bypassServer == "" {
 		return errors.New("no bypass server specified")
 	}
-	hClient, err := util.MakeHTTPClient(o.proxy, 0)
+	_, client, err := util.MakeHTTPClient(o.proxy, 60*time.Second)
 	if err != nil {
 		return err
 	}
-	client := resty.New().SetTransport(hClient.Transport).SetTimeout(60 * time.Second)
 	req := BypassCaptchaRequest{
 		IG:       hex.NewUpperHex(32),
 		Cookies:  util.FormatCookieString(o.cookies),
@@ -109,9 +107,9 @@ func (o *Sydney) BypassCaptcha(stopCtx context.Context, conversationID string, m
 	if err != nil {
 		return fmt.Errorf("cannot communicate with captcha bypass server: %w", err)
 	}
-	slog.Debug("Bypass captcha response body", "v", string(resp.Body()))
+	slog.Debug("Bypass captcha response body", "v", resp.String())
 	var response BypassCaptchaResponse
-	err = json.Unmarshal(resp.Body(), &response)
+	err = json.Unmarshal(resp.Bytes(), &response)
 	if err != nil {
 		return fmt.Errorf("cannot unmarshal json from captcha bypass server: %w", err)
 	}
