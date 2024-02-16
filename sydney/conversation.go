@@ -43,8 +43,8 @@ func (o *Sydney) createConversation() (CreateConversationResponse, error) {
 	if err != nil {
 		return emptyResponse, err
 	}
-	if response.Result.Value == "UnauthorizedRequest" {
-		return emptyResponse, errors.New(response.Result.Message)
+	if response.Result.Value != "Success" {
+		return emptyResponse, errors.New("failed to create the conversation: message: " + response.Result.Message)
 	}
 	if value := resp.Header.Get("X-Sydney-Encryptedconversationsignature"); value != "" {
 		response.SecAccessToken = value
