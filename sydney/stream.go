@@ -406,7 +406,7 @@ func (o *Sydney) AskStreamRaw(options AskStreamOptions) (CreateConversationRespo
 							MessageType: "Context",
 						},
 					},
-					GptId: "copilot",
+					GptId: o.gptID,
 				},
 			},
 			InvocationId: "0",

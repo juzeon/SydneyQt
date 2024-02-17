@@ -27,7 +27,7 @@ import ConciseAnswerReq = main.ConciseAnswerReq
 
 let theme = useTheme()
 let navDrawer = ref(true)
-let modeList = ['Creative', 'Balanced', 'Precise']
+let modeList = ['Creative', 'Balanced', 'Precise', 'Designer']
 let backendList = computed(() => {
   return ['Sydney', ...config.value.open_ai_backends.map(v => v.name)]
 })

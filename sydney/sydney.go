@@ -25,6 +25,7 @@ type Sydney struct {
 	allowedMessageTypes []string
 	headers             func() map[string]string
 	cookies             map[string]string
+	gptID               string
 }
 
 func NewSydney(options Options) *Sydney {
@@ -61,16 +62,21 @@ func NewSydney(options Options) *Sydney {
 	cookies := util.Ternary(options.Cookies == nil, map[string]string{}, options.Cookies)
 	options.ConversationStyle = lo.Ternary(options.ConversationStyle == "",
 		"Creative", options.ConversationStyle)
-	if options.ConversationStyle == "Creative" && options.UseClassic {
-		options.ConversationStyle = "CreativeClassic"
-	}
+	gptID := "copilot"
 	switch options.ConversationStyle {
 	case "Balanced":
 		optionsSet = append(optionsSet, "galileo", "gldcl1p")
 	case "Precise":
 		optionsSet = append(optionsSet, "h3precise")
-	case "Creative", "CreativeClassic":
+	case "Creative":
 		optionsSet = append(optionsSet)
+		if options.UseClassic {
+			options.ConversationStyle = "CreativeClassic"
+		}
+	case "Designer":
+		optionsSet = append(optionsSet, "ai_persona_designer_gpt")
+		options.ConversationStyle = "Creative"
+		gptID = "designer"
 	}
 	if options.NoSearch {
 		optionsSet = append(optionsSet, "nosearchall")
@@ -164,5 +170,6 @@ func NewSydney(options Options) *Sydney {
 			}
 		},
 		cookies: cookies,
+		gptID:   gptID,
 	}
 }
