@@ -77,6 +77,10 @@ func NewSydney(options Options) *Sydney {
 		optionsSet = append(optionsSet, "ai_persona_designer_gpt")
 		options.ConversationStyle = "Creative"
 		gptID = "designer"
+	default:
+		slog.Warn("Conversation style not found", "param", options.ConversationStyle,
+			"fallback-to", "Creative")
+		options.ConversationStyle = "Creative"
 	}
 	if options.NoSearch {
 		optionsSet = append(optionsSet, "nosearchall")
