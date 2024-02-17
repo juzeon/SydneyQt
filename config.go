@@ -189,10 +189,12 @@ WriterFor:
 			if err != nil {
 				util.GracefulPanic(err)
 			}
+			_ = os.Rename("config.json", "config.json.old")
 			err = os.WriteFile("config.json", v, 0644)
 			if err != nil {
 				util.GracefulPanic(err)
 			}
+			_ = os.Remove("config.json.old")
 			localVersion = o.version
 		}
 		o.mu.RUnlock()

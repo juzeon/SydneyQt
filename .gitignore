@@ -10,3 +10,4 @@ debug.bat
 config.lock
 debug_options_sets.json
 dump.txt
+config.json.old
