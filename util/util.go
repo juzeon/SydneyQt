@@ -264,13 +264,13 @@ var initWithPath = sync.OnceFunc(func() {
 	if runtime.GOOS == "darwin" {
 		dir, err := os.UserConfigDir()
 		if err != nil {
-			slog.Error("Cannot get user config dir")
+			slog.Error("Cannot get user config dir", "err", err)
 			return
 		}
 		full := filepath.Join(dir, "SydneyQt")
 		err = os.MkdirAll(full, 0750)
 		if err != nil {
-			slog.Error("Cannot get user config dir")
+			slog.Error("Cannot mkdir config", "err", err)
 			return
 		}
 		withPathBaseDir = full
