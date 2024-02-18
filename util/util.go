@@ -21,8 +21,10 @@ import (
 	"net/url"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"runtime"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/samber/lo"
@@ -128,7 +130,7 @@ type FileCookie struct {
 }
 
 func ReadCookiesFileRaw() ([]FileCookie, error) {
-	v, err := os.ReadFile("cookies.json")
+	v, err := os.ReadFile(WithPath("cookies.json"))
 	if err != nil {
 		return nil, nil
 	}
@@ -162,7 +164,7 @@ func UpdateCookiesFile(cookies map[string]string) error {
 	if err != nil {
 		return err
 	}
-	err = os.WriteFile("cookies.json", v, 0644)
+	err = os.WriteFile(WithPath("cookies.json"), v, 0644)
 	if err != nil {
 		return err
 	}
@@ -256,4 +258,31 @@ func ReadDebugOptionSets() (debugOptionsSets []string) {
 		slog.Warn("Enable debug options sets", "v", debugOptionsSets)
 	}
 	return
+}
+
+var initWithPath = sync.OnceFunc(func() {
+	if runtime.GOOS == "darwin" {
+		dir, err := os.UserConfigDir()
+		if err != nil {
+			slog.Error("Cannot get user config dir")
+			return
+		}
+		full := filepath.Join(dir, "SydneyQt")
+		err = os.MkdirAll(full, 0750)
+		if err != nil {
+			slog.Error("Cannot get user config dir")
+			return
+		}
+		withPathBaseDir = full
+	}
+	slog.Info("Init withPathBaseDir", "v", withPathBaseDir)
+})
+var withPathBaseDir string
+
+func WithPath(filename string) string {
+	initWithPath()
+	if withPathBaseDir == "" {
+		return filename
+	}
+	return filepath.Join(withPathBaseDir, filename)
 }

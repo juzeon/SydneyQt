@@ -42,7 +42,7 @@ func (o *IPCServer) registerRouters(mux *chi.Mux) {
 			return
 		}
 		v, _ := json.MarshalIndent(&cookies, "", "  ")
-		err = os.WriteFile("cookies.json", v, 0644)
+		err = os.WriteFile(util.WithPath("cookies.json"), v, 0644)
 		if err != nil {
 			writer.WriteHeader(500)
 			slog.Error("Could write cookies.json", "err", err)

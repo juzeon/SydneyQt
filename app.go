@@ -51,7 +51,7 @@ func (a *App) startup(ctx context.Context) {
 	a.logFile = os.Stderr
 	a.logToStd = true
 	if env.BuildType == "production" {
-		f, err := os.OpenFile("log_"+time.Now().Format("2006-01")+".log",
+		f, err := os.OpenFile(util.WithPath("log_"+time.Now().Format("2006-01")+".log"),
 			os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0644)
 		if err != nil {
 			util.GracefulPanic(err)

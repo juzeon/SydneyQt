@@ -141,7 +141,7 @@ type Settings struct {
 func NewSettings() *Settings {
 	var config Config
 	fileExist := true
-	if _, err := os.Stat("config.json"); err != nil {
+	if _, err := os.Stat(util.WithPath("config.json")); err != nil {
 		if errors.Is(err, os.ErrNotExist) {
 			fileExist = false
 		} else {
@@ -149,7 +149,7 @@ func NewSettings() *Settings {
 		}
 	}
 	if fileExist {
-		v, err := os.ReadFile("config.json")
+		v, err := os.ReadFile(util.WithPath("config.json"))
 		if err != nil {
 			util.GracefulPanic(err)
 		}
@@ -189,12 +189,12 @@ WriterFor:
 			if err != nil {
 				util.GracefulPanic(err)
 			}
-			_ = os.Rename("config.json", "config.json.old")
-			err = os.WriteFile("config.json", v, 0644)
+			_ = os.Rename(util.WithPath("config.json"), util.WithPath("config.json.old"))
+			err = os.WriteFile(util.WithPath("config.json"), v, 0644)
 			if err != nil {
 				util.GracefulPanic(err)
 			}
-			_ = os.Remove("config.json.old")
+			_ = os.Remove(util.WithPath("config.json.old"))
 			localVersion = o.version
 		}
 		o.mu.RUnlock()
@@ -212,7 +212,7 @@ func (o *Settings) mutexWriter() {
 		if err != nil {
 			util.GracefulPanic(err)
 		}
-		err = os.WriteFile("config.lock", v, 0644)
+		err = os.WriteFile(util.WithPath("config.lock"), v, 0644)
 		if err != nil {
 			util.GracefulPanic(err)
 		}
@@ -220,7 +220,7 @@ func (o *Settings) mutexWriter() {
 	}
 }
 func (o *Settings) checkMutex() {
-	v, err := os.ReadFile("config.lock")
+	v, err := os.ReadFile(util.WithPath("config.lock"))
 	if err != nil && errors.Is(err, os.ErrNotExist) {
 		return
 	}
