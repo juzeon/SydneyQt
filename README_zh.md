@@ -41,7 +41,7 @@
 
 ## 使用
 
-1. 把你的`cookies.json`放在可执行文件的同一个文件夹中：
+1. 把你的`cookies.json`放在可执行文件的同一个文件夹中（对于macOS：`$HOME/Library/Application Support/SydneyQt`）：
    - 为[Chrome](https://chrome.google.com/webstore/detail/cookie-editor/hlkenndednhfkekhgcdicdfddnkalmdm)或[Firefox](https://addons.mozilla.org/en-US/firefox/addon/cookie-editor/)安装Cookie-Editor扩展（建议使用Chrome而不是Firefox，因为我们使用Chrome的网络栈来绕过Bing的防火墙和验证码）
    - 访问`bing.com`
    - 打开扩展
