@@ -243,7 +243,7 @@ func OpenURL(url string) error {
 	return exec.Command(cmd, args...).Start()
 }
 func ReadDebugOptionSets() (debugOptionsSets []string) {
-	debugOptionsSetsFile, err := os.ReadFile("debug_options_sets.json")
+	debugOptionsSetsFile, err := os.ReadFile(WithPath("debug_options_sets.json"))
 	if err != nil {
 		return
 	}
