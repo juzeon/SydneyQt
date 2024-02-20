@@ -372,7 +372,7 @@ function generateTitle() {
     }
   }
   GetConciseAnswer(req).then(title => {
-    workspace.title = title
+    workspace.title = title.replace(/^#/, '').trim()
   }).catch(err => {
     console.log(err)
   })
