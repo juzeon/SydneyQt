@@ -80,6 +80,7 @@ func (a *App) createSydney() (*sydney.Sydney, error) {
 		CreateConversationURL: a.settings.config.CreateConversationURL,
 		NoSearch:              currentWorkspace.NoSearch,
 		UseClassic:            currentWorkspace.UseClassic,
+		GPT4Turbo:             currentWorkspace.GPT4Turbo,
 		BypassServer:          a.settings.config.BypassServer,
 	}), nil
 }

@@ -11,3 +11,4 @@ config.lock
 debug_options_sets.json
 dump.txt
 config.json.old
+_debug_options_sets.json

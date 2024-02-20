@@ -195,6 +195,7 @@ func main() {
 			Locale:            request.Locale,
 			NoSearch:          request.NoSearch,
 			UseClassic:        !request.UseGPT4Turbo,
+			GPT4Turbo:         request.UseGPT4Turbo,
 		})
 
 		// stream chat
@@ -253,6 +254,7 @@ func main() {
 			Locale:            "en-US",
 			NoSearch:          request.ToolChoice == nil,
 			UseClassic:        false,
+			GPT4Turbo:         true,
 		})
 
 		messageCh, err := sydneyAPI.AskStream(sydney.AskStreamOptions{

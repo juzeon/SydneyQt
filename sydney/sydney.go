@@ -85,6 +85,9 @@ func NewSydney(options Options) *Sydney {
 	if options.NoSearch {
 		optionsSet = append(optionsSet, "nosearchall")
 	}
+	if options.GPT4Turbo && !options.UseClassic {
+		optionsSet = append(optionsSet, "gpt4tmncnp")
+	}
 	if debugOptionSets := util.ReadDebugOptionSets(); len(debugOptionSets) != 0 {
 		optionsSet = debugOptionSets
 	}

@@ -119,6 +119,7 @@ type Options struct {
 	CreateConversationURL string
 	NoSearch              bool
 	UseClassic            bool
+	GPT4Turbo             bool
 	BypassServer          string
 }
 type AskStreamOptions struct {

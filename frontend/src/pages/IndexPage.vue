@@ -46,6 +46,7 @@ let currentWorkspace = ref(<Workspace>{
   image_packs: <GenerateImageResult[]>[],
   created_at: dayjs().format(),
   use_classic: false,
+  gpt_4_turbo: false,
   persistent_input: false,
 })
 
@@ -412,6 +413,17 @@ function generateTitle() {
                       label="Preset"
                       density="compact"
                       class="mx-2"></v-select>
+            <v-tooltip
+                text="Enable the latest gpt-4-turbo model will increase the speed of response,
+                        reduce repeatability, but be harder to jailbreak."
+                location="bottom">
+              <template #activator="{props}">
+                <v-switch v-bind="props" v-model="currentWorkspace.gpt_4_turbo" label="GPT-4-Turbo"
+                          density="compact"
+                          :disabled="currentWorkspace.backend!=='Sydney'" class="mx-2"
+                          color="primary"></v-switch>
+              </template>
+            </v-tooltip>
             <v-tooltip :text="additionalOptionPreview" location="bottom">
               <template #activator="{props}">
                 <v-btn @click="additionalOptionsDialog=true" v-bind="props" icon variant="text" color="primary">

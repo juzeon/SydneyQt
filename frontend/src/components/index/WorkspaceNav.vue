@@ -82,6 +82,7 @@ function addWorkspace() {
     preset: props.currentWorkspace.preset,
     image_packs: <GenerateImageResult[]>[],
     use_classic: props.currentWorkspace.use_classic,
+    gpt_4_turbo: props.currentWorkspace.gpt_4_turbo,
     persistent_input: props.currentWorkspace.persistent_input,
   }
   props.workspaces.push(workspace)
