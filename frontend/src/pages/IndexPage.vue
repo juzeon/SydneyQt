@@ -375,7 +375,9 @@ function generateTitle() {
     }
   }
   GetConciseAnswer(req).then(title => {
-    workspace.title = title.replace(/^#/, '').trim()
+    workspace.title = title
+        .replace(/^#/, '')
+        .replace(/<\/?x-text>/g,'').trim()
   }).catch(err => {
     console.log(err)
   })
