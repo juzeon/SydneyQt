@@ -117,7 +117,9 @@ let askEventMap = {
         uploadedImage.value = undefined
       }
       lockScroll.value = false
-      generateTitle()
+      if (!config.value.disable_summary_title_generation) {
+        generateTitle()
+      }
     } else {
       console.log('error type: ' + result.err_type)
       console.log('error message: ' + result.err_msg)

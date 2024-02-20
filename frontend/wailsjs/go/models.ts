@@ -197,6 +197,7 @@ export namespace main {
 	    theme_color: string;
 	    disable_no_search_loader: boolean;
 	    bypass_server: string;
+	    disable_summary_title_generation: boolean;
 	
 	    static createFrom(source: any = {}) {
 	        return new Config(source);
@@ -227,6 +228,7 @@ export namespace main {
 	        this.theme_color = source["theme_color"];
 	        this.disable_no_search_loader = source["disable_no_search_loader"];
 	        this.bypass_server = source["bypass_server"];
+	        this.disable_summary_title_generation = source["disable_summary_title_generation"];
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {

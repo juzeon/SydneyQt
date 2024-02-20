@@ -185,6 +185,14 @@ function onRevokeReplyCountChanged(v: string) {
                             v-model="config.disable_no_search_loader"></v-switch>
                 </template>
               </v-tooltip>
+              <v-tooltip
+                  text="Whether to use current backends to generate summary titles for new chats."
+                  location="bottom">
+                <template #activator="{props}">
+                  <v-switch v-bind="props" label="Disable Summary Title Generation" color="primary"
+                            v-model="config.disable_summary_title_generation"></v-switch>
+                </template>
+              </v-tooltip>
             </v-card-text>
           </v-card>
           <v-card title="Templates" class="my-3">

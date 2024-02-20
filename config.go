@@ -44,29 +44,30 @@ type OpenAIBackend struct {
 	MaxTokens         int     `json:"max_tokens"`
 }
 type Config struct {
-	Debug                   bool            `json:"debug"`
-	Presets                 []Preset        `json:"presets"`
-	EnterMode               string          `json:"enter_mode"`
-	Proxy                   string          `json:"proxy"`
-	NoSuggestion            bool            `json:"no_suggestion"`
-	FontFamily              string          `json:"font_family"`
-	FontSize                int             `json:"font_size"`
-	StretchFactor           int             `json:"stretch_factor"`
-	RevokeReplyText         string          `json:"revoke_reply_text"`
-	RevokeReplyCount        int             `json:"revoke_reply_count"`
-	Workspaces              []Workspace     `json:"workspaces"`
-	CurrentWorkspaceID      int             `json:"current_workspace_id"`
-	Quick                   []string        `json:"quick"`
-	DisableDirectQuick      bool            `json:"disable_direct_quick"`
-	OpenAIBackends          []OpenAIBackend `json:"open_ai_backends"`
-	ClearImageAfterSend     bool            `json:"clear_image_after_send"`
-	WssDomain               string          `json:"wss_domain"`
-	DarkMode                bool            `json:"dark_mode"`
-	NoImageRemovalAfterChat bool            `json:"no_image_removal_after_chat"`
-	CreateConversationURL   string          `json:"create_conversation_url"`
-	ThemeColor              string          `json:"theme_color"`
-	DisableNoSearchLoader   bool            `json:"disable_no_search_loader"`
-	BypassServer            string          `json:"bypass_server"`
+	Debug                         bool            `json:"debug"`
+	Presets                       []Preset        `json:"presets"`
+	EnterMode                     string          `json:"enter_mode"`
+	Proxy                         string          `json:"proxy"`
+	NoSuggestion                  bool            `json:"no_suggestion"`
+	FontFamily                    string          `json:"font_family"`
+	FontSize                      int             `json:"font_size"`
+	StretchFactor                 int             `json:"stretch_factor"`
+	RevokeReplyText               string          `json:"revoke_reply_text"`
+	RevokeReplyCount              int             `json:"revoke_reply_count"`
+	Workspaces                    []Workspace     `json:"workspaces"`
+	CurrentWorkspaceID            int             `json:"current_workspace_id"`
+	Quick                         []string        `json:"quick"`
+	DisableDirectQuick            bool            `json:"disable_direct_quick"`
+	OpenAIBackends                []OpenAIBackend `json:"open_ai_backends"`
+	ClearImageAfterSend           bool            `json:"clear_image_after_send"`
+	WssDomain                     string          `json:"wss_domain"`
+	DarkMode                      bool            `json:"dark_mode"`
+	NoImageRemovalAfterChat       bool            `json:"no_image_removal_after_chat"`
+	CreateConversationURL         string          `json:"create_conversation_url"`
+	ThemeColor                    string          `json:"theme_color"`
+	DisableNoSearchLoader         bool            `json:"disable_no_search_loader"`
+	BypassServer                  string          `json:"bypass_server"`
+	DisableSummaryTitleGeneration bool            `json:"disable_summary_title_generation"`
 }
 
 func fillDefault[T comparable](pointer *T, defaultValue T) {
