@@ -69,7 +69,6 @@ func NewSydney(options Options) *Sydney {
 	case "Precise":
 		optionsSet = append(optionsSet, "h3precise")
 	case "Creative":
-		optionsSet = append(optionsSet)
 		if options.UseClassic {
 			options.ConversationStyle = "CreativeClassic"
 		}

@@ -194,7 +194,6 @@ func main() {
 			ConversationStyle: request.ConversationStyle,
 			Locale:            request.Locale,
 			NoSearch:          request.NoSearch,
-			UseClassic:        !request.UseGPT4Turbo,
 			GPT4Turbo:         request.UseGPT4Turbo,
 		})
 
@@ -253,7 +252,6 @@ func main() {
 			ConversationStyle: conversationStyle,
 			Locale:            "en-US",
 			NoSearch:          request.ToolChoice == nil,
-			UseClassic:        false,
 			GPT4Turbo:         true,
 		})
 
