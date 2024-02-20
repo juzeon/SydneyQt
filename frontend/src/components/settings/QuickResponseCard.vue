@@ -48,7 +48,7 @@ function confirmQuickResponse() {
     <v-card-title>Quick Responses</v-card-title>
     <v-card-text>
       <v-list density="compact">
-        <vuedraggable :list="quick" handle=".handle">
+        <vuedraggable :list="quick" handle=".handle" item-key="">
           <template #item="{ element:item,index:ix }">
             <v-list-item :title="item">
               <template #prepend>
