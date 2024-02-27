@@ -9,14 +9,21 @@ import (
 const delimiter = '\x1e'
 
 type LocationHint struct {
-	Country           string `json:"country"`
-	State             string `json:"state"`
-	City              string `json:"city"`
-	TimezoneOffset    int    `json:"timezoneoffset"`
-	CountryConfidence int    `json:"countryConfidence"`
-	Center            LatLng `json:"Center"`
-	RegionType        int    `json:"RegionType"`
-	SourceType        int    `json:"SourceType"`
+	SourceType               int     `json:"SourceType"`
+	RegionType               int     `json:"RegionType"`
+	Center                   LatLng  `json:"Center"`
+	Radius                   int     `json:"Radius"`
+	Name                     string  `json:"Name"`
+	Accuracy                 int     `json:"Accuracy"`
+	FDConfidence             float64 `json:"FDConfidence"`
+	CountryName              string  `json:"CountryName"`
+	CountryConfidence        int     `json:"CountryConfidence"`
+	Admin1Name               string  `json:"Admin1Name"`
+	PopulatedPlaceName       string  `json:"PopulatedPlaceName"`
+	PopulatedPlaceConfidence int     `json:"PopulatedPlaceConfidence"`
+	PostCodeName             string  `json:"PostCodeName"`
+	UtcOffset                int     `json:"UtcOffset"`
+	Dma                      int     `json:"Dma"`
 }
 type LatLng struct {
 	Latitude  float64 `json:"Latitude"`
@@ -90,6 +97,7 @@ type ArgumentMessage struct {
 	Locale        string         `json:"locale"`
 	Market        string         `json:"market"`
 	Region        string         `json:"region"`
+	Location      string         `json:"location"`
 	LocationHints []LocationHint `json:"locationHints"`
 	Author        string         `json:"author"`
 	InputMethod   string         `json:"inputMethod"`

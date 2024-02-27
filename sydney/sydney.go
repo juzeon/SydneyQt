@@ -21,7 +21,7 @@ type Sydney struct {
 
 	optionsSet          []string
 	sliceIDs            []string
-	locationHints       map[string][]LocationHint
+	locationHint        LocationHint
 	allowedMessageTypes []string
 	headers             func() map[string]string
 	cookies             map[string]string
@@ -103,37 +103,25 @@ func NewSydney(options Options) *Sydney {
 		bypassServer: options.BypassServer,
 		optionsSet:   optionsSet,
 		sliceIDs:     []string{},
-		locationHints: map[string][]LocationHint{
-			"zh-CN": {
-				{
-					Country:           "China",
-					State:             "",
-					City:              "Beijing",
-					TimezoneOffset:    8,
-					CountryConfidence: 8,
-					Center: LatLng{
-						Latitude:  39.9042,
-						Longitude: 116.4074,
-					},
-					RegionType: 2,
-					SourceType: 1,
-				},
+		locationHint: LocationHint{
+			SourceType: 1,
+			RegionType: 2,
+			Center: LatLng{
+				Latitude:  33.97570037841797,
+				Longitude: -118.25640106201172,
 			},
-			"en-US": {
-				{
-					Country:           "United States",
-					State:             "California",
-					City:              "Los Angeles",
-					TimezoneOffset:    8,
-					CountryConfidence: 8,
-					Center: LatLng{
-						Latitude:  34.0536909,
-						Longitude: -118.242766,
-					},
-					RegionType: 2,
-					SourceType: 1,
-				},
-			},
+			Radius:                   24902,
+			Name:                     "Los Angeles, California",
+			Accuracy:                 24902,
+			FDConfidence:             0.5,
+			CountryName:              "United States",
+			CountryConfidence:        8,
+			Admin1Name:               "California",
+			PopulatedPlaceName:       "Los Angeles",
+			PopulatedPlaceConfidence: 5,
+			PostCodeName:             "90060",
+			UtcOffset:                -8,
+			Dma:                      803,
 		},
 		allowedMessageTypes: []string{
 			"ActionRequest",
