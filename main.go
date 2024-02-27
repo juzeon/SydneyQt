@@ -17,7 +17,7 @@ func main() {
 	// Mark ipc server deprecated since we are using built-in CAPTCHA resolver now
 	//ipcServer := NewIPCServer(settings)
 	//go ipcServer.Serve()
-	
+
 	app := NewApp(settings)
 
 	// Create application with options
