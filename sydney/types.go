@@ -50,7 +50,9 @@ const (
 	MessageTypeSearchResult       = "search_result"
 	MessageTypeLoading            = "loading"
 	MessageTypeGenerativeImage    = "generative_image"
+	MessageTypeGenerativeMusic    = "generative_music"
 	MessageTypeExecutingTask      = "executing_task"
+	MessageTypeOpenAPICall        = "openapi_call"
 	MessageTypeGeneratedCode      = "generated_code"
 	MessageTypeResolvingCaptcha   = "resolving_captcha"
 	MessageTypeMessageText        = "message"
@@ -81,6 +83,7 @@ type Argument struct {
 	SliceIds              []string          `json:"sliceIds"`
 	Verbosity             string            `json:"verbosity"`
 	Scenario              string            `json:"scenario"`
+	Plugins               []ArgumentPlugin  `json:"plugins"`
 	TraceId               string            `json:"traceId"`
 	RequestId             string            `json:"requestId"`
 	IsStartOfSession      bool              `json:"isStartOfSession"`
@@ -92,6 +95,10 @@ type Argument struct {
 	ConversationId        string            `json:"conversationId"`
 	PreviousMessages      []PreviousMessage `json:"previousMessages"`
 	GptId                 string            `json:"gptId"`
+}
+type ArgumentPlugin struct {
+	Id       string `json:"id"`
+	Category int    `json:"category"`
 }
 type ArgumentMessage struct {
 	Locale        string         `json:"locale"`
@@ -164,10 +171,25 @@ type GenerativeImage struct {
 	Text string `json:"text"`
 	URL  string `json:"url"`
 }
+type GenerativeMusic struct {
+	IFrameID  string `json:"iframeid"`
+	RequestID string `json:"requestid"`
+	Text      string `json:"text"`
+}
 type GenerateImageResult struct {
 	GenerativeImage
 	ImageURLs []string      `json:"image_urls"`
 	Duration  time.Duration `json:"duration"`
+}
+type GenerateMusicResult struct {
+	GenerativeMusic
+	CoverImgURL   string        `json:"cover_img_url"`
+	AudioURL      string        `json:"music_url"`
+	VideoURL      string        `json:"video_url"`
+	MusicDuration time.Duration `json:"duration"`
+	MusicalStyle  string        `json:"musical_style"`
+	Title         string        `json:"title"`
+	TimeElapsed   time.Duration `json:"time_elapsed"`
 }
 type SourceAttribute struct {
 	Index int    `json:"index"`

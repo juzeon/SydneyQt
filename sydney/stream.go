@@ -163,23 +163,39 @@ func (o *Sydney) AskStream(options AskStreamOptions) (<-chan Message, error) {
 						Text: message.Raw,
 					}
 				case "GenerateContentQuery":
-					if message.Get("contentType").String() != "IMAGE" {
+					switch message.Get("contentType").String() {
+					case "IMAGE":
+						generativeImage := GenerativeImage{
+							Text: messageText,
+							URL: "https://www.bing.com/images/create?" +
+								"partner=sydney&re=1&showselective=1&sude=1&kseed=7500&SFX=2&gptexp=unknown" +
+								"&q=" + url.QueryEscape(messageText) + "&iframeid=" +
+								message.Get("messageId").String(),
+						}
+						v, err := json.Marshal(&generativeImage)
+						if err != nil {
+							util.GracefulPanic(err)
+						}
+						out <- Message{
+							Type: MessageTypeGenerativeImage,
+							Text: string(v),
+						}
+					case "SUNO":
+						generativeMusic := GenerativeMusic{
+							IFrameID:  message.Get("messageId").String(),
+							RequestID: strings.TrimPrefix(messageHiddenText, "RequestId="),
+							Text:      messageText,
+						}
+						v, err := json.Marshal(&generativeMusic)
+						if err != nil {
+							util.GracefulPanic(err)
+						}
+						out <- Message{
+							Type: MessageTypeGenerativeMusic,
+							Text: string(v),
+						}
+					default:
 						continue
-					}
-					generativeImage := GenerativeImage{
-						Text: messageText,
-						URL: "https://www.bing.com/images/create?" +
-							"partner=sydney&re=1&showselective=1&sude=1&kseed=7500&SFX=2&gptexp=unknown" +
-							"&q=" + url.QueryEscape(messageText) + "&iframeid=" +
-							message.Get("messageId").String(),
-					}
-					v, err := json.Marshal(&generativeImage)
-					if err != nil {
-						util.GracefulPanic(err)
-					}
-					out <- Message{
-						Type: MessageTypeGenerativeImage,
-						Text: string(v),
 					}
 				case "Progress":
 					switch contentOrigin {
@@ -191,6 +207,15 @@ func (o *Sydney) AskStream(options AskStreamOptions) (<-chan Message, error) {
 						out <- Message{
 							Type: MessageTypeExecutingTask,
 							Text: invocation,
+						}
+					case "OpenAPI-spec":
+						text := message.Get("adaptiveCards.0.body.0.columns.0.items.0.text").String()
+						if text == "" {
+							continue
+						}
+						out <- Message{
+							Type: MessageTypeOpenAPICall,
+							Text: text,
 						}
 					default:
 						slog.Warn("Unsupported progress type",
@@ -376,9 +401,16 @@ func (o *Sydney) AskStreamRaw(options AskStreamOptions) (CreateConversationRespo
 					SliceIds:            o.sliceIDs,
 					Verbosity:           "verbose",
 					Scenario:            "SERP",
-					TraceId:             util.MustGenerateRandomHex(16),
-					RequestId:           messageID,
-					IsStartOfSession:    true,
+					Plugins: []ArgumentPlugin{
+						// SUNO music creation
+						{
+							Id:       "c310c353-b9f0-4d76-ab0d-1dd5e979cf68",
+							Category: 1,
+						},
+					},
+					TraceId:          util.MustGenerateRandomHex(16),
+					RequestId:        messageID,
+					IsStartOfSession: true,
 					Message: ArgumentMessage{
 						Locale: o.locale,
 						Market: o.locale,

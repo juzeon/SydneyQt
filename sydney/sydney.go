@@ -57,6 +57,8 @@ func NewSydney(options Options) *Sydney {
 		// may related to image search
 		"gptvnodesc",
 		"gptvnoex",
+		// music creation
+		"014CB21D",
 	}
 	forwardedIP := "1.0.0." + strconv.Itoa(util.RandIntInclusive(1, 255))
 	cookies := util.Ternary(options.Cookies == nil, map[string]string{}, options.Cookies)

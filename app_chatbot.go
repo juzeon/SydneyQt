@@ -51,6 +51,7 @@ const (
 	EventChatSuggestedResponses = "chat_suggested_responses"
 	EventChatToken              = "chat_token"
 	EventChatGenerateImage      = "chat_generate_image"
+	EventChatGenerateMusic      = "chat_generate_music"
 	EventChatResolvingCaptcha   = "chat_resolving_captcha"
 )
 
@@ -173,6 +174,11 @@ func (a *App) askSydney(options AskOptions) {
 			lo.Must0(json.Unmarshal([]byte(msg.Text), &image))
 			runtime.EventsEmit(a.ctx, EventChatGenerateImage, image)
 			textToAppend = image.Text + "\n\n"
+		case sydney.MessageTypeGenerativeMusic:
+			var music sydney.GenerativeMusic
+			lo.Must0(json.Unmarshal([]byte(msg.Text), &music))
+			runtime.EventsEmit(a.ctx, EventChatGenerateMusic, music)
+			textToAppend = music.Text + "\n\n"
 		case sydney.MessageTypeLoading:
 			if a.settings.config.DisableNoSearchLoader {
 				if msg.Text == "BingSearchDisabled" {

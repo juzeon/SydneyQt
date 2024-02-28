@@ -321,10 +321,10 @@ function onReset() {
 
 let chatContextTabIndex = ref(0)
 
-let generativeImageLoading = ref(false)
+let generativeMediaLoading = ref(false)
 
 function generateImage(req: GenerativeImage) {
-  generativeImageLoading.value = true
+  generativeMediaLoading.value = true
   GenerateImage(req).then(res => {
     if (!currentWorkspace.value.image_packs) {
       currentWorkspace.value.image_packs = []
@@ -333,7 +333,7 @@ function generateImage(req: GenerativeImage) {
   }).catch(err => {
     swal.error(err)
   }).finally(() => {
-    generativeImageLoading.value = false
+    generativeMediaLoading.value = false
   })
 }
 
@@ -515,10 +515,10 @@ function generateTitle() {
               </v-scale-transition>
             </template>
           </v-tooltip>
-          <v-tooltip text="There are images generating..." location="top">
+          <v-tooltip text="There are media generating..." location="top">
             <template #activator="{props}">
               <v-scale-transition>
-                <v-btn v-bind="props" icon v-if="generativeImageLoading"
+                <v-btn v-bind="props" icon v-if="generativeMediaLoading"
                        style="position:absolute;left: 25px;bottom: 25px;" color="primary">
                   <img class="loading-icon"/>
                 </v-btn>
