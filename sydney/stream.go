@@ -401,16 +401,10 @@ func (o *Sydney) AskStreamRaw(options AskStreamOptions) (CreateConversationRespo
 					SliceIds:            o.sliceIDs,
 					Verbosity:           "verbose",
 					Scenario:            "SERP",
-					Plugins: []ArgumentPlugin{
-						// SUNO music creation
-						{
-							Id:       "c310c353-b9f0-4d76-ab0d-1dd5e979cf68",
-							Category: 1,
-						},
-					},
-					TraceId:          util.MustGenerateRandomHex(16),
-					RequestId:        messageID,
-					IsStartOfSession: true,
+					Plugins:             o.plugins,
+					TraceId:             util.MustGenerateRandomHex(16),
+					RequestId:           messageID,
+					IsStartOfSession:    true,
 					Message: ArgumentMessage{
 						Locale: o.locale,
 						Market: o.locale,

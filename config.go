@@ -30,6 +30,7 @@ type Workspace struct {
 	UseClassic        bool                         `json:"use_classic"`
 	GPT4Turbo         bool                         `json:"gpt_4_turbo"`
 	PersistentInput   bool                         `json:"persistent_input"`
+	Plugins           []string                     `json:"plugins"`
 }
 type OpenAIBackend struct {
 	Name              string  `json:"name"`

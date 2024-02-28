@@ -17,6 +17,8 @@ export function FetchWebpage(arg1:string):Promise<main.FetchWebpageResult>;
 
 export function GenerateImage(arg1:sydney.GenerativeImage):Promise<sydney.GenerateImageResult>;
 
+export function GenerateMusic(arg1:sydney.GenerativeMusic):Promise<sydney.GenerateMusicResult>;
+
 export function GetConciseAnswer(arg1:main.ConciseAnswerReq):Promise<string>;
 
 export function GetUser():Promise<string>;

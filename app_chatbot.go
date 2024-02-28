@@ -83,6 +83,7 @@ func (a *App) createSydney() (*sydney.Sydney, error) {
 		UseClassic:            currentWorkspace.UseClassic,
 		GPT4Turbo:             currentWorkspace.GPT4Turbo,
 		BypassServer:          a.settings.config.BypassServer,
+		Plugins:               currentWorkspace.Plugins,
 	}), nil
 }
 

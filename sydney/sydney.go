@@ -26,6 +26,7 @@ type Sydney struct {
 	headers             func() map[string]string
 	cookies             map[string]string
 	gptID               string
+	plugins             []ArgumentPlugin
 }
 
 func NewSydney(options Options) *Sydney {
@@ -57,8 +58,6 @@ func NewSydney(options Options) *Sydney {
 		// may related to image search
 		"gptvnodesc",
 		"gptvnoex",
-		// music creation
-		"014CB21D",
 	}
 	forwardedIP := "1.0.0." + strconv.Itoa(util.RandIntInclusive(1, 255))
 	cookies := util.Ternary(options.Cookies == nil, map[string]string{}, options.Cookies)
@@ -83,7 +82,7 @@ func NewSydney(options Options) *Sydney {
 			"fallback-to", "Creative")
 		options.ConversationStyle = "Creative"
 	}
-	if options.NoSearch {
+	if options.NoSearch && len(options.Plugins) == 0 {
 		optionsSet = append(optionsSet, "nosearchall")
 	}
 	if options.GPT4Turbo && !options.UseClassic {
@@ -91,6 +90,18 @@ func NewSydney(options Options) *Sydney {
 	}
 	if debugOptionSets := util.ReadDebugOptionSets(); len(debugOptionSets) != 0 {
 		optionsSet = debugOptionSets
+	}
+	var plugins []ArgumentPlugin
+	for _, pluginName := range options.Plugins {
+		plugin, ok := lo.Find(PluginList, func(item Plugin) bool {
+			return item.Name == pluginName
+		})
+		if !ok {
+			slog.Warn("Plugin not found", "name", pluginName)
+			continue
+		}
+		optionsSet = append(optionsSet, plugin.OptionsSets...)
+		plugins = append(plugins, plugin.ArgumentPlugin)
 	}
 	slog.Info("Final conversation options", "options", optionsSet, "tone", options.ConversationStyle)
 	return &Sydney{
@@ -167,5 +178,6 @@ func NewSydney(options Options) *Sydney {
 		},
 		cookies: cookies,
 		gptID:   gptID,
+		plugins: plugins,
 	}
 }

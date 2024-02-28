@@ -136,6 +136,7 @@ type Options struct {
 	UseClassic            bool
 	GPT4Turbo             bool
 	BypassServer          string
+	Plugins               []string
 }
 type AskStreamOptions struct {
 	StopCtx        context.Context

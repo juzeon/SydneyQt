@@ -24,6 +24,7 @@ import UploadSydneyImageResult = main.UploadSydneyImageResult
 import GenerativeImage = sydney.GenerativeImage
 import GenerateImageResult = sydney.GenerateImageResult
 import ConciseAnswerReq = main.ConciseAnswerReq
+import GenerativeMusic = sydney.GenerativeMusic
 
 let theme = useTheme()
 let navDrawer = ref(true)
@@ -162,6 +163,9 @@ let askEventMap = {
   "chat_generate_image": (req: GenerativeImage) => {
     generateImage(req)
   },
+  "chat_generate_music": (req: GenerativeMusic) => {
+    generateMusic(req)
+  },
   "chat_resolving_captcha": (msg: string) => {
     captchaDialog.value = true
   }
@@ -285,6 +289,9 @@ onMounted(() => {
       if (!workspace.image_packs) {
         workspace.image_packs = []
       }
+      if (!workspace.plugins) {
+        workspace.plugins = []
+      }
       currentWorkspace.value = workspace
     } else {
       currentWorkspace.value.context = config.value.presets.find(v => v.name === 'Sydney')?.content ?? ''
@@ -316,6 +323,7 @@ function onPresetChange(newValue: string) {
 function onReset() {
   currentWorkspace.value.context = config.value.presets.find(v => v.name === currentWorkspace.value.preset)?.content ?? ''
   currentWorkspace.value.image_packs = []
+  currentWorkspace.value.plugins = []
   suggestedResponses.value = []
 }
 
@@ -337,6 +345,10 @@ function generateImage(req: GenerativeImage) {
   })
 }
 
+function generateMusic(req: GenerativeMusic) {
+  // TODO generate music
+}
+
 let workspaceNav = ref(null)
 let additionalOptionsDialog = ref(false)
 let additionalOptionPreview = computed(() => {
@@ -344,6 +356,13 @@ let additionalOptionPreview = computed(() => {
       '; No Search: ' + currentWorkspace.value.no_search +
       '; Use Classic: ' + currentWorkspace.value.use_classic
 })
+let pluginDialog = ref(false)
+let pluginList = [
+  {
+    name: 'Suno',
+    description: 'Music creator. Generating audios, videos and cover images for music.'
+  },
+]
 
 function generateTitle() {
   let workspace = currentWorkspace.value
@@ -377,7 +396,7 @@ function generateTitle() {
   GetConciseAnswer(req).then(title => {
     workspace.title = title
         .replace(/^#/, '')
-        .replace(/<\/?x-text>/g,'').trim()
+        .replace(/<\/?x-text>/g, '').trim()
   }).catch(err => {
     console.log(err)
   })
@@ -428,6 +447,23 @@ function generateTitle() {
                           color="primary"></v-switch>
               </template>
             </v-tooltip>
+            <v-btn @click="pluginDialog=true" icon variant="text" color="primary">
+              <v-icon>mdi-toy-brick</v-icon>
+            </v-btn>
+            <v-dialog max-width="300" v-model="pluginDialog">
+              <v-card title="Plugins">
+                <v-card-text>
+                  <div v-for="plugin in pluginList">
+                    <v-checkbox :label="plugin.name" v-model="currentWorkspace.plugins"></v-checkbox>
+                    <p class="text-caption">{{ plugin.description }}</p>
+                  </div>
+                </v-card-text>
+                <v-card-actions>
+                  <v-spacer></v-spacer>
+                  <v-btn variant="text" color="primary" @click="pluginDialog=false">Done</v-btn>
+                </v-card-actions>
+              </v-card>
+            </v-dialog>
             <v-tooltip :text="additionalOptionPreview" location="bottom">
               <template #activator="{props}">
                 <v-btn @click="additionalOptionsDialog=true" v-bind="props" icon variant="text" color="primary">

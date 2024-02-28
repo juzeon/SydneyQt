@@ -118,6 +118,7 @@ export namespace main {
 	    use_classic: boolean;
 	    gpt_4_turbo: boolean;
 	    persistent_input: boolean;
+	    plugins: string[];
 	
 	    static createFrom(source: any = {}) {
 	        return new Workspace(source);
@@ -139,6 +140,7 @@ export namespace main {
 	        this.use_classic = source["use_classic"];
 	        this.gpt_4_turbo = source["gpt_4_turbo"];
 	        this.persistent_input = source["persistent_input"];
+	        this.plugins = source["plugins"];
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {
@@ -320,6 +322,36 @@ export namespace sydney {
 	        this.duration = source["duration"];
 	    }
 	}
+	export class GenerateMusicResult {
+	    iframeid: string;
+	    requestid: string;
+	    text: string;
+	    cover_img_url: string;
+	    music_url: string;
+	    video_url: string;
+	    duration: number;
+	    musical_style: string;
+	    title: string;
+	    time_elapsed: number;
+	
+	    static createFrom(source: any = {}) {
+	        return new GenerateMusicResult(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.iframeid = source["iframeid"];
+	        this.requestid = source["requestid"];
+	        this.text = source["text"];
+	        this.cover_img_url = source["cover_img_url"];
+	        this.music_url = source["music_url"];
+	        this.video_url = source["video_url"];
+	        this.duration = source["duration"];
+	        this.musical_style = source["musical_style"];
+	        this.title = source["title"];
+	        this.time_elapsed = source["time_elapsed"];
+	    }
+	}
 	export class GenerativeImage {
 	    text: string;
 	    url: string;
@@ -332,6 +364,22 @@ export namespace sydney {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.text = source["text"];
 	        this.url = source["url"];
+	    }
+	}
+	export class GenerativeMusic {
+	    iframeid: string;
+	    requestid: string;
+	    text: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new GenerativeMusic(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.iframeid = source["iframeid"];
+	        this.requestid = source["requestid"];
+	        this.text = source["text"];
 	    }
 	}
 

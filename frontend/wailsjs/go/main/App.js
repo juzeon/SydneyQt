@@ -30,6 +30,10 @@ export function GenerateImage(arg1) {
   return window['go']['main']['App']['GenerateImage'](arg1);
 }
 
+export function GenerateMusic(arg1) {
+  return window['go']['main']['App']['GenerateMusic'](arg1);
+}
+
 export function GetConciseAnswer(arg1) {
   return window['go']['main']['App']['GetConciseAnswer'](arg1);
 }

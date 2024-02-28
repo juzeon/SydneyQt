@@ -292,6 +292,14 @@ func (a *App) GenerateImage(generativeImage sydney.GenerativeImage) (sydney.Gene
 	}
 	return syd.GenerateImage(generativeImage)
 }
+func (a *App) GenerateMusic(generativeMusic sydney.GenerativeMusic) (sydney.GenerateMusicResult, error) {
+	var empty sydney.GenerateMusicResult
+	syd, err := a.createSydney()
+	if err != nil {
+		return empty, err
+	}
+	return syd.GenerateMusic(generativeMusic)
+}
 func (a *App) SaveRemoteJPEGImage(url string) error {
 	if strings.Contains(url, "?") {
 		url = strings.Split(url, "?")[0]

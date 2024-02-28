@@ -84,6 +84,7 @@ function addWorkspace() {
     use_classic: props.currentWorkspace.use_classic,
     gpt_4_turbo: props.currentWorkspace.gpt_4_turbo,
     persistent_input: props.currentWorkspace.persistent_input,
+    plugins: <string[]>[],
   }
   props.workspaces.push(workspace)
   switchWorkspace(workspace)
@@ -92,6 +93,9 @@ function addWorkspace() {
 function switchWorkspace(workspace: Workspace) {
   if (!workspace.image_packs) {
     workspace.image_packs = []
+  }
+  if (!workspace.plugins) {
+    workspace.plugins = []
   }
   emit('update:currentWorkspace', workspace)
   emit('update:suggestedResponses', [])
