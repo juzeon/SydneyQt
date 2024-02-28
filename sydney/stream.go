@@ -184,7 +184,7 @@ func (o *Sydney) AskStream(options AskStreamOptions) (<-chan Message, error) {
 						generativeMusic := GenerativeMusic{
 							IFrameID:  message.Get("messageId").String(),
 							RequestID: strings.TrimPrefix(messageHiddenText, "RequestId="),
-							Text:      messageText,
+							Text:      message.Get("invocation").String(),
 						}
 						v, err := json.Marshal(&generativeMusic)
 						if err != nil {

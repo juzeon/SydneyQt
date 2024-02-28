@@ -190,6 +190,7 @@ type GenerateMusicResult struct {
 	MusicDuration time.Duration `json:"duration"`
 	MusicalStyle  string        `json:"musical_style"`
 	Title         string        `json:"title"`
+	Lyrics        string        `json:"lyrics"`
 	TimeElapsed   time.Duration `json:"time_elapsed"`
 }
 type SourceAttribute struct {

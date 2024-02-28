@@ -88,6 +88,7 @@ func (o *Sydney) GenerateMusic(generativeMusic GenerativeMusic) (GenerateMusicRe
 			MusicDuration:   time.Duration(realResp.Duration * float64(time.Second)),
 			MusicalStyle:    realResp.MusicalStyle,
 			Title:           realResp.GptPrompt,
+			Lyrics:          realResp.Lyrics,
 			TimeElapsed:     time.Since(start),
 		}, nil
 	}
