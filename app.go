@@ -332,6 +332,36 @@ func (a *App) SaveRemoteJPEGImage(url string) error {
 	}
 	return os.WriteFile(filePath, resp.Bytes(), 0644)
 }
+func (a *App) SaveRemoteFile(extWithoutDot, defaultFilenameWithoutExt, url string) error {
+	filePath, err := runtime.SaveFileDialog(a.ctx, runtime.SaveDialogOptions{
+		Title: "Choose a destination to save the file",
+		Filters: []runtime.FileFilter{{
+			DisplayName: "*." + extWithoutDot,
+			Pattern:     "*." + extWithoutDot,
+		}},
+		DefaultFilename: lo.Ternary(defaultFilenameWithoutExt != "", defaultFilenameWithoutExt, "file") +
+			"." + extWithoutDot,
+		CanCreateDirectories: true,
+	})
+	if err != nil {
+		return err
+	}
+	if filePath == "" { // cancelled
+		return nil
+	}
+	_, client, err := util.MakeHTTPClient(a.settings.config.Proxy, 60*time.Second)
+	if err != nil {
+		return err
+	}
+	resp, err := client.R().Get(url)
+	if err != nil {
+		return err
+	}
+	if !strings.HasSuffix(filePath, "."+extWithoutDot) {
+		filePath += "." + extWithoutDot
+	}
+	return os.WriteFile(filePath, resp.Bytes(), 0644)
+}
 func (a *App) ExportWorkspace(id int) error {
 	workspace, ok := lo.Find(a.settings.config.Workspaces, func(item Workspace) bool {
 		return item.ID == id

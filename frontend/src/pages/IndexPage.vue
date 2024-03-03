@@ -3,7 +3,7 @@ import {computed, onMounted, onUnmounted, ref, watch} from "vue"
 import {main, sydney} from "../../wailsjs/go/models"
 import {EventsEmit, EventsOff, EventsOn} from "../../wailsjs/runtime"
 import {fromChatMessages, generateRandomName, shadeColor, swal, toChatMessages} from "../helper"
-import {AskAI, CountToken, GenerateImage, GetConciseAnswer} from "../../wailsjs/go/main/App"
+import {AskAI, CountToken, GenerateImage, GenerateMusic, GetConciseAnswer} from "../../wailsjs/go/main/App"
 import {AskTypeOpenAI, AskTypeSydney} from "../constants"
 import Scaffold from "../components/Scaffold.vue"
 import {useSettings} from "../composables"
@@ -367,12 +367,14 @@ function generateImage(req: GenerativeImage) {
 }
 
 function generateMusic(req: GenerativeMusic) {
-  // TODO generate music
-  // remove image packs from workspace; remove image window
-  // add a data array to workspace
-  // each data has a uuid
-  // use [assistant](#syndey_inner_data) etc to specify uuid to be replaced in rich context
-  // this message should not be sent to Bing and excluded from token count (?)
+  generativeMediaLoading.value = true
+  GenerateMusic(req).then(res => {
+    insertAsDataReference('music', res)
+  }).catch(err => {
+    swal.error(err)
+  }).finally(() => {
+    generativeMediaLoading.value = false
+  })
 }
 
 let workspaceNav = ref(null)
@@ -387,7 +389,7 @@ let pluginList = [
   {
     name: 'Suno',
     description: 'Music creator. Generating audios, videos and cover images for music.'
-  },
+  }
 ]
 
 function generateTitle() {
@@ -473,15 +475,25 @@ function generateTitle() {
                           color="primary"></v-switch>
               </template>
             </v-tooltip>
-            <v-btn @click="pluginDialog=true" icon variant="text" color="primary">
-              <v-icon>mdi-toy-brick</v-icon>
-            </v-btn>
+            <v-tooltip text="Plugins" location="bottom">
+              <template #activator="{props}">
+                <v-btn v-bind="props" @click="pluginDialog=true" icon variant="text" color="primary">
+                  <v-icon>mdi-toy-brick</v-icon>
+                </v-btn>
+              </template>
+            </v-tooltip>
             <v-dialog max-width="300" v-model="pluginDialog">
               <v-card title="Plugins">
                 <v-card-text>
                   <div v-for="plugin in pluginList">
-                    <v-checkbox :label="plugin.name" v-model="currentWorkspace.plugins"></v-checkbox>
-                    <p class="text-caption">{{ plugin.description }}</p>
+                    <v-checkbox :value="plugin.name" density="compact" :label="plugin.name"
+                                v-model="currentWorkspace.plugins">
+                      <template #details>
+                        <div style="width: 100%">
+                          <p>{{ plugin.description }}</p>
+                        </div>
+                      </template>
+                    </v-checkbox>
                   </div>
                 </v-card-text>
                 <v-card-actions>

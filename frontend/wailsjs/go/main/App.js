@@ -42,6 +42,10 @@ export function GetUser() {
   return window['go']['main']['App']['GetUser']();
 }
 
+export function SaveRemoteFile(arg1, arg2, arg3) {
+  return window['go']['main']['App']['SaveRemoteFile'](arg1, arg2, arg3);
+}
+
 export function SaveRemoteJPEGImage(arg1) {
   return window['go']['main']['App']['SaveRemoteJPEGImage'](arg1);
 }

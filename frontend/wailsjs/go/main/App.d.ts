@@ -23,6 +23,8 @@ export function GetConciseAnswer(arg1:main.ConciseAnswerReq):Promise<string>;
 
 export function GetUser():Promise<string>;
 
+export function SaveRemoteFile(arg1:string,arg2:string,arg3:string):Promise<void>;
+
 export function SaveRemoteJPEGImage(arg1:string):Promise<void>;
 
 export function ShareWorkspace(arg1:number):Promise<void>;
