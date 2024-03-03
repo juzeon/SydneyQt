@@ -5,7 +5,6 @@ import (
 	"github.com/ncruces/zenity"
 	"github.com/pkg/errors"
 	"os"
-	"sydneyqt/sydney"
 	"sydneyqt/util"
 	"sync"
 	"time"
@@ -16,21 +15,26 @@ type Preset struct {
 	Content string `json:"content"`
 }
 type Workspace struct {
-	ID                int                          `json:"id"`
-	Title             string                       `json:"title"`
-	Context           string                       `json:"context"`
-	Input             string                       `json:"input"`
-	Backend           string                       `json:"backend"`
-	Locale            string                       `json:"locale"`
-	Preset            string                       `json:"preset"`
-	ConversationStyle string                       `json:"conversation_style"`
-	NoSearch          bool                         `json:"no_search"`
-	ImagePacks        []sydney.GenerateImageResult `json:"image_packs"`
-	CreatedAt         time.Time                    `json:"created_at"`
-	UseClassic        bool                         `json:"use_classic"`
-	GPT4Turbo         bool                         `json:"gpt_4_turbo"`
-	PersistentInput   bool                         `json:"persistent_input"`
-	Plugins           []string                     `json:"plugins"`
+	ID                int             `json:"id"`
+	Title             string          `json:"title"`
+	Context           string          `json:"context"`
+	Input             string          `json:"input"`
+	Backend           string          `json:"backend"`
+	Locale            string          `json:"locale"`
+	Preset            string          `json:"preset"`
+	ConversationStyle string          `json:"conversation_style"`
+	NoSearch          bool            `json:"no_search"`
+	CreatedAt         time.Time       `json:"created_at"`
+	UseClassic        bool            `json:"use_classic"`
+	GPT4Turbo         bool            `json:"gpt_4_turbo"`
+	PersistentInput   bool            `json:"persistent_input"`
+	Plugins           []string        `json:"plugins"`
+	DataReferences    []DataReference `json:"data_references"`
+}
+type DataReference struct {
+	UUID string `json:"uuid"`
+	Type string `json:"type"`
+	Data any    `json:"data"`
 }
 type OpenAIBackend struct {
 	Name              string  `json:"name"`

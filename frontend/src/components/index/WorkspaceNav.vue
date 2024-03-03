@@ -10,6 +10,7 @@ import {ExportWorkspace, ShareWorkspace} from "../../../wailsjs/go/main/App"
 import Workspace = main.Workspace
 import Preset = main.Preset
 import GenerateImageResult = sydney.GenerateImageResult
+import DataReference = main.DataReference
 
 let props = defineProps<{
   modelValue: boolean,
@@ -80,22 +81,22 @@ function addWorkspace() {
     input: '',
     locale: props.currentWorkspace.locale,
     preset: props.currentWorkspace.preset,
-    image_packs: <GenerateImageResult[]>[],
+    data_references: <DataReference[]>[],
     use_classic: props.currentWorkspace.use_classic,
     gpt_4_turbo: props.currentWorkspace.gpt_4_turbo,
     persistent_input: props.currentWorkspace.persistent_input,
-    plugins: <string[]>[],
+    plugins: props.currentWorkspace.plugins,
   }
   props.workspaces.push(workspace)
   switchWorkspace(workspace)
 }
 
 function switchWorkspace(workspace: Workspace) {
-  if (!workspace.image_packs) {
-    workspace.image_packs = []
-  }
   if (!workspace.plugins) {
     workspace.plugins = []
+  }
+  if (!workspace.data_references) {
+    workspace.data_references = []
   }
   emit('update:currentWorkspace', workspace)
   emit('update:suggestedResponses', [])

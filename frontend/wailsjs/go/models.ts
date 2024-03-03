@@ -102,6 +102,22 @@ export namespace main {
 	        this.max_tokens = source["max_tokens"];
 	    }
 	}
+	export class DataReference {
+	    uuid: string;
+	    type: string;
+	    data: any;
+	
+	    static createFrom(source: any = {}) {
+	        return new DataReference(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.uuid = source["uuid"];
+	        this.type = source["type"];
+	        this.data = source["data"];
+	    }
+	}
 	export class Workspace {
 	    id: number;
 	    title: string;
@@ -112,13 +128,13 @@ export namespace main {
 	    preset: string;
 	    conversation_style: string;
 	    no_search: boolean;
-	    image_packs: sydney.GenerateImageResult[];
 	    // Go type: time
 	    created_at: any;
 	    use_classic: boolean;
 	    gpt_4_turbo: boolean;
 	    persistent_input: boolean;
 	    plugins: string[];
+	    data_references: DataReference[];
 	
 	    static createFrom(source: any = {}) {
 	        return new Workspace(source);
@@ -135,12 +151,12 @@ export namespace main {
 	        this.preset = source["preset"];
 	        this.conversation_style = source["conversation_style"];
 	        this.no_search = source["no_search"];
-	        this.image_packs = this.convertValues(source["image_packs"], sydney.GenerateImageResult);
 	        this.created_at = this.convertValues(source["created_at"], null);
 	        this.use_classic = source["use_classic"];
 	        this.gpt_4_turbo = source["gpt_4_turbo"];
 	        this.persistent_input = source["persistent_input"];
 	        this.plugins = source["plugins"];
+	        this.data_references = this.convertValues(source["data_references"], DataReference);
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {
@@ -251,6 +267,7 @@ export namespace main {
 		    return a;
 		}
 	}
+	
 	export class FetchWebpageResult {
 	    title: string;
 	    content: string;
@@ -332,6 +349,7 @@ export namespace sydney {
 	    duration: number;
 	    musical_style: string;
 	    title: string;
+	    lyrics: string;
 	    time_elapsed: number;
 	
 	    static createFrom(source: any = {}) {
@@ -349,6 +367,7 @@ export namespace sydney {
 	        this.duration = source["duration"];
 	        this.musical_style = source["musical_style"];
 	        this.title = source["title"];
+	        this.lyrics = source["lyrics"];
 	        this.time_elapsed = source["time_elapsed"];
 	    }
 	}

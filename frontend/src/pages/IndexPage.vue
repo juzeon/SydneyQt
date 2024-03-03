@@ -9,6 +9,7 @@ import Scaffold from "../components/Scaffold.vue"
 import {useSettings} from "../composables"
 import {useTheme} from "vuetify"
 import dayjs from "dayjs"
+import {v4 as uuid4} from 'uuid'
 import RichChatContext from "../components/index/RichChatContext.vue"
 import UserStatusButton from "../components/index/UserStatusButton.vue"
 import WorkspaceNav from "../components/index/WorkspaceNav.vue"
@@ -16,15 +17,14 @@ import UploadImageButton from "../components/index/UploadImageButton.vue"
 import UploadDocumentButton from "../components/index/UploadDocumentButton.vue"
 import FetchWebpageButton from "../components/index/FetchWebpageButton.vue"
 import RevokeButton from "../components/index/RevokeButton.vue"
-import GenerativeImageWindow from "../components/index/GenerativeImageWindow.vue"
 import AskOptions = main.AskOptions
 import Workspace = main.Workspace
 import ChatFinishResult = main.ChatFinishResult
 import UploadSydneyImageResult = main.UploadSydneyImageResult
 import GenerativeImage = sydney.GenerativeImage
-import GenerateImageResult = sydney.GenerateImageResult
 import ConciseAnswerReq = main.ConciseAnswerReq
 import GenerativeMusic = sydney.GenerativeMusic
+import DataReference = main.DataReference
 
 let theme = useTheme()
 let navDrawer = ref(true)
@@ -44,7 +44,8 @@ let currentWorkspace = ref(<Workspace>{
   preset: 'Sydney',
   conversation_style: 'Creative',
   no_search: false,
-  image_packs: <GenerateImageResult[]>[],
+  data_references: <DataReference[]>[],
+  plugins: <string[]>[],
   created_at: dayjs().format(),
   use_classic: false,
   gpt_4_turbo: false,
@@ -81,6 +82,25 @@ let isAsking = ref(false)
 let replied = ref(false)
 let lockScroll = ref(false)
 let captchaDialog = ref(false)
+let preparedDataReferenceText: string | null = null
+
+function insertAsDataReference(type: string, data: any) {
+  let dataReference = <DataReference>{
+    data,
+    uuid: uuid4(),
+    type,
+  }
+  let text = `[assistant](#rich_data_reference)\n${dataReference.uuid}\n\n`
+  if (isAsking.value) {
+    preparedDataReferenceText = text
+  } else {
+    appendBlockToCurrentWorkspace(text)
+  }
+  if (!currentWorkspace.value.data_references) {
+    currentWorkspace.value.data_references = []
+  }
+  currentWorkspace.value.data_references.push(dataReference)
+}
 
 let askEventMap = {
   "chat_append": (data: string) => {
@@ -148,6 +168,10 @@ let askEventMap = {
           }
           break
       }
+    }
+    if (preparedDataReferenceText) {
+      appendBlockToCurrentWorkspace(preparedDataReferenceText)
+      preparedDataReferenceText = null
     }
   },
   "chat_suggested_responses": (data: string) => {
@@ -286,11 +310,11 @@ onMounted(() => {
     theme.global.name.value = config.value.dark_mode ? 'dark' : 'light'
     let workspace = config.value.workspaces?.find(v => v.id === config.value.current_workspace_id)
     if (workspace) {
-      if (!workspace.image_packs) {
-        workspace.image_packs = []
-      }
       if (!workspace.plugins) {
         workspace.plugins = []
+      }
+      if (!workspace.data_references) {
+        workspace.data_references = []
       }
       currentWorkspace.value = workspace
     } else {
@@ -322,8 +346,8 @@ function onPresetChange(newValue: string) {
 
 function onReset() {
   currentWorkspace.value.context = config.value.presets.find(v => v.name === currentWorkspace.value.preset)?.content ?? ''
-  currentWorkspace.value.image_packs = []
   currentWorkspace.value.plugins = []
+  currentWorkspace.value.data_references = []
   suggestedResponses.value = []
 }
 
@@ -334,10 +358,7 @@ let generativeMediaLoading = ref(false)
 function generateImage(req: GenerativeImage) {
   generativeMediaLoading.value = true
   GenerateImage(req).then(res => {
-    if (!currentWorkspace.value.image_packs) {
-      currentWorkspace.value.image_packs = []
-    }
-    currentWorkspace.value.image_packs.push(res)
+    insertAsDataReference('image', res)
   }).catch(err => {
     swal.error(err)
   }).finally(() => {
@@ -347,6 +368,11 @@ function generateImage(req: GenerativeImage) {
 
 function generateMusic(req: GenerativeMusic) {
   // TODO generate music
+  // remove image packs from workspace; remove image window
+  // add a data array to workspace
+  // each data has a uuid
+  // use [assistant](#syndey_inner_data) etc to specify uuid to be replaced in rich context
+  // this message should not be sent to Bing and excluded from token count (?)
 }
 
 let workspaceNav = ref(null)
@@ -522,7 +548,6 @@ function generateTitle() {
         <v-tabs v-model="chatContextTabIndex" density="compact" color="primary" class="mb-1 flex-shrink-0">
           <v-tab :value="0">Plain</v-tab>
           <v-tab :value="1">Rich</v-tab>
-          <v-tab :value="3">Image</v-tab>
         </v-tabs>
         <div class="flex-grow-1" style="min-height: 0;position: relative"><!-- This is to enable the scroll bar -->
           <v-window v-model="chatContextTabIndex" class="fill-height">
@@ -531,12 +556,9 @@ function generateTitle() {
                         v-model="currentWorkspace.context"></textarea>
             </v-window-item>
             <v-window-item :value="1" class="fill-height">
-              <rich-chat-context :lock-scroll="lockScroll" :custom-font-style="customFontStyle"
+              <rich-chat-context :data-references="currentWorkspace.data_references" :lock-scroll="lockScroll"
+                                 :custom-font-style="customFontStyle"
                                  :context="currentWorkspace.context"></rich-chat-context>
-            </v-window-item>
-            <v-window-item :value="3" class="fill-height">
-              <generative-image-window :custom-font-style="customFontStyle"
-                                       v-model:image-packs="currentWorkspace.image_packs"></generative-image-window>
             </v-window-item>
           </v-window>
           <v-tooltip :text="lockScroll?'Enable Auto Scrolling':'Disable Auto Scrolling'" location="top">
