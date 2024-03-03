@@ -12,15 +12,15 @@ type CreateImageRequest struct {
 }
 
 type ChatStreamRequest struct {
-	Prompt            string                            `json:"prompt"`
-	WebpageContext    string                            `json:"context"`
-	Conversation      sydney.CreateConversationResponse `json:"conversation,omitempty"`
-	Cookies           string                            `json:"cookies,omitempty"`
-	ImageURL          string                            `json:"imageUrl,omitempty"`
-	NoSearch          bool                              `json:"noSearch,omitempty"`
-	UseGPT4Turbo      bool                              `json:"gpt4turbo,omitempty"`
-	ConversationStyle string                            `json:"conversationStyle,omitempty"`
-	Locale            string                            `json:"locale,omitempty"`
+	Prompt            string `json:"prompt"`
+	WebpageContext    string `json:"context"`
+	Cookies           string `json:"cookies,omitempty"`
+	ImageURL          string `json:"imageUrl,omitempty"`
+	NoSearch          bool   `json:"noSearch,omitempty"`
+	UseGPT4Turbo      bool   `json:"gpt4turbo,omitempty"`
+	UseClassic        bool   `json:"classic,omitempty"`
+	ConversationStyle string `json:"conversationStyle,omitempty"`
+	Locale            string `json:"locale,omitempty"`
 }
 
 // The `content` field can have different types

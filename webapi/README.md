@@ -28,18 +28,6 @@ Check the health of the server.
   - Content-Type: `text/plain`
   - Body: `OK`
 
-### POST /conversation/new
-
-Create a new conversation.
-
-- **Request**:
-  - Content-Type: `application/json`
-  - Body:
-    - `cookies`: `string` (Optional)
-- **Response**:
-  - Content-Type: `application/json`
-  - Body: `CreateConversationResponse`
-
 ### POST /image/upload
 
 Upload an image and return its URL.
@@ -77,13 +65,13 @@ Start a chat stream.
   - Body:
     - `prompt`: `string`
     - `context`: `string`
-    - `conversation`: `CreateConversationResponse` (Optional)
     - `cookies`: `string` (Optional)
     - `imageUrl`: `string` (Optional)
     - `noSearch`: `boolean` (Optional)
     - `conversationStyle`: `string` (Optional)
     - `locale`: `string` (Optional)
     - `gpt4turbo`: `boolean` (Optional)
+    - `classic`: `boolean` (Optional)
 
 - **Response**:
   - Content-Type: `text/event-stream`

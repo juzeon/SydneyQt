@@ -195,6 +195,7 @@ func main() {
 			Locale:            request.Locale,
 			NoSearch:          request.NoSearch,
 			GPT4Turbo:         request.UseGPT4Turbo,
+			UseClassic:        request.UseClassic,
 		})
 
 		// stream chat
@@ -361,7 +362,7 @@ func main() {
 
 		messageCh, err := sydneyAPI.AskStream(sydney.AskStreamOptions{
 			StopCtx:        newContext,
-			Prompt:         request.Prompt,
+			Prompt:         "Create image for the description: " + request.Prompt,
 			WebpageContext: ImageGeneratorContext,
 		})
 		if err != nil {
