@@ -57,8 +57,8 @@ func NewSydney(options Options) *Sydney {
 		"codeintfile", // code interpreter + file uploader
 		"sdretrieval", // retrieve upload file
 		"gamaxinvoc",  // file reader invocation
-		"ldsummary",   // our guess: long description (context) summary
-		"ldqa",        // our guess: long description (context) quality assurance
+		"ldsummary",   // our guess: long document summary
+		"ldqa",        // our guess: long document quality assurance
 	}
 	forwardedIP := "1.0.0." + strconv.Itoa(util.RandIntInclusive(1, 255))
 	cookies := util.Ternary(options.Cookies == nil, map[string]string{}, options.Cookies)
