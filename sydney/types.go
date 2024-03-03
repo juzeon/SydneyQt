@@ -39,6 +39,7 @@ type CreateConversationResponse struct {
 	Result                CreateConversationResult `json:"result"`
 	SecAccessToken        string                   `json:"secAccessToken"`
 	ConversationSignature string                   `json:"conversationSignature"`
+	BearerToken           string                   `json:"bearerToken"`
 }
 type RawMessage struct {
 	Data  string
@@ -101,18 +102,23 @@ type ArgumentPlugin struct {
 	Category int    `json:"category"`
 }
 type ArgumentMessage struct {
-	Locale        string         `json:"locale"`
-	Market        string         `json:"market"`
-	Region        string         `json:"region"`
-	Location      string         `json:"location"`
-	LocationHints []LocationHint `json:"locationHints"`
-	Author        string         `json:"author"`
-	InputMethod   string         `json:"inputMethod"`
-	Text          string         `json:"text"`
-	MessageType   string         `json:"messageType"`
-	RequestId     string         `json:"requestId"`
-	MessageId     string         `json:"messageId"`
-	ImageUrl      any            `json:"imageUrl"`
+	Locale             string                      `json:"locale"`
+	Market             string                      `json:"market"`
+	Region             string                      `json:"region"`
+	Location           string                      `json:"location"`
+	LocationHints      []LocationHint              `json:"locationHints"`
+	AttachedFilesInfos []ArgumentAttachedFilesInfo `json:"attachedFilesInfos"`
+	Author             string                      `json:"author"`
+	InputMethod        string                      `json:"inputMethod"`
+	Text               string                      `json:"text"`
+	MessageType        string                      `json:"messageType"`
+	RequestId          string                      `json:"requestId"`
+	MessageId          string                      `json:"messageId"`
+	ImageUrl           any                         `json:"imageUrl"`
+}
+type ArgumentAttachedFilesInfo struct {
+	FileName string `json:"fileName"`
+	FileType string `json:"fileType"`
 }
 type Participant struct {
 	Id string `json:"id"`
@@ -122,7 +128,7 @@ type PreviousMessage struct {
 	Description string `json:"description"`
 	ContextType string `json:"contextType"`
 	MessageType string `json:"messageType"`
-	MessageId   string `json:"messageId"`
+	HiddenText  string `json:"hiddenText"`
 }
 type Options struct {
 	Debug                 bool
@@ -143,6 +149,7 @@ type AskStreamOptions struct {
 	Prompt         string
 	WebpageContext string
 	ImageURL       string
+	UploadFilePath string
 
 	messageID            string // A random uuid. Optional.
 	disableCaptchaBypass bool
@@ -211,4 +218,31 @@ type BypassCaptchaResponse struct {
 		ScreenShot string `json:"screenshot"`
 	} `json:"result"`
 	Error string `json:"error"`
+}
+type UploadFileHiddenText struct {
+	FileName      string `json:"fileName"`
+	FileType      string `json:"fileType"`
+	DocId         string `json:"docId"`
+	IsLongContext bool   `json:"isLongContext"`
+	UserId        string `json:"userId"`
+	IsBCE         bool   `json:"isBCE"`
+}
+type UploadFileResponse struct {
+	FileName      string `json:"fileName"`
+	FileSize      int    `json:"fileSize"`
+	FileType      string `json:"fileType"`
+	IsLongContext bool   `json:"isLongContext"`
+	DocId         string `json:"docId"`
+	UserId        string `json:"userId"`
+	Result        struct {
+		Value          string `json:"value"`
+		Message        string `json:"message"`
+		ServiceVersion string `json:"serviceVersion"`
+	} `json:"result"`
+}
+type UploadFileResult struct {
+	Valid          bool
+	Response       UploadFileResponse
+	FileHiddenText string
+	RealFileType   string
 }

@@ -38,6 +38,9 @@ func (o *Sydney) createConversation() (CreateConversationResponse, error) {
 	if value := resp.Header.Get("X-Sydney-Encryptedconversationsignature"); value != "" {
 		response.SecAccessToken = value
 	}
+	if value := resp.Header.Get("X-Sydney-Conversationsignature"); value != "" {
+		response.BearerToken = value
+	}
 	var cookieFields []string
 	for _, field := range resp.Header.Values("set-cookie") {
 		cookieFields = append(cookieFields, strings.Split(field, ";")[0])

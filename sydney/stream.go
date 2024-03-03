@@ -144,6 +144,13 @@ func (o *Sydney) AskStream(options AskStreamOptions) (<-chan Message, error) {
 						})
 					}
 				case "InternalLoaderMessage":
+					if message.Get("contentOrigin").String() == "retrieve-shortdoc-progress" {
+						out <- Message{
+							Type: MessageTypeLoading,
+							Text: messageText + " " + messageHiddenText,
+						}
+						continue
+					}
 					if message.Get("hiddenText").Exists() {
 						out <- Message{
 							Type: MessageTypeLoading,
@@ -319,6 +326,34 @@ func (o *Sydney) AskStreamRaw(options AskStreamOptions) (CreateConversationRespo
 		return conversation, nil, options.StopCtx.Err()
 	default:
 	}
+	previousMessages := []PreviousMessage{
+		{
+			Author:      "user",
+			Description: options.WebpageContext,
+			ContextType: "WebPage",
+			MessageType: "Context",
+		},
+	}
+	var uploadFileResult UploadFileResult
+	if options.UploadFilePath != "" {
+		uploadFileResult, err = o.uploadFile(options.UploadFilePath, conversation)
+		if err != nil {
+			return CreateConversationResponse{}, nil, err
+		}
+		select {
+		case <-options.StopCtx.Done():
+			return conversation, nil, options.StopCtx.Err()
+		default:
+		}
+		previousMessages = append(previousMessages, PreviousMessage{
+			Author: "user",
+			Description: "User has uploaded one or more files with the following metadata in Json format. " +
+				"I will use them as the main source of context when I answer questions from user.",
+			ContextType: "ClientApp",
+			MessageType: "Context",
+			HiddenText:  uploadFileResult.FileHiddenText,
+		})
+	}
 	msgChan := make(chan RawMessage)
 	go func(msgChan chan RawMessage) {
 		defer func(msgChan chan RawMessage) {
@@ -415,6 +450,12 @@ func (o *Sydney) AskStreamRaw(options AskStreamOptions) (CreateConversationRespo
 						LocationHints: []LocationHint{
 							o.locationHint,
 						},
+						AttachedFilesInfos: lo.Ternary(uploadFileResult.Valid, []ArgumentAttachedFilesInfo{
+							{
+								FileName: uploadFileResult.Response.FileName,
+								FileType: uploadFileResult.RealFileType,
+							},
+						}, nil),
 						Author:      "user",
 						InputMethod: "Keyboard",
 						Text:        options.Prompt,
@@ -426,18 +467,11 @@ func (o *Sydney) AskStreamRaw(options AskStreamOptions) (CreateConversationRespo
 					Tone: o.conversationStyle,
 					ConversationSignature: util.Ternary[any](conversation.ConversationSignature == "",
 						nil, conversation.ConversationSignature),
-					Participant:    Participant{Id: conversation.ClientId},
-					SpokenTextMode: "None",
-					ConversationId: conversation.ConversationId,
-					PreviousMessages: []PreviousMessage{
-						{
-							Author:      "user",
-							Description: options.WebpageContext,
-							ContextType: "WebPage",
-							MessageType: "Context",
-						},
-					},
-					GptId: o.gptID,
+					Participant:      Participant{Id: conversation.ClientId},
+					SpokenTextMode:   "None",
+					ConversationId:   conversation.ConversationId,
+					PreviousMessages: previousMessages,
+					GptId:            o.gptID,
 				},
 			},
 			InvocationId: "0",

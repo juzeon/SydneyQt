@@ -40,8 +40,7 @@ func NewSydney(options Options) *Sydney {
 	}
 	optionsSet := []string{
 		"fluxcopilot",
-		// no jailbreak filter
-		"nojbf",
+		"nojbf", // no jailbreak filter
 		"iyxapbing",
 		"iycapbing",
 		"dgencontentv3",
@@ -49,15 +48,17 @@ func NewSydney(options Options) *Sydney {
 		"disable_telemetry",
 		"machine_affinity",
 		"streamf",
-		// code interpreter
-		"codeint",
 		"langdtwb",
 		"fdwtlst",
 		"fluxprod",
 		"eredirecturl",
-		// may related to image search
-		"gptvnodesc",
-		"gptvnoex",
+		"gptvnodesc",  // may related to image search
+		"gptvnoex",    // may related to image search
+		"codeintfile", // code interpreter + file uploader
+		"sdretrieval", // retrieve upload file
+		"gamaxinvoc",  // file reader invocation
+		"ldsummary",   // our guess: long description (context) summary
+		"ldqa",        // our guess: long description (context) quality assurance
 	}
 	forwardedIP := "1.0.0." + strconv.Itoa(util.RandIntInclusive(1, 255))
 	cookies := util.Ternary(options.Cookies == nil, map[string]string{}, options.Cookies)
