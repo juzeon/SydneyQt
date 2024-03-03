@@ -183,19 +183,14 @@ func main() {
 
 		cookies := util.Ternary(request.Cookies == "", defaultCookies, ParseCookies(request.Cookies))
 
-		// avoid panic caused by invalid locale
-		if len(request.Locale) != 5 {
-			request.Locale = "en-US"
-		}
-
 		sydneyAPI := sydney.NewSydney(sydney.Options{
 			Cookies:           cookies,
 			Proxy:             proxy,
 			ConversationStyle: request.ConversationStyle,
-			Locale:            request.Locale,
 			NoSearch:          request.NoSearch,
 			GPT4Turbo:         request.UseGPT4Turbo,
 			UseClassic:        request.UseClassic,
+			Plugins:           request.Plugins,
 		})
 
 		// stream chat

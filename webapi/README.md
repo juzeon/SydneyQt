@@ -69,9 +69,9 @@ Start a chat stream.
     - `imageUrl`: `string` (Optional)
     - `noSearch`: `boolean` (Optional)
     - `conversationStyle`: `string` (Optional)
-    - `locale`: `string` (Optional)
     - `gpt4turbo`: `boolean` (Optional)
     - `classic`: `boolean` (Optional)
+    - `plugins`: `[]string` (Optional)
 
 - **Response**:
   - Content-Type: `text/event-stream`

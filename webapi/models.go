@@ -3,24 +3,24 @@ package main
 import "sydneyqt/sydney"
 
 type CreateConversationRequest struct {
-	Cookies string `json:"cookies,omitempty"`
+	Cookies string `json:"cookies"`
 }
 
 type CreateImageRequest struct {
 	Image   sydney.GenerativeImage `json:"image"`
-	Cookies string                 `json:"cookies,omitempty"`
+	Cookies string                 `json:"cookies"`
 }
 
 type ChatStreamRequest struct {
-	Prompt            string `json:"prompt"`
-	WebpageContext    string `json:"context"`
-	Cookies           string `json:"cookies,omitempty"`
-	ImageURL          string `json:"imageUrl,omitempty"`
-	NoSearch          bool   `json:"noSearch,omitempty"`
-	UseGPT4Turbo      bool   `json:"gpt4turbo,omitempty"`
-	UseClassic        bool   `json:"classic,omitempty"`
-	ConversationStyle string `json:"conversationStyle,omitempty"`
-	Locale            string `json:"locale,omitempty"`
+	Prompt            string   `json:"prompt"`
+	WebpageContext    string   `json:"context"`
+	Cookies           string   `json:"cookies"`
+	ImageURL          string   `json:"imageUrl"`
+	NoSearch          bool     `json:"noSearch"`
+	UseGPT4Turbo      bool     `json:"gpt4turbo"`
+	UseClassic        bool     `json:"classic"`
+	ConversationStyle string   `json:"conversationStyle"`
+	Plugins           []string `json:"plugins"`
 }
 
 // The `content` field can have different types
@@ -64,8 +64,8 @@ type OpenAIChatCompletionRequest struct {
 	Model        string                            `json:"model"`
 	Messages     []OpenAIMessage                   `json:"messages"`
 	Stream       bool                              `json:"stream"`
-	ToolChoice   *interface{}                      `json:"tool_choice,omitempty"`
-	Conversation sydney.CreateConversationResponse `json:"conversation,omitempty"`
+	ToolChoice   *interface{}                      `json:"tool_choice"`
+	Conversation sydney.CreateConversationResponse `json:"conversation"`
 }
 
 type ChoiceDelta struct {
