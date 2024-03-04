@@ -11,7 +11,7 @@ func GetOpenAIChatMessages(chatContext string) []openai.ChatCompletionMessage {
 	messages := GetChatMessage(chatContext)
 	for _, msg := range messages {
 		content := msg.Content
-		if msg.Type != "message" && msg.Type != "additional_instructions" {
+		if msg.Type != "message" && !strings.Contains(msg.Type, "instructions") {
 			content = "# " + msg.Type + "\n" + content
 		}
 		result = append(result, openai.ChatCompletionMessage{

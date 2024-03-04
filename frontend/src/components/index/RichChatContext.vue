@@ -166,7 +166,7 @@ onUpdated(() => {
         <v-icon>{{ iconMap?.[message.role as keyof typeof iconMap] ?? 'mdi-account-multiple' }}</v-icon>
         <p class="ml-3" style="text-transform: uppercase!important;">{{ message.role }}</p>
         <p class="ml-3 text-caption" style="color: #999">{{ message.type }}</p>
-        <v-btn class="ml-3" v-if="message.role==='system' && message.type==='additional_instructions'"
+        <v-btn class="ml-3" v-if="message.type.includes('instructions')"
                size="small" variant="text" @click="showSystemPrompt=!showSystemPrompt">
           {{ showSystemPrompt ? 'Hide' : 'Show' }}
         </v-btn>
@@ -181,7 +181,7 @@ onUpdated(() => {
                           :data="findDataReferenceFromUUID(message.message)!.data"></rich-music-block>
         <div v-else><i>Undefined data reference type: {{ findDataReferenceFromUUID(message.message)!.type }}</i></div>
       </div>
-      <div v-else-if="showSystemPrompt || !(message.role==='system' && message.type==='additional_instructions')"
+      <div v-else-if="showSystemPrompt || !message.type.includes('instructions')"
            v-html="renderMessage(message)" class="my-1"></div>
       <div v-else class="text-caption">...(omitted)</div>
       <v-divider class="my-3" v-if="index!==chatMessages.length-1"></v-divider>

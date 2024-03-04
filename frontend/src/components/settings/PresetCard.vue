@@ -16,7 +16,7 @@ let activePreset = ref<Preset>(props.presets[0])
 function addPreset() {
   let preset = <Preset>{
     name: 'New Preset ' + uuidV4(),
-    content: '[system](#additional_instructions)\n',
+    content: '[assistant](#instructions)\n',
   }
   props.presets.push(preset)
   activePreset.value = preset

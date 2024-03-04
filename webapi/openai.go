@@ -64,7 +64,7 @@ func ParseOpenAIMessages(messages []OpenAIMessage) (OpenAIMessagesParseResult, e
 		case MessageRoleAssistant:
 			contextBuilder.WriteString("[assistant](#message)\n")
 		case MessageRoleSystem:
-			contextBuilder.WriteString("[system](#additional_instructions)\n")
+			contextBuilder.WriteString("[system](#instructions)\n")
 		default:
 			continue // skip unknown roles
 		}

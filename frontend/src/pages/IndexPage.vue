@@ -406,7 +406,7 @@ function generateTitle() {
       '- Use the same langauge as the user\'s message.\n' +
       '- Write just the title and nothing else. No introduction to yourself. No explanation. Just the title.\n'
   let xContext = fromChatMessages(toChatMessages(workspace.context)
-      .filter(v => !(v.role === 'system' && v.type === 'additional_instructions')))
+      .filter(v => !v.type.includes('instructions')))
   let req: ConciseAnswerReq
   if (workspace.backend === 'Sydney') {
     req = {

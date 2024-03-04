@@ -72,6 +72,18 @@ export namespace main {
 	        this.backend = source["backend"];
 	    }
 	}
+	export class Migration {
+	    sydney_preset_20240304: boolean;
+	
+	    static createFrom(source: any = {}) {
+	        return new Migration(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.sydney_preset_20240304 = source["sydney_preset_20240304"];
+	    }
+	}
 	export class OpenAIBackend {
 	    name: string;
 	    openai_key: string;
@@ -216,6 +228,7 @@ export namespace main {
 	    disable_no_search_loader: boolean;
 	    bypass_server: string;
 	    disable_summary_title_generation: boolean;
+	    migration: Migration;
 	
 	    static createFrom(source: any = {}) {
 	        return new Config(source);
@@ -247,6 +260,7 @@ export namespace main {
 	        this.disable_no_search_loader = source["disable_no_search_loader"];
 	        this.bypass_server = source["bypass_server"];
 	        this.disable_summary_title_generation = source["disable_summary_title_generation"];
+	        this.migration = this.convertValues(source["migration"], Migration);
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {
@@ -282,6 +296,7 @@ export namespace main {
 	        this.content = source["content"];
 	    }
 	}
+	
 	
 	
 	export class UploadSydneyDocumentResult {
