@@ -76,6 +76,7 @@ export namespace main {
 	}
 	export class Migration {
 	    sydney_preset_20240304: boolean;
+	    theme_color_20240304: boolean;
 	
 	    static createFrom(source: any = {}) {
 	        return new Migration(source);
@@ -84,6 +85,7 @@ export namespace main {
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.sydney_preset_20240304 = source["sydney_preset_20240304"];
+	        this.theme_color_20240304 = source["theme_color_20240304"];
 	    }
 	}
 	export class OpenAIBackend {

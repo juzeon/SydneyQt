@@ -79,6 +79,7 @@ type Config struct {
 }
 type Migration struct {
 	SydneyPreset20240304 bool `json:"sydney_preset_20240304"`
+	ThemeColor20240304   bool `json:"theme_color_20240304"`
 }
 
 func fillDefault[T comparable](pointer *T, defaultValue T) {
@@ -108,6 +109,10 @@ func (o *Config) DoMigration() {
 			}
 		}
 		o.Migration.SydneyPreset20240304 = true
+	}
+	if !o.Migration.ThemeColor20240304 {
+		o.ThemeColor = "#00B8FF"
+		o.Migration.ThemeColor20240304 = true
 	}
 }
 func (o *Config) FillDefault() {
@@ -150,7 +155,7 @@ func (o *Config) FillDefault() {
 	}
 	fillDefault(&o.WssDomain, "sydney.bing.com")
 	fillDefault(&o.CreateConversationURL, "https://edgeservices.bing.com/edgesvc/turing/conversation/create")
-	fillDefault(&o.ThemeColor, "#FF9800")
+	fillDefault(&o.ThemeColor, "#00B8FF")
 }
 
 type Settings struct {
