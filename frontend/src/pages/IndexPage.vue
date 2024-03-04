@@ -13,7 +13,7 @@ import {v4 as uuid4} from 'uuid'
 import RichChatContext from "../components/index/RichChatContext.vue"
 import UserStatusButton from "../components/index/UserStatusButton.vue"
 import WorkspaceNav from "../components/index/WorkspaceNav.vue"
-import UploadImageButton from "../components/index/UploadImageButton.vue"
+import UploadPanelButton from "../components/index/UploadPanelButton.vue"
 import UploadDocumentButton from "../components/index/UploadDocumentButton.vue"
 import FetchWebpageButton from "../components/index/FetchWebpageButton.vue"
 import RevokeButton from "../components/index/RevokeButton.vue"
@@ -137,6 +137,9 @@ let askEventMap = {
       if (!config.value.no_image_removal_after_chat) {
         uploadedImage.value = undefined
       }
+      if (!config.value.no_file_removal_after_chat) {
+        selectedUploadFile.value = undefined
+      }
       lockScroll.value = false
       if (!config.value.disable_summary_title_generation) {
         generateTitle()
@@ -258,6 +261,7 @@ async function startAsking(args: StartAskingArgs = {}) {
   replyDeep.value = args.replyDeep !== undefined ? args.replyDeep : 0
   askOptions.openai_backend = currentWorkspace.value.backend
   askOptions.image_url = uploadedImage.value?.bing_url ?? ''
+  askOptions.upload_file_path = selectedUploadFile.value ?? ''
   await AskAI(askOptions)
 }
 
@@ -277,6 +281,7 @@ function stopAsking() {
 }
 
 let uploadedImage = ref<UploadSydneyImageResult | undefined>()
+let selectedUploadFile = ref<string | undefined>()
 
 function handleKeyPress(event: KeyboardEvent) {
   if (document.getElementById('user-input') !== document.activeElement) {
@@ -607,7 +612,8 @@ function generateTitle() {
         <div class="my-1 d-flex">
           <p class="font-weight-bold">Follow-up User Input:</p>
           <v-spacer></v-spacer>
-          <upload-image-button :is-asking="isAsking" v-model="uploadedImage"></upload-image-button>
+          <upload-panel-button :is-asking="isAsking" v-model="uploadedImage" type="image"></upload-panel-button>
+          <upload-panel-button :is-asking="isAsking" v-model="selectedUploadFile" type="file"></upload-panel-button>
           <upload-document-button :is-asking="isAsking"
                                   @append-block-to-current-workspace="appendBlockToCurrentWorkspace"
           ></upload-document-button>

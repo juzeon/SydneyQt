@@ -137,6 +137,22 @@ func (a *App) UploadSydneyImage() (UploadSydneyImageResult, error) {
 		BingURL:   url,
 	}, err
 }
+func (a *App) SelectUploadFile() (string, error) {
+	filePattern := strings.Join(lo.Map(sydney.BingAllowedFileExtensions, func(item string, index int) string {
+		return "*." + item
+	}), ";")
+	file, err := runtime.OpenFileDialog(a.ctx, runtime.OpenDialogOptions{
+		Title: "Open file to upload",
+		Filters: []runtime.FileFilter{{
+			DisplayName: "Custom Files (" + filePattern + ")",
+			Pattern:     filePattern,
+		}},
+	})
+	if err != nil {
+		return "", err
+	}
+	return file, nil
+}
 
 type UploadSydneyDocumentResult struct {
 	Canceled bool   `json:"canceled,omitempty"`

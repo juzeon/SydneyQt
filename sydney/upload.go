@@ -67,16 +67,17 @@ func (o *Sydney) uploadFile(uploadFilePath string, conversation CreateConversati
 	if err != nil {
 		return empty, err
 	}
-	if !lo.Contains(allowedFileExtensions, strings.TrimPrefix(filepath.Ext(uploadFilePath), ".")) {
+	if !lo.Contains(BingAllowedFileExtensions, strings.TrimPrefix(filepath.Ext(uploadFilePath), ".")) {
 		return empty, errors.New("file type " + filepath.Ext(uploadFilePath) + " is not allowed")
 	}
 	f, err := os.ReadFile(uploadFilePath)
 	if err != nil {
 		return empty, err
 	}
-	if len(f) >= 1024*1024 { // 1MB
-		return empty, errors.New("file to upload must be less than 1MB")
-	}
+	// Seems this can be hacked
+	//if len(f) >= 1024*1024 { // 1MB
+	//	return empty, errors.New("file to upload must be less than 1MB")
+	//}
 	var response UploadFileResponse
 	resp, err := client.R().
 		SetHeader("Authorization", "Bearer "+conversation.BearerToken).
@@ -147,7 +148,7 @@ func fileExtensionToFileType(ext string) string {
 	}
 }
 
-var allowedFileExtensions = []string{
+var BingAllowedFileExtensions = []string{
 	"rtf",
 	"txt",
 	"py",

@@ -25,11 +25,12 @@ const (
 type AskType int
 
 type AskOptions struct {
-	Type          AskType `json:"type"`
-	OpenAIBackend string  `json:"openai_backend"`
-	ChatContext   string  `json:"chat_context"`
-	Prompt        string  `json:"prompt"`
-	ImageURL      string  `json:"image_url"`
+	Type           AskType `json:"type"`
+	OpenAIBackend  string  `json:"openai_backend"`
+	ChatContext    string  `json:"chat_context"`
+	Prompt         string  `json:"prompt"`
+	ImageURL       string  `json:"image_url"`
+	UploadFilePath string  `json:"upload_file_path"`
 }
 
 const (
@@ -121,6 +122,7 @@ func (a *App) askSydney(options AskOptions) {
 		Prompt:         options.Prompt,
 		WebpageContext: options.ChatContext,
 		ImageURL:       options.ImageURL,
+		UploadFilePath: options.UploadFilePath,
 	})
 	if err != nil {
 		if !errors.Is(err, context.Canceled) {

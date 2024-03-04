@@ -177,6 +177,13 @@ function onRevokeReplyCountChanged(v: string) {
                             v-model="config.no_image_removal_after_chat"></v-switch>
                 </template>
               </v-tooltip>
+              <v-tooltip text="Whether to remove the selected file after successfully receiving Bing's response."
+                         location="bottom">
+                <template #activator="{props}">
+                  <v-switch v-bind="props" label="No File Removal After Chat" color="primary"
+                            v-model="config.no_file_removal_after_chat"></v-switch>
+                </template>
+              </v-tooltip>
               <v-tooltip
                   text="Prevent receiving loader messages every time you ask a question when No Search is enabled."
                   location="bottom">

@@ -65,10 +65,10 @@ type Config struct {
 	Quick                         []string        `json:"quick"`
 	DisableDirectQuick            bool            `json:"disable_direct_quick"`
 	OpenAIBackends                []OpenAIBackend `json:"open_ai_backends"`
-	ClearImageAfterSend           bool            `json:"clear_image_after_send"`
 	WssDomain                     string          `json:"wss_domain"`
 	DarkMode                      bool            `json:"dark_mode"`
 	NoImageRemovalAfterChat       bool            `json:"no_image_removal_after_chat"`
+	NoFileRemovalAfterChat        bool            `json:"no_file_removal_after_chat"`
 	CreateConversationURL         string          `json:"create_conversation_url"`
 	ThemeColor                    string          `json:"theme_color"`
 	DisableNoSearchLoader         bool            `json:"disable_no_search_loader"`

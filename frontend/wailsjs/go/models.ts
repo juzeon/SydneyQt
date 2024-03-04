@@ -6,6 +6,7 @@ export namespace main {
 	    chat_context: string;
 	    prompt: string;
 	    image_url: string;
+	    upload_file_path: string;
 	
 	    static createFrom(source: any = {}) {
 	        return new AskOptions(source);
@@ -18,6 +19,7 @@ export namespace main {
 	        this.chat_context = source["chat_context"];
 	        this.prompt = source["prompt"];
 	        this.image_url = source["image_url"];
+	        this.upload_file_path = source["upload_file_path"];
 	    }
 	}
 	export class ChatFinishResult {
@@ -219,10 +221,10 @@ export namespace main {
 	    quick: string[];
 	    disable_direct_quick: boolean;
 	    open_ai_backends: OpenAIBackend[];
-	    clear_image_after_send: boolean;
 	    wss_domain: string;
 	    dark_mode: boolean;
 	    no_image_removal_after_chat: boolean;
+	    no_file_removal_after_chat: boolean;
 	    create_conversation_url: string;
 	    theme_color: string;
 	    disable_no_search_loader: boolean;
@@ -251,10 +253,10 @@ export namespace main {
 	        this.quick = source["quick"];
 	        this.disable_direct_quick = source["disable_direct_quick"];
 	        this.open_ai_backends = this.convertValues(source["open_ai_backends"], OpenAIBackend);
-	        this.clear_image_after_send = source["clear_image_after_send"];
 	        this.wss_domain = source["wss_domain"];
 	        this.dark_mode = source["dark_mode"];
 	        this.no_image_removal_after_chat = source["no_image_removal_after_chat"];
+	        this.no_file_removal_after_chat = source["no_file_removal_after_chat"];
 	        this.create_conversation_url = source["create_conversation_url"];
 	        this.theme_color = source["theme_color"];
 	        this.disable_no_search_loader = source["disable_no_search_loader"];

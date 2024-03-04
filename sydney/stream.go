@@ -321,6 +321,7 @@ func (o *Sydney) AskStreamRaw(options AskStreamOptions) (CreateConversationRespo
 	if err != nil {
 		return CreateConversationResponse{}, nil, err
 	}
+	slog.Info("Conversation created", "conversation-id", conversation.ConversationId)
 	select {
 	case <-options.StopCtx.Done():
 		return conversation, nil, options.StopCtx.Err()
@@ -336,6 +337,7 @@ func (o *Sydney) AskStreamRaw(options AskStreamOptions) (CreateConversationRespo
 	}
 	var uploadFileResult UploadFileResult
 	if options.UploadFilePath != "" {
+		slog.Info("Invoke file upload", "path", options.UploadFilePath)
 		uploadFileResult, err = o.uploadFile(options.UploadFilePath, conversation)
 		if err != nil {
 			return CreateConversationResponse{}, nil, err

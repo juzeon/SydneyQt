@@ -27,6 +27,8 @@ export function SaveRemoteFile(arg1:string,arg2:string,arg3:string):Promise<void
 
 export function SaveRemoteJPEGImage(arg1:string):Promise<void>;
 
+export function SelectUploadFile():Promise<string>;
+
 export function ShareWorkspace(arg1:number):Promise<void>;
 
 export function UploadDocument():Promise<main.UploadSydneyDocumentResult>;
