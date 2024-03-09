@@ -111,7 +111,9 @@ func (o *Config) DoMigration() {
 		o.Migration.SydneyPreset20240304 = true
 	}
 	if !o.Migration.ThemeColor20240304 {
-		o.ThemeColor = "#00B8FF"
+		if o.ThemeColor == "#FF9800" {
+			o.ThemeColor = "#00B8FF"
+		}
 		o.Migration.ThemeColor20240304 = true
 	}
 }
