@@ -667,6 +667,9 @@ function generateTitle() {
           </v-card>
         </v-dialog>
       </div>
+      <div v-else class="d-flex justify-center">
+        <v-progress-circular indeterminate color="primary"></v-progress-circular>
+      </div>
     </template>
   </scaffold>
 </template>
