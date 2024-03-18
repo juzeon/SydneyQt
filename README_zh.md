@@ -83,7 +83,7 @@ Bing禁止特定国家访问Bing AI（具体来说，是sydney.bing.com），所
 4. 选择`Create Worker`。
 5. 给你的worker一个名字，然后点击`Deploy`。
 6. 在worker详情页面中，点击`Quick edit`。
-7. 从[这里](https://raw.githubusercontent.com/Harry-zklcdc/go-proxy-bingai/master/cloudflare/worker.js)复制所有的代码，然后粘贴到`worker.js`中的现有代码上。然后点击`Save and deploy`。
+7. 从[这里](https://raw.githubusercontent.com/juzeon/SydneyQt/v2/worker.js)复制所有的代码，然后粘贴到`worker.js`中的现有代码上。然后点击`Save and deploy`。
 8. 复制worker域名，看起来像`xxxx-xxxx-xxxx.xxxx.workers.dev`（不是一个URL，像`https://xxxx-xxxx-xxxx.xxxx.workers.dev/`，请去掉前缀和后缀）并把它作为`Wss Domain`粘贴到设置页面中。然后点击`Save`。
 </details>
 

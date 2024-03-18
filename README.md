@@ -85,7 +85,7 @@ Bing bans specific countries from accessing the Bing AI (to be specific, sydney.
 4. Choose `Create Worker`.
 5. Give your worker a name and click `Deploy`.
 6. On the worker detail page, click `Quick edit`.
-7. Copy all the code from [here](https://raw.githubusercontent.com/Harry-zklcdc/go-proxy-bingai/master/cloudflare/worker.js) and paste it over the existing code in `worker.js`. Then click `Save and deploy`.
+7. Copy all the code from [here](https://raw.githubusercontent.com/juzeon/SydneyQt/v2/worker.js) and paste it over the existing code in `worker.js`. Then click `Save and deploy`.
 8. Copy the worker domain that looks like `xxxx-xxxx-xxxx.xxxx.workers.dev` (not a URL like `https://xxxx-xxxx-xxxx.xxxx.workers.dev/`, please remove the prefixes and suffixes) and paste it as `Wss Domain` in the settings page. Then click `Save`.
 </details>
 
