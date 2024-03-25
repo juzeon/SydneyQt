@@ -46,6 +46,7 @@ func (o *Sydney) AskStream(options AskStreamOptions) (<-chan Message, error) {
 			}
 		}
 		var sourceAttributes []SourceAttribute
+		tmpLastDocLoadingMessage := "" // for removing duplicate doc loading messages
 		for msg := range ch {
 			if msg.Error != nil {
 				slog.Error("Ask stream message", "error", msg.Error)
@@ -144,10 +145,16 @@ func (o *Sydney) AskStream(options AskStreamOptions) (<-chan Message, error) {
 						})
 					}
 				case "InternalLoaderMessage":
-					if message.Get("contentOrigin").String() == "retrieve-shortdoc-progress" {
+					if contentOrigin == "retrieve-shortdoc-progress" || contentOrigin == "compress-longdoc-progress" {
+						docLoadingMessage := messageText + " " + messageHiddenText + " (" + contentOrigin + ")"
+						if tmpLastDocLoadingMessage == docLoadingMessage { // message is duplicate
+							continue
+						} else { // update new last message
+							tmpLastDocLoadingMessage = docLoadingMessage
+						}
 						out <- Message{
 							Type: MessageTypeLoading,
-							Text: messageText + " " + messageHiddenText,
+							Text: docLoadingMessage,
 						}
 						continue
 					}
