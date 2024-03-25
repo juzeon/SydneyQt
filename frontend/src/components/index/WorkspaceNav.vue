@@ -9,7 +9,6 @@ import {computed, ref} from "vue"
 import {ExportWorkspace, ShareWorkspace} from "../../../wailsjs/go/main/App"
 import Workspace = main.Workspace
 import Preset = main.Preset
-import GenerateImageResult = sydney.GenerateImageResult
 import DataReference = main.DataReference
 
 let props = defineProps<{
@@ -143,7 +142,8 @@ function shareWorkspace(workspace: Workspace) {
     <v-dialog max-width="500" v-model="editWorkspaceDialog">
       <v-card>
         <v-card-text>
-          <v-text-field color="primary" label="Workspace Title" v-model="editWorkspaceTitle"></v-text-field>
+          <v-text-field color="primary" label="Workspace Title" @keydown.enter="confirmEditWorkspace"
+                        v-model="editWorkspaceTitle"></v-text-field>
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>

@@ -100,7 +100,7 @@ function confirmRenamePreset() {
         <v-card-title>Rename Preset</v-card-title>
         <v-card-text>
           <v-text-field label="Rename" :error-messages="renamePresetError" v-model="renamePresetName"
-                        color="primary"></v-text-field>
+                        color="primary" @keydown.enter="confirmRenamePreset"></v-text-field>
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>

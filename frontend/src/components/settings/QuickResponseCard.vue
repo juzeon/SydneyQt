@@ -79,7 +79,7 @@ function confirmQuickResponse() {
       <v-card :title="quickRespEditMode==='create'?'Create a Quick Response':'Edit the Quick Response'">
         <v-card-text>
           <v-text-field :error-messages="quickRespEditError" label="Quick Response"
-                        v-model="quickRespEditText"
+                        v-model="quickRespEditText" @keydown.enter="confirmQuickResponse"
                         color="primary"></v-text-field>
         </v-card-text>
         <v-card-actions>
