@@ -9,6 +9,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/PuerkitoBio/goquery"
+	"github.com/flytam/filenamify"
 	goversion "github.com/hashicorp/go-version"
 	"github.com/life4/genesis/slices"
 	"github.com/microcosm-cc/bluemonday"
@@ -349,14 +350,19 @@ func (a *App) SaveRemoteJPEGImage(url string) error {
 	return os.WriteFile(filePath, resp.Bytes(), 0644)
 }
 func (a *App) SaveRemoteFile(extWithoutDot, defaultFilenameWithoutExt, url string) error {
+	fn, err := filenamify.FilenamifyV2(
+		lo.Ternary(defaultFilenameWithoutExt != "", defaultFilenameWithoutExt, "file") +
+			"." + extWithoutDot)
+	if err != nil {
+		return err
+	}
 	filePath, err := runtime.SaveFileDialog(a.ctx, runtime.SaveDialogOptions{
 		Title: "Choose a destination to save the file",
 		Filters: []runtime.FileFilter{{
 			DisplayName: "*." + extWithoutDot,
 			Pattern:     "*." + extWithoutDot,
 		}},
-		DefaultFilename: lo.Ternary(defaultFilenameWithoutExt != "", defaultFilenameWithoutExt, "file") +
-			"." + extWithoutDot,
+		DefaultFilename:      fn,
 		CanCreateDirectories: true,
 	})
 	if err != nil {
@@ -385,6 +391,10 @@ func (a *App) ExportWorkspace(id int) error {
 	if !ok {
 		return errors.New("workspace not exist by id: " + strconv.Itoa(id))
 	}
+	fn, err := filenamify.FilenamifyV2(workspace.Title + ".md")
+	if err != nil {
+		return err
+	}
 	filePath, err := runtime.SaveFileDialog(a.ctx, runtime.SaveDialogOptions{
 		Title: "Choose a destination to save the chat",
 		Filters: []runtime.FileFilter{{
@@ -392,7 +402,7 @@ func (a *App) ExportWorkspace(id int) error {
 			Pattern:     "*.md",
 		}},
 		CanCreateDirectories: true,
-		DefaultFilename:      workspace.Title + ".md",
+		DefaultFilename:      fn,
 	})
 	if err != nil {
 		return err
