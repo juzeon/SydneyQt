@@ -629,10 +629,18 @@ function generateTitle() {
                 Quick
               </v-btn>
             </template>
-            <v-list density="compact">
-              <v-list-item density="compact" @click="applyQuickResponse(item)" v-for="item in config.quick">{{
-                  item
-                }}
+            <v-list density="compact" max-width="1000">
+              <v-list-item density="compact" v-for="item in config.quick">
+                <template #default>
+                  <div @click="applyQuickResponse(item)" style="cursor: pointer">
+                    {{ item }}
+                  </div>
+                </template>
+                <template #append>
+                  <v-btn density="compact" @click="appendBlockToCurrentWorkspace(item+'\n')" variant="text"
+                         prepend-icon="mdi-delta">Context
+                  </v-btn>
+                </template>
               </v-list-item>
             </v-list>
           </v-menu>
