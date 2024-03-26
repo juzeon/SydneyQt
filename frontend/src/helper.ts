@@ -99,4 +99,5 @@ export function unescapeHtml(unsafe: string) {
         .replaceAll('&gt;', '>')
         .replaceAll('&quot;', '"')
         .replaceAll('&#039;', "'")
+        .replaceAll('&#39;', "'")
 }
