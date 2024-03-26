@@ -469,17 +469,6 @@ function generateTitle() {
                       label="Preset"
                       density="compact"
                       class="mx-2"></v-select>
-            <v-tooltip
-                text="Enable the latest gpt-4-turbo model will increase the speed of response,
-                        reduce repeatability, but be harder to jailbreak."
-                location="bottom">
-              <template #activator="{props}">
-                <v-switch v-bind="props" v-model="currentWorkspace.gpt_4_turbo" label="GPT-4-Turbo"
-                          density="compact"
-                          :disabled="currentWorkspace.backend!=='Sydney'" class="mx-2"
-                          color="primary"></v-switch>
-              </template>
-            </v-tooltip>
             <v-tooltip text="Plugins" location="bottom">
               <template #activator="{props}">
                 <v-btn v-bind="props" @click="pluginDialog=true" icon variant="text" color="primary">
@@ -542,6 +531,18 @@ function generateTitle() {
                         location="bottom">
                       <template #activator="{props}">
                         <v-switch v-bind="props" v-model="currentWorkspace.use_classic" label="Use Classic Creative"
+                                  density="compact"
+                                  :disabled="currentWorkspace.backend!=='Sydney'"
+                                  color="primary"></v-switch>
+                      </template>
+                    </v-tooltip>
+                    <v-divider class="mb-3"></v-divider>
+                    <div class="text-caption" style="color: #999">Deprecated Options</div>
+                    <v-tooltip
+                        text="Note: this switch may have no effect now as Bing has rolled out turbo for all users."
+                        location="bottom">
+                      <template #activator="{props}">
+                        <v-switch v-bind="props" v-model="currentWorkspace.gpt_4_turbo" label="GPT-4-Turbo"
                                   density="compact"
                                   :disabled="currentWorkspace.backend!=='Sydney'"
                                   color="primary"></v-switch>
