@@ -45,7 +45,8 @@
 
 1. 把你的`cookies.json`放在可执行文件的同一个文件夹中（对于macOS：`$HOME/Library/Application Support/SydneyQt`）：
    - 为[Chrome](https://chrome.google.com/webstore/detail/cookie-editor/hlkenndednhfkekhgcdicdfddnkalmdm)或[Firefox](https://addons.mozilla.org/en-US/firefox/addon/cookie-editor/)安装Cookie-Editor扩展（建议使用Chrome而不是Firefox，因为我们使用Chrome的网络栈来绕过Bing的防火墙和验证码）
-   - 访问`bing.com`
+   - 登录：<https://copilot.microsoft.com/>
+   - 访问：<https://edgeservices.bing.com/edgesvc/chat>
    - 打开扩展
    - 授予所有网站的权限
    - 点击右下角的`Export`，然后点击`Export as JSON`（这会把你的cookies保存到剪贴板）

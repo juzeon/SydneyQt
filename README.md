@@ -47,7 +47,8 @@ Platform information:
 
 1. Put your `cookies.json` in the same folder as the executable file (`$HOME/Library/Application Support/SydneyQt` for macOS):
    - Install the Cookie-Editor extension for [Chrome](https://chrome.google.com/webstore/detail/cookie-editor/hlkenndednhfkekhgcdicdfddnkalmdm) or [Firefox](https://addons.mozilla.org/en-US/firefox/addon/cookie-editor/) (Recommend Chrome rather than Firefox since we use Chrome's network stack to bypass Bing's firewall and CAPTCHA)
-   - Go to `bing.com`
+   - Log in: <https://copilot.microsoft.com/>
+   - Go to: <https://edgeservices.bing.com/edgesvc/chat>
    - Open the extension
    - Grant permission for All sites
    - Click `Export` on the bottom right, then `Export as JSON` (This saves your cookies to clipboard)
