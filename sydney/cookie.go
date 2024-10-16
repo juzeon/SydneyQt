@@ -22,7 +22,7 @@ func (o *Sydney) GetUser() (string, error) {
 	}
 	resp, err := client.R().
 		SetHeader("Cookie", util.FormatCookieString(cookies)).
-		Get("https://www.bing.com/search?q=Bing+AI&showconv=1")
+		Get("https://edgeservices.bing.com/edgesvc/chat")
 	if err != nil {
 		return "", err
 	}
@@ -30,7 +30,7 @@ func (o *Sydney) GetUser() (string, error) {
 		return "", errors.New("http status code is not 200: " + strconv.Itoa(resp.GetStatusCode()))
 	}
 	respText := resp.String()
-	arr := regexp.MustCompile(`data-clarity-mask="true" title="(.*?)"`).FindStringSubmatch(respText)
+	arr := regexp.MustCompile(`initUserStatus.*?"Name":"(.*?)"`).FindStringSubmatch(respText)
 	if len(arr) < 2 {
 		return "", errors.New("cannot identify current user, please check if cookie is expired")
 	}
