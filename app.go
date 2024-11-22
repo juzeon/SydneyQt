@@ -101,62 +101,57 @@ type UploadSydneyImageResult struct {
 	Canceled  bool   `json:"canceled"`
 }
 
+func (a *App) getImageUploader() (util.ImageUploader, error) {
+	var empty util.ImageUploader
+	workspace, err := a.settings.config.GetCurrentWorkspace()
+	if err != nil {
+		return empty, err
+	}
+	if workspace.Backend == "Sydney" {
+		sydneyIns, err := a.createSydney()
+		if err != nil {
+			return empty, err
+		}
+		return util.SydneyImageUploader{
+			SydneyUploadImage: sydneyIns.UploadImage,
+			Ctx:               a.ctx,
+		}, nil
+	} else {
+		return util.CatboxImageUploader{
+			Proxy: a.settings.config.Proxy,
+			Ctx:   a.ctx,
+		}, nil
+	}
+}
 func (a *App) UploadSydneyImageFromBase64(rawBase64 string) (UploadSydneyImageResult, error) {
-	v, err := base64.StdEncoding.DecodeString(rawBase64)
+	var empty UploadSydneyImageResult
+	imageUploader, err := a.getImageUploader()
 	if err != nil {
-		return UploadSydneyImageResult{}, err
+		return empty, err
 	}
-	jpgData, err := util.ConvertImageToJpg(v)
+	res, err := imageUploader.UploadFromBase64(rawBase64)
 	if err != nil {
-		return UploadSydneyImageResult{}, err
-	}
-	sydneyIns, err := a.createSydney()
-	if err != nil {
-		return UploadSydneyImageResult{}, err
-	}
-	url, err := sydneyIns.UploadImage(jpgData)
-	if err != nil {
-		return UploadSydneyImageResult{}, err
+		return empty, err
 	}
 	return UploadSydneyImageResult{
-		Base64URL: "data:image/jpeg;base64," + base64.StdEncoding.EncodeToString(jpgData),
-		BingURL:   url,
-	}, err
+		Base64URL: res.Base64URL,
+		BingURL:   res.URL,
+	}, nil
 }
 func (a *App) UploadSydneyImage() (UploadSydneyImageResult, error) {
-	file, err := runtime.OpenFileDialog(a.ctx, runtime.OpenDialogOptions{
-		Title: "Open an image to upload",
-		Filters: []runtime.FileFilter{{
-			DisplayName: "Image Files (*.jpg; *.jpeg; *.png; *.gif)",
-			Pattern:     "*.jpg;*.jpeg;*.png;*.gif",
-		}},
-	})
+	var empty UploadSydneyImageResult
+	imageUploader, err := a.getImageUploader()
 	if err != nil {
-		return UploadSydneyImageResult{}, err
+		return empty, err
 	}
-	if file == "" {
-		return UploadSydneyImageResult{Canceled: true}, nil
-	}
-	sydneyIns, err := a.createSydney()
+	res, err := imageUploader.UploadByFileSelector()
 	if err != nil {
-		return UploadSydneyImageResult{}, err
-	}
-	v, err := os.ReadFile(file)
-	if err != nil {
-		return UploadSydneyImageResult{}, err
-	}
-	jpgData, err := util.ConvertImageToJpg(v)
-	if err != nil {
-		return UploadSydneyImageResult{}, err
-	}
-	url, err := sydneyIns.UploadImage(jpgData)
-	if err != nil {
-		return UploadSydneyImageResult{}, err
+		return empty, err
 	}
 	return UploadSydneyImageResult{
-		Base64URL: "data:image/jpeg;base64," + base64.StdEncoding.EncodeToString(jpgData),
-		BingURL:   url,
-	}, err
+		Base64URL: res.Base64URL,
+		BingURL:   res.URL,
+	}, nil
 }
 func (a *App) SelectUploadFile() (string, error) {
 	filePattern := strings.Join(lo.Map(sydney.BingAllowedFileExtensions, func(item string, index int) string {
